@@ -1,0 +1,27 @@
+{
+  "name": "xmd2html",
+  "version": "1.0.0",
+  "description": "A parser from eXtended MarkDown to HTML",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-second-trial/xmd2html.git"
+  },
+  "keywords": [
+    "parser",
+    "html",
+    "markdown"
+  ],
+  "author": "Andrea Tino",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/the-second-trial/xmd2html/issues"
+  },
+  "homepage": "https://github.com/the-second-trial/xmd2html#readme",
+  "dependencies": {
+    "pegjs": "0.10.0"
+  }
+}
