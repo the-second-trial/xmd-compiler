@@ -4,6 +4,7 @@
   "description": "A parser from eXtended MarkDown to HTML",
   "main": "src/index.js",
   "scripts": {
+    "start": "node ./src/index.js --src ./examples/simple.md",
     "test": "jest --config=jest.config.js"
   },
   "repository": {

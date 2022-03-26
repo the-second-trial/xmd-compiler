@@ -5,8 +5,7 @@
 }
 
 start
-  = content:component next:start { return { t: "block", v: { cnt: content, nxt: next } }; }
-  / content:component { return { t: "cmp", v: content }; }
+  = content:component+ { return { t: "start", v: content }; }
 
 component
   = content:paragraph { return { t: "paragraph", v: content }; }
@@ -27,25 +26,25 @@ par_element
   / content:codeinline { return content; }
 
 text
-  = content:text_char+ { return { t: "text", v: content }; }
+  = content:text_char+ { return { t: "text", v: arr2contstr(content) }; }
 
 italic
-  = "_" content:text_char+ "_" { return { t: "italic", v: content }; }
+  = "_" content:text_char+ "_" { return { t: "italic", v: arr2contstr(content) }; }
 
 bold
-  = "*" content:text_char+ "*" { return { t: "bold", v: content }; }
+  = "*" content:text_char+ "*" { return { t: "bold", v: arr2contstr(content) }; }
 
 codeinline
-  = "`" content:text_char+ "`" { return { t: "codeinline", v: content }; }
+  = "`" content:text_char+ "`" { return { t: "codeinline", v: arr2contstr(content) }; }
 
 heading
-  = symb:"#" content:text_char+ newline { return { t: "heading", v: content, p: { type: symb.length } }; }
+  = symb:"#" content:text_char+ newline { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
 
 codeblock
-  = "```" whitespace* newline content:text_char+ newline "```" { return { t: "codeblock", v: content }; }
+  = "```" whitespace* newline content:text_char+ newline "```" { return arr2contstr(content); }
 
 blockquote
-  = ">" whitespace* content:text_char+
+  = ">" whitespace* content:text_char+ { return arr2contstr(content); }
 
 list
   = "-" whitespace? content:text_char+ { return { t: "listitem", v: content }; }
