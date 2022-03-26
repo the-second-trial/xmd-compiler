@@ -1,23 +1,24 @@
 {
-    function some() {
-        // Todo
+    function arr2contstr(arr) {
+        return arr.reduce((a, b) => `${a}${b}`, "");
     }
 }
 
 start
-  = flow
+  = content:component next:start { return { t: "block", v: { cnt: content, nxt: next } }; }
+  / content:component { return { t: "cmp", v: content }; }
 
-flow
-  = content:paragraph flow { return content; }
-  / heading flow { return {}; }
-  / codeblock flow { return {}; }
-  / blockquote flow { return {}; }
-  / list flow { return {}; }
-  / hrule flow { return {}; }
-  / "" { return {}; }
+component
+  = content:paragraph { return { t: "paragraph", v: content }; }
+  / content:heading { return { t: "heading", v: content }; }
+  / content:codeblock { return { t: "codeblock", v: content }; }
+  / content:blockquote { return { t: "blockquote", v: content }; }
+  / content:list { return { t: "list", v: content }; }
+  / content:hrule { return { t: "hrule" }; }
 
 paragraph
-  = element:par_element next:paragraph* { return { t: "paragraph", v: { el: element, nxt: next } }; }
+  = content:par_element next:paragraph { return { t: "par", v: { cnt: content, nxt: next } }; }
+  / content:par_element { return { t: "par_el", v: content }; }
 
 par_element
   = content:text { return content; }
@@ -26,28 +27,28 @@ par_element
   / content:codeinline { return content; }
 
 text
-  = content:[a-z]+ { return { t: "text", v: content }; }
+  = content:text_char+ { return { t: "text", v: content }; }
 
 italic
-  = "_" content:[a-z]+ "_" { return { t: "italic", v: content }; }
+  = "_" content:text_char+ "_" { return { t: "italic", v: content }; }
 
 bold
-  = "*" content:[a-z]+ "*" { return { t: "bold", v: content }; }
+  = "*" content:text_char+ "*" { return { t: "bold", v: content }; }
 
 codeinline
-  = "`" content:[a-z]+ "`" { return { t: "codeinline", v: content }; }
+  = "`" content:text_char+ "`" { return { t: "codeinline", v: content }; }
 
 heading
-  = symb:"#" content:[a-z]+ newline { return { t: "heading", v: content, p: { type: symb.length } }; }
+  = symb:"#" content:text_char+ newline { return { t: "heading", v: content, p: { type: symb.length } }; }
 
 codeblock
-  = "```" whitespace* newline content:[a-z]+ newline "```" { return { t: "codeblock", v: content }; }
+  = "```" whitespace* newline content:text_char+ newline "```" { return { t: "codeblock", v: content }; }
 
 blockquote
-  = ">" whitespace* content:[a-z]+
+  = ">" whitespace* content:text_char+
 
 list
-  = "-" whitespace? content:[a-z]+ { return { t: "listitem", v: content }; }
+  = "-" whitespace? content:text_char+ { return { t: "listitem", v: content }; }
 
 hrule
   = "---"
@@ -56,8 +57,11 @@ hrule
 // Special symbols
 // ---------------
 
+head_delim
+  = "#"
+
 text_char
-  = !(newline)
+  = [^#\n\r]
 
 alphanumeric_char
   = [a-zA-Z0-9]
