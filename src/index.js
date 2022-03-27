@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 
 const parser = require("./parser");
+const { generate } = require("./generator");
 
 // Configure the commandline args
 let { verbose, src, output } = args([
@@ -18,7 +19,7 @@ let { verbose, src, output } = args([
 // Handle defaults
 src = src || path.join(__dirname, "index.md");
 verbose = verbose || false;
-output = output || path.join(__dirname, "index.html");
+output = output || path.join(path.dirname(src), path.basename(src, ".md") + ".html");
 
 console.info(`Compiling: ${src} => ${output}`, "...");
 
@@ -31,6 +32,13 @@ const source = fs.readFileSync(src).toString();
 console.info("Len:", source.length, "processing", "...");
 
 // Process
-const res = parser.parse(source);
+const ast = parser.parse(source);
+if (verbose) {
+    console.log("AST:", JSON.stringify(ast));
+}
 
-console.log("Result", JSON.stringify(res));
+// Generate
+const out = generate(ast);
+
+fs.writeFileSync(output, out);
+console.info("Output saved into:", output);
