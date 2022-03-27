@@ -46,7 +46,7 @@ codeinline
   = "`" content:text_char+ "`" { return { t: "codeinline", v: arr2contstr(content) }; }
 
 heading
-  = symb:"#" content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
+  = symb:"#"+ whitespace* content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
 
 codeblock
   = "```" whitespace* newline content:text_char+ newline "```" { return arr2contstr(content); }
