@@ -1,2 +1,13 @@
-# Simple file
-Just a simple text.
+# Heading
+Paragraph text with no newline from heading.
+
+## Second heading separated by a newline from prev
+Paragraph text with no newline from heading.
+
+
+## Second heading separated by many newlines from prev
+Paragraph text with no newline from heading.
+
+## Second heading not separated by a newline from prev
+
+Paragraph text separated with newline from heading.

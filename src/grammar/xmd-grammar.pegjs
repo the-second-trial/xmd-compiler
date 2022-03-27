@@ -5,15 +5,23 @@
 }
 
 start
-  = content:component+ { return { t: "start", v: content }; }
+  = newline* init:component_init flow:component* newline* { return { t: "start", v: [init].concat(flow || []) }; }
 
-component
+component_init
   = content:paragraph { return { t: "paragraph", v: content }; }
   / content:heading { return { t: "heading", v: content }; }
   / content:codeblock { return { t: "codeblock", v: content }; }
   / content:blockquote { return { t: "blockquote", v: content }; }
   / content:list { return { t: "list", v: content }; }
   / content:hrule { return { t: "hrule" }; }
+
+component
+  = newline newline* content:paragraph { return { t: "paragraph", v: content }; }
+  / newline newline+ content:heading { return { t: "heading", v: content }; }
+  / newline newline+ content:codeblock { return { t: "codeblock", v: content }; }
+  / newline newline+ content:blockquote { return { t: "blockquote", v: content }; }
+  / newline newline+ content:list { return { t: "list", v: content }; }
+  / newline newline+ content:hrule { return { t: "hrule" }; }
 
 paragraph
   = content:par_element next:paragraph { return { t: "par", v: { cnt: content, nxt: next } }; }
@@ -38,7 +46,7 @@ codeinline
   = "`" content:text_char+ "`" { return { t: "codeinline", v: arr2contstr(content) }; }
 
 heading
-  = symb:"#" content:text_char+ newline { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
+  = symb:"#" content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
 
 codeblock
   = "```" whitespace* newline content:text_char+ newline "```" { return arr2contstr(content); }
