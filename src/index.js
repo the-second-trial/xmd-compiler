@@ -8,6 +8,7 @@ const fs = require("fs");
 
 const parser = require("./parser");
 const { generate } = require("./generator");
+const { TEMPLATE } = require("./template_html_tufte");
 
 // Configure the commandline args
 let { verbose, src, output } = args([
@@ -38,7 +39,7 @@ if (verbose) {
 }
 
 // Generate
-const out = generate(ast);
+const out = generate(ast, TEMPLATE);
 
 fs.writeFileSync(output, out);
 console.info("Output saved into:", output);
