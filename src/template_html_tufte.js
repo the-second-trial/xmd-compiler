@@ -1,3 +1,5 @@
+const { AST_NODE_TYPES } = require("./constants");
+
 /**
  * Renders the root of the document.
  * @param {string} content The content in the root.
@@ -21,8 +23,7 @@ function writeRoot(content) {
  */
 function writeHeading(text, level) {
     const levels = ["h1", "h2", "h3", "h4", "h5", "h6"];
-    const renderedLevel = levels[Math.min(level + 1, levels.length)];
-    const tagname = `h${renderedLevel}`;
+    const tagname = levels[Math.min(level + 1, levels.length)];
     return [
         `<${tagname}>`,
         text,
@@ -30,7 +31,34 @@ function writeHeading(text, level) {
     ].join("");
 }
 
+/**
+ * Renders a heading.
+ * @param {object[]} elements The array of paragraph elements.
+ * @returns {string} The rendered paragraph.
+ */
+function writeParagraph(elements) {
+    const inlineElementRenderers = {
+        [AST_NODE_TYPES.PAR_TEXT]: v => v,
+        [AST_NODE_TYPES.PAR_ITALIC]: v => `<em>${v}</em>`,
+        [AST_NODE_TYPES.PAR_BOLD]: v => `<strong>${v}</strong>`,
+        [AST_NODE_TYPES.PAR_CODEINLINE]: v => `<code>${v}</code>`,
+    };
+
+    const content = elements
+        .map(inlineElement => {
+            const inlineRenderer = inlineElementRenderers[inlineElement.t];
+            if (!inlineRenderer) {
+                throw new Error(`Unrecognized par element type '${inlineElement.t}'`);
+            }
+            return inlineRenderer(inlineElement.v);
+        })
+        .join("");
+    
+        return `<p>${content}</p>`;
+}
+
 module.exports.TEMPLATE = {
     rootWriter: writeRoot,
     headingWriter: writeHeading,
+    paragraphWriter: writeParagraph,
 };

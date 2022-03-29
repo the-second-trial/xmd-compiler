@@ -24,8 +24,7 @@ component
   / newline newline+ content:hrule { return { t: "hrule" }; }
 
 paragraph
-  = content:par_element next:paragraph { return { t: "par", v: { cnt: content, nxt: next } }; }
-  / content:par_element { return { t: "par_el", v: content }; }
+  = content:par_element+ { return { t: "par", v: content }; }
 
 par_element
   = content:text { return content; }

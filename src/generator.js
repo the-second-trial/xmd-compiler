@@ -11,6 +11,7 @@ const AST_NODE_TYPES = require("./constants").AST_NODE_TYPES;
  * @param {
  *   rootWriter: (content: string) => string,
  *   headingWriter: (text: string, level: number) => string,
+ *   paragraphWriter: (elements: object[]) => string,
  * } template The template to use.
  * @returns {string} The output code.
  */
@@ -34,7 +35,7 @@ function generate(ast, template) {
  * Expected node format:
  * {
  *     "t": "start",
- *     "v": [...],
+ *     "v": <object[]>,
  * }
  */
 function generateStart(node, template) {
@@ -50,9 +51,9 @@ function generateStart(node, template) {
  *     "t": "heading",
  *     "v": {
  *         "t": "heading_text",
- *         "v": "Second heading separated by many newlines from prev",
+ *         "v": <string>,
  *         "p": {
- *             "type": 2
+ *             "type": <number>
  *         }
  *     }
  * }
@@ -63,8 +64,23 @@ function generateHeading(node, template) {
     return template.headingWriter(text, level);
 }
 
+/**
+ * Expected node format:
+ * {
+ *     "t": "paragraph",
+ *     "v": {
+ *         "t": "par",
+ *         "v": [
+ *             {
+ *                 "t": "text",
+ *                 "v": <string>
+ *             }
+ *         ]
+ *     }
+ *  }
+ */
 function generateParagraph(node, template) {
-    return "";
+    return template.paragraphWriter(node.v.v);
 }
 
 function getRootNodeGeneratorFunction(type) {
