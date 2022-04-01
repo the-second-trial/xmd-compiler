@@ -27,10 +27,10 @@ paragraph
   = content:par_element+ { return { t: "par", v: content }; }
 
 par_element
-  = content:text { return content; }
-  / content:italic { return content; }
+  = content:italic { return content; }
   / content:bold { return content; }
   / content:codeinline { return content; }
+  / content:text { return content; }
 
 text
   = content:text_char+ { return { t: "text", v: arr2contstr(content) }; }
