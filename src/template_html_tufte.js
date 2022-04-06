@@ -57,8 +57,24 @@ function writeParagraph(elements) {
         return `<p>${content}</p>`;
 }
 
+/**
+ * Renders a heading.
+ * @param {string} text The text in the code.
+ * @returns {string} The rendered code block.
+ */
+function writeCodeblock(text) {
+    return [
+        "<pre>",
+        "<code>",
+        text,
+        `</code>`,
+        `</pre>`,
+    ].join("");
+}
+
 module.exports.TEMPLATE = {
     rootWriter: writeRoot,
     headingWriter: writeHeading,
     paragraphWriter: writeParagraph,
+    codeblockWriter: writeCodeblock,
 };

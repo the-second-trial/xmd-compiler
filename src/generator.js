@@ -12,6 +12,7 @@ const AST_NODE_TYPES = require("./constants").AST_NODE_TYPES;
  *   rootWriter: (content: string) => string,
  *   headingWriter: (text: string, level: number) => string,
  *   paragraphWriter: (elements: object[]) => string,
+ *   codeblockWriter: (text: string) => string,
  * } template The template to use.
  * @returns {string} The output code.
  */
@@ -75,12 +76,25 @@ function generateHeading(node, template) {
  *                 "t": "text",
  *                 "v": <string>
  *             }
- *         ]
+ *         }
  *     }
  *  }
  */
 function generateParagraph(node, template) {
     return template.paragraphWriter(node.v.v);
+}
+
+/**
+ * Expected node format:
+ * {
+ *     "t": "codeblock",
+ *     "v": <string>
+ *     }
+ *  }
+ */
+ function generateCodeblock(node, template) {
+    const text = node.v;
+    return template.codeblockWriter(text);
 }
 
 function getRootNodeGeneratorFunction(type) {
@@ -89,6 +103,8 @@ function getRootNodeGeneratorFunction(type) {
             return generateHeading;
         case AST_NODE_TYPES.PARAGRAPH:
             return generateParagraph;
+        case AST_NODE_TYPES.CODEBLOCK:
+            return generateCodeblock;
         default:
             throw new Error(`Unrecognized node type'${type}'`);
     }

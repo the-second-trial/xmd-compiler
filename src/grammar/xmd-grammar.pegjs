@@ -48,7 +48,7 @@ heading
   = symb:"#"+ whitespace* content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
 
 codeblock
-  = "```" whitespace* newline content:text_char+ newline "```" { return arr2contstr(content); }
+  = "```" "!"? whitespace* newline content:text_char+ newline "```" { return arr2contstr(content); }
 
 blockquote
   = ">" whitespace* content:text_char+ { return arr2contstr(content); }
@@ -67,7 +67,7 @@ head_delim
   = "#"
 
 text_char
-  = [^#\n\r]
+  = [^#\n\r`]
 
 alphanumeric_char
   = [a-zA-Z0-9]

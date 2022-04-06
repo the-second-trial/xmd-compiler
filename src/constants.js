@@ -7,6 +7,7 @@ const AST_NODE_TYPES = {
     PAR_ITALIC: "italic",
     PAR_BOLD: "bold",
     PAR_CODEINLINE: "codeinline",
+    CODEBLOCK: "codeblock",
 };
 
 module.exports.AST_NODE_TYPES = AST_NODE_TYPES;
