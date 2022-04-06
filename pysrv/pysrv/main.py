@@ -5,10 +5,10 @@ from application import Application as App
 hostname = "localhost"
 port = 8080
 
-sApp = App()
+app = App()
 
 if __name__ == "__main__":
-    srv = make_server(hostname, port, sApp)
+    srv = make_server(hostname, port, app)
     print("Server started at http://%s:%s" % (hostname, port))
 
     try:
