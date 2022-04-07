@@ -15,6 +15,14 @@ class MyClass:
 a = 0
 a"""
 
+SRC_003 = """
+a = 10
+a"""
+
+SRC_004 = """
+a = 10.3
+a"""
+
 
 class EvaluateChunkTestCase(unittest.TestCase):
 
@@ -49,3 +57,25 @@ class EvaluateChunkTestCase(unittest.TestCase):
         # Assert
         self.assertIsNotNone(result, "Expected return value as chunk has ending expr")
         self.assertEqual(result, 0, "Wrong returned expression result")
+
+    def test_ret_value_int(self):
+        # Arrange
+        glbl = {}
+
+        # Act
+        result = evaluate_chunk(SRC_003, glbl)
+
+        # Assert
+        self.assertEqual(type(result).__name__, int.__name__)
+        self.assertEqual(result, 10, "Wrong returned expression result")
+
+    def test_ret_value_float(self):
+        # Arrange
+        glbl = {}
+
+        # Act
+        result = evaluate_chunk(SRC_004, glbl)
+
+        # Assert
+        self.assertEqual(type(result).__name__, float.__name__)
+        self.assertEqual(result, 10.3, "Wrong returned expression result")
