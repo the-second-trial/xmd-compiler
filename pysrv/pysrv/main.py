@@ -1,6 +1,6 @@
 from wsgiref.simple_server import make_server
 
-from application import Application as App
+from pysrv.application import Application as App
 
 hostname = "localhost"
 port = 8080
