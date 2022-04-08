@@ -33,6 +33,15 @@ if (!existsSync(src)) {
 const source = readFileSync(src).toString();
 console.info("Len:", source.length, "processing", "...");
 
+// Launch Python Processing server
+const srvpath = join(__dirname, "..", "pysrv", "pysrv", "main.py");
+const srv = execFile("python", [srvpath], (error, stdout, stderr) => {
+    if (error) {
+        throw error;
+    }
+    console.info("Python Server successfully started");
+});
+
 // Process
 const ast = parse(source);
 if (verbose) {
@@ -41,6 +50,9 @@ if (verbose) {
 
 // Generate
 const out = generate(ast, TEMPLATE);
+
+// Kill server
+srv.kill();
 
 writeFileSync(output, out);
 console.info("Output saved into:", output);

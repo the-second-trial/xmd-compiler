@@ -1,6 +1,6 @@
 import ast
 
-from pysrv.utils import generate_id
+from .utils import generate_id
 
 
 def evaluate_chunk(src, context):

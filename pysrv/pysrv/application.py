@@ -1,6 +1,6 @@
 import json
 
-from pysrv.session import SessionsManager
+from .session import SessionsManager
 
 HTTP_STATUS_200 = "200 OK"
 HTTP_STATUS_400 = "400 Bad Request"
