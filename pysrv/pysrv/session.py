@@ -55,28 +55,33 @@ class SessionsManager:
     def new_session(self) -> str:
         """Creates a new session and returns its ID."""
 
-        sid = generate_id()
+        sid = generate_id(len=16)
         self.sessions[sid] = {"globals": {}}
         return sid
 
     def delete_session(self, sid) -> str:
-        """Deletes a session."""
+        """Deletes a session.
+
+        Deletes a session, if present. If no session can be found, an error is raised.
+        When a session is deleted, the sid and context are returned in a dictionary.
+        """
 
         if sid not in self.sessions:
-            return ""
+            raise RuntimeError(f"Session {sid} not found")
 
+        session = self.sessions[sid]
         del self.sessions[sid]
-        return sid
+        return {"sid": sid, "session": session}
 
     def eval_on_session(self, sid, src) -> object:
         """Executes code inside a session.
 
-        Returns the context of the session after running the code.
+        :returns The context of the session after running the code.
         """
 
         session = self.get_session(sid)
         if session is None:
-            return RuntimeError(f"Session {sid} not found")
+            raise RuntimeError(f"Session {sid} not found")
 
         evaluate_chunk(src, session["globals"])
 
