@@ -175,10 +175,12 @@ class SessionsManagerTestCase(unittest.TestCase):
 
         # Act
         sid = sm.new_session()
-        context = sm.eval_on_session(sid, "a = 0")
+        eval_res = sm.eval_on_session(sid, "a = 0")
 
         # Assert
-        self.assertIsNotNone(context)
+        self.assertIsNotNone(eval_res)
+
+        context = eval_res["context"]
         self.assertIsNotNone(context["a"])
         self.assertEqual(context["a"], 0)
 
@@ -190,10 +192,33 @@ class SessionsManagerTestCase(unittest.TestCase):
         # Assert
         sid = sm.new_session()
 
-        context = sm.eval_on_session(sid, "a = 0")
+        context = sm.eval_on_session(sid, "a = 0")["context"]
         self.assertEqual(context["a"], 0)
         self.assertRaises(KeyError, lambda: context["b"])
 
-        context = sm.eval_on_session(sid, "b = 0")
+        context = sm.eval_on_session(sid, "b = 0")["context"]
         self.assertEqual(context["a"], 0)
         self.assertEqual(context["b"], 0)
+
+    def test_code_without_ending_expr_evaluates_without_ret(self):
+        # Arrange
+        sm = SessionsManager()
+
+        # Act
+        sid = sm.new_session()
+        eval_res = sm.eval_on_session(sid, SRC_001)
+
+        # Assert
+        self.assertIsNone(eval_res["ret"], "Code does not have an ending expr, no ret expected")
+
+    def test_code_with_ending_expr_evaluates_with_ret(self):
+        # Arrange
+        sm = SessionsManager()
+
+        # Act
+        sid = sm.new_session()
+        eval_res = sm.eval_on_session(sid, SRC_003)
+
+        # Assert
+        self.assertIsNotNone(eval_res["ret"], "Code has an ending expr, ret is expected")
+        self.assertEqual(eval_res["ret"], 10)

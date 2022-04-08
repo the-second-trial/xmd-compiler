@@ -76,13 +76,13 @@ class SessionsManager:
     def eval_on_session(self, sid, src) -> object:
         """Executes code inside a session.
 
-        :returns The context of the session after running the code.
+        :returns An object containing the context and the evaluated last expression in code if any.
         """
 
         session = self.get_session(sid)
         if session is None:
             raise RuntimeError(f"Session {sid} not found")
 
-        evaluate_chunk(src, session["globals"])
+        result = evaluate_chunk(src, session["globals"])
 
-        return session["globals"]
+        return {"context": session["globals"], "ret": result}
