@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES } from "./constants.js";
+import { AST_NODE_TYPES } from "./constants";
 
 /**
  * Generates the final code.
@@ -16,7 +16,7 @@ import { AST_NODE_TYPES } from "./constants.js";
  * } template The template to use.
  * @returns {string} The output code.
  */
-export function generate(ast, template) {
+export function generate(ast: any, template: any): any {
     if (!ast || ast.length === 0) {
         throw new Error("AST cannot be null, undefined or empty");
     }
@@ -39,10 +39,10 @@ export function generate(ast, template) {
  *     "v": <object[]>,
  * }
  */
-function generateStart(node, template) {
+function generateStart(node: any, template: any): any {
     const flow = node.v
-        .map(rootNode => (getRootNodeGeneratorFunction(rootNode.t))(rootNode, template))
-        .reduce((a, b) => `${a}${b}`, "");
+        .map((rootNode: any) => (getRootNodeGeneratorFunction(rootNode.t))(rootNode, template))
+        .reduce((a: any, b: any) => `${a}${b}`, "");
     return template.rootWriter(flow);
 }
 
@@ -59,7 +59,7 @@ function generateStart(node, template) {
  *     }
  * }
  */
-function generateHeading(node, template) {
+function generateHeading(node: any, template: any): any {
     const text = node.v.v;
     const level = node.v.p.type;
     return template.headingWriter(text, level);
@@ -80,7 +80,7 @@ function generateHeading(node, template) {
  *     }
  *  }
  */
-function generateParagraph(node, template) {
+function generateParagraph(node: any, template: any): any {
     return template.paragraphWriter(node.v.v);
 }
 
@@ -92,12 +92,12 @@ function generateParagraph(node, template) {
  *     }
  *  }
  */
- function generateCodeblock(node, template) {
+ function generateCodeblock(node: any, template: any): any {
     const text = node.v;
     return template.codeblockWriter(text);
 }
 
-function getRootNodeGeneratorFunction(type) {
+function getRootNodeGeneratorFunction(type: any): any {
     switch (type) {
         case AST_NODE_TYPES.HEADING:
             return generateHeading;
@@ -110,7 +110,7 @@ function getRootNodeGeneratorFunction(type) {
     }
 }
 
-function checkAst(ast) {
+function checkAst(ast: any): boolean {
     if (!ast.t || ast.t !== AST_NODE_TYPES.START) {
         return false;
     }

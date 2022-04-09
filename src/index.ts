@@ -2,19 +2,19 @@
  * Entry point.
  */
 
-import args from "command-line-args";
+import * as args from "command-line-args";
 import { join, basename, dirname, resolve } from "path";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { execFile } from "child_process";
 import fetch from "node-fetch";
-
-import { parse } from "./parser.js";
-import { generate } from "./generator.js";
-import { TEMPLATE } from "./template_html_tufte.js";
-import { SRV_PING_MAX_ATTEMPTS_COUNT, SRV_PING_WAIT_RETRY_MS } from "./constants.js";
 import { exit } from "process";
 
-async function startServer(curpath) {
+import { parse } from "./parser";
+import { generate } from "./generator";
+import { TEMPLATE } from "./template_html_tufte";
+import { SRV_PING_MAX_ATTEMPTS_COUNT, SRV_PING_WAIT_RETRY_MS } from "./constants";
+
+async function startServer(curpath: string) {
     const srvpath = join(curpath, "pysrv", "main.py");
     const srv = execFile("python", [srvpath]);
 
@@ -22,7 +22,7 @@ async function startServer(curpath) {
     for (let i = SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
         try {
             const res = await fetch("http://localhost:8080/ping");
-            const body = await res.json();
+            const body = await res.json() as any;
             if (body["result"] === "ok" && body["reply"] === "pong") {
                 console.log("Connection successfully established :)");
                 return Promise.resolve(srv);

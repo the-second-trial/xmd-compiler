@@ -1,11 +1,11 @@
-import { AST_NODE_TYPES } from "./constants.js";
+import { AST_NODE_TYPES } from "./constants";
 
 /**
  * Renders the root of the document.
  * @param {string} content The content in the root.
  * @returns {string} The rendered node.
  */
-function writeRoot(content) {
+function writeRoot(content: string): string {
     return [
         "<body>",
         "<article>",
@@ -21,7 +21,7 @@ function writeRoot(content) {
  * @param {number} level The level: 1-6.
  * @returns {string} The rendered heading.
  */
-function writeHeading(text, level) {
+function writeHeading(text: string, level: number): string {
     const levels = ["h1", "h2", "h3", "h4", "h5", "h6"];
     const tagname = levels[Math.min(level + 1, levels.length)];
     return [
@@ -36,12 +36,12 @@ function writeHeading(text, level) {
  * @param {object[]} elements The array of paragraph elements.
  * @returns {string} The rendered paragraph.
  */
-function writeParagraph(elements) {
+function writeParagraph(elements: Array<any>): string {
     const inlineElementRenderers = {
-        [AST_NODE_TYPES.PAR_TEXT]: v => v,
-        [AST_NODE_TYPES.PAR_ITALIC]: v => `<em>${v}</em>`,
-        [AST_NODE_TYPES.PAR_BOLD]: v => `<strong>${v}</strong>`,
-        [AST_NODE_TYPES.PAR_CODEINLINE]: v => `<code>${v}</code>`,
+        [AST_NODE_TYPES.PAR_TEXT]: (v: string) => v,
+        [AST_NODE_TYPES.PAR_ITALIC]: (v: string) => `<em>${v}</em>`,
+        [AST_NODE_TYPES.PAR_BOLD]: (v: string) => `<strong>${v}</strong>`,
+        [AST_NODE_TYPES.PAR_CODEINLINE]: (v: string) => `<code>${v}</code>`,
     };
 
     const content = elements
@@ -62,7 +62,7 @@ function writeParagraph(elements) {
  * @param {string} text The text in the code.
  * @returns {string} The rendered code block.
  */
-function writeCodeblock(text) {
+function writeCodeblock(text: string): string {
     return [
         "<pre>",
         "<code>",

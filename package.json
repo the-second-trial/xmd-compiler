@@ -4,6 +4,7 @@
   "description": "A parser from eXtended MarkDown to HTML",
   "main": "src/index.js",
   "scripts": {
+    "build": "webpack --mode=development",
     "start": "node ./src/index.js --src ./examples/simple.md",
     "test": "jest --config=jest.config.js"
   },
@@ -18,7 +19,6 @@
   ],
   "author": "Andrea Tino",
   "license": "GPL-3.0",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/the-second-trial/xmd2html/issues"
   },
@@ -29,6 +29,11 @@
     "node-fetch": "3.2.3"
   },
   "devDependencies": {
-    "jest": "27.5.1"
+    "jest": "27.5.1",
+    "typescript": "4.6.3",
+    "ts-loader": "9.2.8",
+    "webpack-cli": "4.9.2",
+    "@types/command-line-args": "5.2.0",
+    "@types/pegjs": "0.10.3"
   }
 }

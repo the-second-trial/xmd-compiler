@@ -105,3 +105,6 @@ dist
 
 # Code generated from examples
 examples/*.html
+
+# Output
+lib/

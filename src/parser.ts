@@ -1,13 +1,13 @@
 import { readFileSync } from "fs";
 import { join, resolve } from "path";
-import pegjs from "pegjs";
+import * as pegjs from "pegjs";
 
 /**
  * Parses an input and returns the result.
  * @param {string} input The input to parse.
  * @returns {any} The result AST object.
  */
-export function parse(input) {
+export function parse(input: any): any {
     const grammar = readFileSync(
         join(
             resolve(),
