@@ -1,4 +1,4 @@
-const AST_NODE_TYPES = require("./constants").AST_NODE_TYPES;
+import { AST_NODE_TYPES } from "./constants.js";
 
 /**
  * Generates the final code.
@@ -16,7 +16,7 @@ const AST_NODE_TYPES = require("./constants").AST_NODE_TYPES;
  * } template The template to use.
  * @returns {string} The output code.
  */
-function generate(ast, template) {
+export function generate(ast, template) {
     if (!ast || ast.length === 0) {
         throw new Error("AST cannot be null, undefined or empty");
     }
@@ -121,5 +121,3 @@ function checkAst(ast) {
 
     return true;
 }
-
-module.exports.generate = generate;

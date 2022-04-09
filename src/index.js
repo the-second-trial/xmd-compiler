@@ -2,14 +2,48 @@
  * Entry point.
  */
 
-const args = require("command-line-args");
-const { join, basename, dirname } = require("path");
-const { existsSync, readFileSync, writeFileSync } = require("fs");
-const { execFile } = require('child_process');
+import args from "command-line-args";
+import { join, basename, dirname, resolve } from "path";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { execFile } from "child_process";
+import fetch from "node-fetch";
 
-const { parse } = require("./parser");
-const { generate } = require("./generator");
-const { TEMPLATE } = require("./template_html_tufte");
+import { parse } from "./parser.js";
+import { generate } from "./generator.js";
+import { TEMPLATE } from "./template_html_tufte.js";
+import { SRV_PING_MAX_ATTEMPTS_COUNT, SRV_PING_WAIT_RETRY_MS } from "./constants.js";
+import { exit } from "process";
+
+async function startServer(curpath) {
+    const srvpath = join(curpath, "pysrv", "main.py");
+    const srv = execFile("python", [srvpath], (error, stdout, stderr) => {
+        if (error) {
+            throw error;
+        }
+    });
+
+    // Poll until the server is online
+    for (let i = SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
+        try {
+            const res = await fetch("http://localhost:8080/ping");
+            const body = await res.json();
+            if (body["result"] === "ok" && body["reply"] === "pong") {
+                console.log("Connection successfully established :)");
+                return Promise.resolve(srv);
+            }
+        } catch (error) {
+            console.warn("Error while attempting connectikon to PySrv", error);
+        }
+
+        console.log("Retrying...");
+        await new Promise(resolve => setTimeout(resolve, SRV_PING_WAIT_RETRY_MS));
+    }
+
+    console.error("Max attempts reached");
+    return Promise.reject(new Error("Max attempts reached"));
+}
+
+const current_path = resolve();
 
 // Configure the commandline args
 let { verbose, src, output } = args([
@@ -19,7 +53,7 @@ let { verbose, src, output } = args([
 ]);
 
 // Handle defaults
-src = src || join(__dirname, "index.md");
+src = src || join(current_path, "index.md");
 verbose = verbose || false;
 output = output || join(dirname(src), basename(src, ".md") + ".html");
 
@@ -33,26 +67,25 @@ if (!existsSync(src)) {
 const source = readFileSync(src).toString();
 console.info("Len:", source.length, "processing", "...");
 
-// Launch Python Processing server
-const srvpath = join(__dirname, "..", "pysrv", "pysrv", "main.py");
-const srv = execFile("python", [srvpath], (error, stdout, stderr) => {
-    if (error) {
-        throw error;
-    }
-    console.info("Python Server successfully started");
-});
+// Launch and wait for the Py Srv to be online
+startServer(current_path)
+    .then(srv => {
+        // Process
+        const ast = parse(source);
+        if (verbose) {
+            console.log("AST:", JSON.stringify(ast));
+        }
 
-// Process
-const ast = parse(source);
-if (verbose) {
-    console.log("AST:", JSON.stringify(ast));
-}
+        // Generate
+        const out = generate(ast, TEMPLATE);
 
-// Generate
-const out = generate(ast, TEMPLATE);
+        // Kill server
+        srv.kill();
 
-// Kill server
-srv.kill();
-
-writeFileSync(output, out);
-console.info("Output saved into:", output);
+        writeFileSync(output, out);
+        console.info("Output saved into:", output);
+    })
+    .catch(error => {
+        console.error("Error", error);
+        exit(1);
+    });

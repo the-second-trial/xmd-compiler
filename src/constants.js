@@ -1,4 +1,4 @@
-const AST_NODE_TYPES = {
+export const AST_NODE_TYPES = {
     START: "start",
     HEADING: "heading",
     PARAGRAPH: "paragraph",
@@ -10,4 +10,6 @@ const AST_NODE_TYPES = {
     CODEBLOCK: "codeblock",
 };
 
-module.exports.AST_NODE_TYPES = AST_NODE_TYPES;
+export const SRV_PING_MAX_ATTEMPTS_COUNT = 10;
+
+export const SRV_PING_WAIT_RETRY_MS = 1000;

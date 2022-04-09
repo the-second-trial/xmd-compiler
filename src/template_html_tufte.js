@@ -1,4 +1,4 @@
-const { AST_NODE_TYPES } = require("./constants");
+import { AST_NODE_TYPES } from "./constants.js";
 
 /**
  * Renders the root of the document.
@@ -72,7 +72,7 @@ function writeCodeblock(text) {
     ].join("");
 }
 
-module.exports.TEMPLATE = {
+export const TEMPLATE = {
     rootWriter: writeRoot,
     headingWriter: writeHeading,
     paragraphWriter: writeParagraph,
