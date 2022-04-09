@@ -16,11 +16,7 @@ import { exit } from "process";
 
 async function startServer(curpath) {
     const srvpath = join(curpath, "pysrv", "main.py");
-    const srv = execFile("python", [srvpath], (error, stdout, stderr) => {
-        if (error) {
-            throw error;
-        }
-    });
+    const srv = execFile("python", [srvpath]);
 
     // Poll until the server is online
     for (let i = SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
@@ -32,7 +28,7 @@ async function startServer(curpath) {
                 return Promise.resolve(srv);
             }
         } catch (error) {
-            console.warn("Error while attempting connectikon to PySrv", error);
+            // Swallow
         }
 
         console.log("Retrying...");
