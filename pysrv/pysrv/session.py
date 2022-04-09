@@ -70,6 +70,7 @@ class SessionsManager:
             raise RuntimeError(f"Session {sid} not found")
 
         session = self.sessions[sid]
+
         del self.sessions[sid]
         return {"sid": sid, "session": session}
 
