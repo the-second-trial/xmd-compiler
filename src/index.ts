@@ -5,39 +5,12 @@
 import * as args from "command-line-args";
 import { join, basename, dirname, resolve } from "path";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { execFile } from "child_process";
-import fetch from "node-fetch";
 import { exit } from "process";
 
 import { XmdParser } from "./parser";
 import { Generator } from "./generator";
 import { HtmlTufteTemplate } from "./template_html_tufte";
-import { Constants } from "./constants";
-
-async function startServer(curpath: string) {
-    const srvpath = join(curpath, "pysrv", "main.py");
-    const srv = execFile("python", [srvpath]);
-
-    // Poll until the server is online
-    for (let i = Constants.PySrv.SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
-        try {
-            const res = await fetch("http://localhost:8080/ping");
-            const body = await res.json() as any;
-            if (body["result"] === "ok" && body["reply"] === "pong") {
-                console.log("Connection successfully established :)");
-                return Promise.resolve(srv);
-            }
-        } catch (error) {
-            // Swallow
-        }
-
-        console.log("Retrying...");
-        await new Promise(resolve => setTimeout(resolve, Constants.PySrv.SRV_PING_WAIT_RETRY_MS));
-    }
-
-    console.error("Max attempts reached");
-    return Promise.reject(new Error("Max attempts reached"));
-}
+import { PythonCodeServer } from "./py_srv";
 
 const current_path = resolve();
 
@@ -53,35 +26,43 @@ src = src || join(current_path, "index.md");
 verbose = verbose || false;
 output = output || join(dirname(src), basename(src, ".md") + ".html");
 
-console.info(`Compiling: ${src} => ${output}`, "...");
+async function main(): Promise<void> {
+    console.info(`Compiling: ${src} => ${output}`, "...");
 
-// Fetch input file content
-if (!existsSync(src)) {
-    throw new Error(`Input file '${src}' could not be found`);
+    // Fetch input file content
+    if (!existsSync(src)) {
+        throw new Error(`Input file '${src}' could not be found`);
+    }
+    
+    const source = readFileSync(src).toString();
+    console.info("Len:", source.length, "processing", "...");
+    
+    // Launch and wait for the Py Srv to be online
+    const pysrv = new PythonCodeServer(join(current_path, "pysrv", "main.py"));
+    await pysrv.startServer();
+    
+    // Parse
+    const ast = new XmdParser().parse(source);
+    if (verbose) {
+        console.log("AST:", JSON.stringify(ast));
+    }
+
+    // Generate
+    const out = new Generator(new HtmlTufteTemplate()).generate(ast);
+
+    // Kill server
+    await pysrv.stopServer();
+
+    writeFileSync(output, out);
+    console.info("Output saved into:", output);
 }
 
-const source = readFileSync(src).toString();
-console.info("Len:", source.length, "processing", "...");
-
-// Launch and wait for the Py Srv to be online
-startServer(current_path)
-    .then(srv => {
-        // Process
-        const ast = new XmdParser().parse(source);
-        if (verbose) {
-            console.log("AST:", JSON.stringify(ast));
-        }
-
-        // Generate
-        const out = new Generator(new HtmlTufteTemplate()).generate(ast);
-
-        // Kill server
-        srv.kill();
-
-        writeFileSync(output, out);
-        console.info("Output saved into:", output);
+main()
+    .then(() => {
+        exit(0);
     })
     .catch(error => {
-        console.error("Error", error);
+        console.error("An error occurred", error);
         exit(1);
     });
+

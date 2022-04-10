@@ -1,4 +1,4 @@
-import { XmdAst } from "./ast";
+import { AstComponentNode, XmdAst } from "./ast";
 import { Constants } from "./constants";
 import { Template } from "./template";
 
@@ -23,35 +23,35 @@ export class Generator {
         return this.generateStart(ast);
     }
     
-    private generateStart(node: any): any {
+    private generateStart(node: XmdAst): string {
         const flow = node.v
-            .map((rootNode: any) => {
-                switch (rootNode.t) {
+            .map((componentNode: AstComponentNode) => {
+                switch (componentNode.t) {
                     case Constants.NodeTypes.HEADING:
-                        return this.generateHeading(rootNode);
+                        return this.generateHeading(componentNode);
                     case Constants.NodeTypes.PARAGRAPH:
-                        return this.generateParagraph(rootNode);
+                        return this.generateParagraph(componentNode);
                     case Constants.NodeTypes.CODEBLOCK:
-                        return this.generateCodeblock(rootNode);
+                        return this.generateCodeblock(componentNode);
                     default:
-                        throw new Error(`Unrecognized node type'${rootNode.t}'`);
+                        throw new Error(`Unrecognized node type'${componentNode.t}'`);
                 }
             })
             .reduce((a: any, b: any) => `${a}${b}`, "");
         return this.template.writeRoot(flow);
     }
 
-    private generateHeading(node: any): any {
+    private generateHeading(node: AstComponentNode): any {
         const text = node.v.v;
         const level = node.v.p.type;
         return this.template.writeHeading(text, level);
     }
 
-    private generateParagraph(node: any): any {
+    private generateParagraph(node: AstComponentNode): any {
         return this.template.writeParagraph(node.v.v);
     }
 
-    private generateCodeblock(node: any): any {
+    private generateCodeblock(node: AstComponentNode): any {
         const text = node.v;
         return this.template.writeCodeblock(text);
     }
