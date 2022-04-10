@@ -1,4 +1,75 @@
+import { XmdAst } from "./ast";
 import { AST_NODE_TYPES } from "./constants";
+import { Template } from "./template";
+
+/** A component capable of rendering the final code. */
+export class Generator {
+    constructor(private template: Template) {
+    }
+
+    /**
+     * Generates the output code.
+     * @param ast The input AST.
+     */
+    public generate(ast: XmdAst): string {
+        if (!ast || ast.t !== "start") {
+            throw new Error("AST cannot be null, undefined or malformed");
+        }
+    
+        if (!Generator.checkAst(ast)) {
+            throw new Error("Malformed AST");
+        }
+    
+        return this.generateStart(ast);
+    }
+    
+    private generateStart(node: any): any {
+        const flow = node.v
+            .map((rootNode: any) => (this.getRootNodeGeneratorFunction(rootNode.t))(rootNode, this.template))
+            .reduce((a: any, b: any) => `${a}${b}`, "");
+        return this.template.writeRoot(flow);
+    }
+
+    private generateHeading(node: any): any {
+        const text = node.v.v;
+        const level = node.v.p.type;
+        return this.template.writeHeading(text, level);
+    }
+
+    private generateParagraph(node: any): any {
+        return this.template.writeParagraph(node.v.v);
+    }
+
+    private generateCodeblock(node: any): any {
+        const text = node.v;
+        return this.template.writeCodeblock(text);
+    }
+
+    private getRootNodeGeneratorFunction(type: any): any {
+        switch (type) {
+            case AST_NODE_TYPES.HEADING:
+                return this.generateHeading;
+            case AST_NODE_TYPES.PARAGRAPH:
+                return this.generateParagraph;
+            case AST_NODE_TYPES.CODEBLOCK:
+                return this.generateCodeblock;
+            default:
+                throw new Error(`Unrecognized node type'${type}'`);
+        }
+    }
+
+    private static checkAst(ast: any): boolean {
+        if (!ast.t || ast.t !== AST_NODE_TYPES.START) {
+            return false;
+        }
+    
+        if (!ast.v || typeof ast.v !== "object" || ast.v.length <= 0) {
+            return false;
+        }
+    
+        return true;
+    }
+}
 
 /**
  * Generates the final code.
