@@ -9,17 +9,17 @@ import { execFile } from "child_process";
 import fetch from "node-fetch";
 import { exit } from "process";
 
-import { parse } from "./parser";
-import { generate } from "./generator";
-import { TEMPLATE } from "./template_html_tufte";
-import { SRV_PING_MAX_ATTEMPTS_COUNT, SRV_PING_WAIT_RETRY_MS } from "./constants";
+import { XmdParser } from "./parser";
+import { Generator } from "./generator";
+import { HtmlTufteTemplate } from "./template_html_tufte";
+import { Constants } from "./constants";
 
 async function startServer(curpath: string) {
     const srvpath = join(curpath, "pysrv", "main.py");
     const srv = execFile("python", [srvpath]);
 
     // Poll until the server is online
-    for (let i = SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
+    for (let i = Constants.PySrv.SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
         try {
             const res = await fetch("http://localhost:8080/ping");
             const body = await res.json() as any;
@@ -32,7 +32,7 @@ async function startServer(curpath: string) {
         }
 
         console.log("Retrying...");
-        await new Promise(resolve => setTimeout(resolve, SRV_PING_WAIT_RETRY_MS));
+        await new Promise(resolve => setTimeout(resolve, Constants.PySrv.SRV_PING_WAIT_RETRY_MS));
     }
 
     console.error("Max attempts reached");
@@ -67,13 +67,13 @@ console.info("Len:", source.length, "processing", "...");
 startServer(current_path)
     .then(srv => {
         // Process
-        const ast = parse(source);
+        const ast = new XmdParser().parse(source);
         if (verbose) {
             console.log("AST:", JSON.stringify(ast));
         }
 
         // Generate
-        const out = generate(ast, TEMPLATE);
+        const out = new Generator(new HtmlTufteTemplate()).generate(ast);
 
         // Kill server
         srv.kill();

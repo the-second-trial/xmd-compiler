@@ -4,26 +4,6 @@ import * as pegjs from "pegjs";
 
 import { XmdAst } from "./ast";
 
-/**
- * Parses an input and returns the result.
- * @param {string} input The input to parse.
- * @returns {any} The result AST object.
- */
-export function parse(input: any): any {
-    const grammar = readFileSync(
-        join(
-            resolve(),
-            "src",
-            "grammar",
-            "xmd-grammar.pegjs"
-        )
-    )
-    .toString();
-    
-    const parser = pegjs.generate(grammar);
-    return parser.parse(input);
-}
-
 /** The Xmd parser. */
 export class XmdParser {
     private _parser: pegjs.Parser;
