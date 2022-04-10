@@ -1,10 +1,14 @@
-import { AstComponentNode, XmdAst } from "./ast";
+import { AstCodeblockComponentNode, AstComponentNode, XmdAst } from "./ast";
+import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { Template } from "./template";
 
 /** A component capable of rendering the final code. */
 export class Generator {
-    constructor(private template: Template) {
+    constructor(
+        private template: Template,
+        private codeEvaluator?: CodeChunkEvaluator
+    ) {
     }
 
     /**
@@ -23,7 +27,7 @@ export class Generator {
         return this.generateStart(ast);
     }
     
-    private generateStart(node: XmdAst): string {
+    private async generateStart(node: XmdAst): Promise<string> {
         const flow = node.v
             .map((componentNode: AstComponentNode) => {
                 switch (componentNode.t) {
@@ -32,7 +36,7 @@ export class Generator {
                     case Constants.NodeTypes.PARAGRAPH:
                         return this.generateParagraph(componentNode);
                     case Constants.NodeTypes.CODEBLOCK:
-                        return this.generateCodeblock(componentNode);
+                        return this.generateCodeblock(componentNode as AstCodeblockComponentNode);
                     default:
                         throw new Error(`Unrecognized node type'${componentNode.t}'`);
                 }
@@ -41,19 +45,43 @@ export class Generator {
         return this.template.writeRoot(flow);
     }
 
-    private generateHeading(node: AstComponentNode): any {
+    private generateHeading(node: AstComponentNode): string {
         const text = node.v.v;
         const level = node.v.p.type;
         return this.template.writeHeading(text, level);
     }
 
-    private generateParagraph(node: AstComponentNode): any {
+    private generateParagraph(node: AstComponentNode): string {
         return this.template.writeParagraph(node.v.v);
     }
 
-    private generateCodeblock(node: AstComponentNode): any {
-        const text = node.v;
-        return this.template.writeCodeblock(text);
+    private async generateCodeblock(node: AstCodeblockComponentNode): Promise<string> {
+        const src = node.v.src;
+        let evalResult: string = undefined;
+
+        if (node.v.run) {
+            // This code chunk should be run
+            const evaluation = await this.evaluateCodeChunk(src);
+            switch (evaluation.type) {
+                case "str":
+                    evalResult = evaluation.value as string;
+                case "int":
+                    evalResult = parseInt(evaluation.value as string).toString();
+                default:
+                    evalResult = `Unknown type ${evaluation.type}`;
+            }
+        }
+
+        return this.template.writeCodeblock(src, evalResult);
+    }
+
+    private evaluateCodeChunk(chunk: string): Promise<EvalResult | undefined> {
+        if (!this.codeEvaluator) {
+            // No code evaluator
+            throw new Error("Code evaluation requested but no evaluator provided");
+        }
+
+        return this.codeEvaluator.eval(chunk);
     }
 
     private static checkAst(ast: any): boolean {

@@ -10,7 +10,10 @@ export interface AstParagraphComponentNode {
 
 export interface AstCodeblockComponentNode {
     t: "codeblock";
-    v: any;
+    v: {
+        run: boolean,
+        src: string,
+    };
 }
 
 export type AstComponentNode =

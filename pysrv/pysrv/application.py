@@ -171,4 +171,4 @@ class Application:
 
         logger.info(f"Chunk evaluated, expr result is '{expr_result}'")
 
-        return ok({"expr_result": expr_result}, start_response)
+        return ok({"expr_result": expr_result, "expr_type": type(expr_result).__name__}, start_response)

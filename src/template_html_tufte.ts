@@ -48,13 +48,18 @@ export class HtmlTufteTemplate implements Template {
     }
 
     /** @inheritdoc */
-    public writeCodeblock(text: string): string {
+    public writeCodeblock(src: string, evalResult?: string): string {
         return [
             "<pre>",
             "<code>",
-            text,
+            src,
             `</code>`,
             `</pre>`,
+            evalResult ? "<pre>" : "",
+            evalResult ? "<code>" : "",
+            evalResult ? evalResult : "",
+            evalResult ? `</code>` : "",
+            evalResult ? `</pre>` : "",
         ].join("");
     }
 }

@@ -25,7 +25,8 @@ export interface Template {
     /**
      * Renders a heading.
      * @param text The text in the code.
+     * @param evalResult The result of the evaluation.
      * @returns The rendered code block.
      */
-    writeCodeblock: (text: string) => string;
+    writeCodeblock: (text: string, evalResult?: string) => string;
 }

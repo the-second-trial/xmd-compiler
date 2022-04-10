@@ -1,15 +1,27 @@
 import { execFile } from "child_process";
 import fetch from "node-fetch";
 
-import { CodeServer, CodeServerProcess } from "./code_srv";
+import { BaseCodeServerResponse, CodeServer, CodeServerProcess, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { wait } from "./utils";
+
+const baseAddr = "http://localhost:8080";
 
 /** A code server for handling Python chunks. */
 export class PythonCodeServer implements CodeServer {
     private process: CodeServerProcess;
+    private sid: string;
 
     constructor(private path: string) {
+    }
+
+    public async eval(chunk: string): Promise<EvalResult> {
+        if (!this.sid) {
+            // No session yet, create one
+            await this.createSession();
+        }
+
+        return await this.sendEvalChunkRequest(chunk);
     }
 
     /** @inheritdoc */
@@ -19,9 +31,7 @@ export class PythonCodeServer implements CodeServer {
         // Poll until the server is online
         for (let i = Constants.PySrv.SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
             try {
-                const res = await fetch("http://localhost:8080/ping");
-                const body = await res.json() as any;
-                if (body["result"] === "ok" && body["reply"] === "pong") {
+                if (await this.sendPingRequest()) {
                     this.process = srv;
                     return;
                 }
@@ -40,8 +50,65 @@ export class PythonCodeServer implements CodeServer {
         return new Promise(resolve => {
             this.process.kill();
             this.process = undefined;
-            
+
             resolve();
         });
+    }
+
+    private async createSession(): Promise<void> {
+        this.sid = await this.sendCreateSessionRequest();
+
+        if (!this.sid) {
+            throw new Error("Could not create a session");
+        }
+    }
+
+    private async sendPingRequest(): Promise<boolean> {
+        const res = await this.sendGet("/ping");
+        if (res["result"] === "ok" && res["reply"] === "pong") {
+            return true;
+        }
+        return false;
+    }
+
+    private async sendCreateSessionRequest(): Promise<string | undefined> {
+        const res = await this.sendPost("/newSession");
+        if (res["result"] === "ok") {
+            return res["sid"];
+        }
+        return undefined;
+    }
+
+    private async sendEvalChunkRequest(src: string): Promise<EvalResult> {
+        const res = await this.sendPost("/evalChunk", {
+            sid: this.sid,
+            src,
+        });
+
+        if (res["result"] !== "ok") {
+            throw new Error(`An error occurred while evaluating a chunk: ${res.error}`);
+        }
+
+        return {
+            value: res["expr_result"],
+            type: res["expr_type"],
+        };
+    }
+
+    private async sendGet(route: string): Promise<BaseCodeServerResponse> {
+        const res = await fetch(`${baseAddr}${route}`, { method: "GET" });
+        return await res.json() as BaseCodeServerResponse;
+    }
+
+    private async sendPost(route: string, body?: any): Promise<BaseCodeServerResponse> {
+        const res = await fetch(`${baseAddr}${route}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: body ? JSON.stringify(body) : undefined,
+        });
+
+        return await res.json() as BaseCodeServerResponse;
     }
 }

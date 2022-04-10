@@ -2,7 +2,8 @@
 Paragraph text with no newline from heading.
 
 ```
-<tag>Content</tag>
+myvar = 12
+10 + myvar
 ```
 
 Trailing text.
