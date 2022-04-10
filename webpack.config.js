@@ -16,7 +16,7 @@ module.exports = {
         extensions: [".ts", ".js"],
     },
     output: {
-        filename: "pysrv.js",
+        filename: "xmdparser.js",
         path: path.resolve(__dirname, "lib"),
     }
 };
