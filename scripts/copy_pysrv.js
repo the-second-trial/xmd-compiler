@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { exit } = require("process");
 
 function dirExistsSynch(src) {
     return fs.existsSync(src) && fs.statSync(src)?.isDirectory();
@@ -57,3 +58,5 @@ if (dirExistsSynch(dst)) {
 console.log("Copying", src, "Into", dst, "...");
 cpSync(src, dst);
 console.log(src, "Copied into", dst);
+
+exit(0);

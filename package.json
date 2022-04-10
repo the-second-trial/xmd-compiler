@@ -6,6 +6,7 @@
     "build": "npm run build:bundlets && npm run build:copypysrv",
     "build:bundlets": "webpack --mode=development",
     "build:copypysrv": "node scripts/copy_pysrv.js",
+    "clean": "node scripts/clean.js",
     "start": "node ./src/index.js --src ./examples/simple.md",
     "test": "jest --config=jest.config.js"
   },
