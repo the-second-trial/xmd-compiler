@@ -12,7 +12,7 @@ import { Generator } from "./generator";
 import { HtmlTufteTemplate } from "./template_html_tufte";
 import { PythonCodeServer } from "./py_srv";
 
-const current_path = resolve();
+const current_path = __dirname;
 
 // Configure the commandline args
 let { verbose, noserver, src, output } = args([

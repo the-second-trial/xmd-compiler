@@ -1,3 +1,6 @@
+import { resolve } from "path";
+import { existsSync, readFileSync } from "fs";
+
 import { Constants } from "./constants";
 import { Template } from "./template";
 
@@ -5,13 +8,7 @@ import { Template } from "./template";
 export class HtmlTufteTemplate implements Template {
     /** @inheritdoc */
     public writeRoot(content: string): string {
-        return [
-            "<body>",
-            "<article>",
-            content,
-            "</article>",
-            "</body>",
-        ].join("");
+        return HtmlTufteTemplate.getPageTemplate(content);
     }
 
     /** @inheritdoc */
@@ -61,5 +58,43 @@ export class HtmlTufteTemplate implements Template {
             evalResult ? `</code>` : "",
             evalResult ? `</pre>` : "",
         ].join("");
+    }
+
+    private static getPageTemplate(content: string): string {
+        return [
+            "<html lang='en'>",
+            "<head>",
+            "<meta charset='utf-8'/>",
+            "<title>Tufte CSS</title>",
+            "<style>",
+            HtmlTufteTemplate.getLatexCss(),
+            "</style>",
+            "<style>",
+            HtmlTufteTemplate.getTufteCss(),
+            "</style>",
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>",
+            "</head>",
+            "<body>",
+            "<article>",
+            content,
+            "</article>",
+            "</body>",
+        ].join("");
+    }
+
+    private static getLatexCss(): string {
+        return HtmlTufteTemplate.getFile(resolve(__dirname, "res", "html_tufte", "latex.css"));
+    }
+
+    private static getTufteCss(): string {
+        return HtmlTufteTemplate.getFile(resolve(__dirname, "res", "html_tufte", "tufte.css"));
+    }
+
+    private static getFile(path: string): string {
+        if (!existsSync(path)) {
+            throw new Error(`Cannot get 'latex.css', path '${path}' does not exist`);
+        }
+
+        return readFileSync(path).toString();
     }
 }

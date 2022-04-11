@@ -44,9 +44,9 @@ function rmSync(src) {
 // Path to the project directory
 const root_path = path.resolve(__dirname, "..");
 
-const src = path.resolve(root_path, "pysrv");
+const src = path.resolve(root_path, "src", "res");
 const lib = path.resolve(root_path, "lib");
-const dst = path.resolve(lib, "pysrv");
+const dst = path.resolve(lib, "res");
 
 if (!dirExistsSynch(lib)) {
     console.log("Directory", lib, "does not exist, creating...");

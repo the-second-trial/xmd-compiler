@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "A parser from eXtended MarkDown to HTML",
   "scripts": {
-    "build": "npm run build:bundlets && npm run build:copypysrv",
+    "build": "npm run build:bundlets && npm run build:copypysrv && npm run build:copyres",
     "build:bundlets": "webpack --mode=development",
     "build:copypysrv": "node scripts/copy_pysrv.js",
+    "build:copyres": "node scripts/copy_res.js",
     "clean": "node scripts/clean.js",
     "start": "node ./src/index.js --src ./examples/simple.md",
     "test": "jest --config=jest.config.js"
