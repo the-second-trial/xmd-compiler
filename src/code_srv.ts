@@ -15,7 +15,7 @@ export interface CodeChunkEvaluator {
 /** Describes a Server for handling code chunks. */
 export interface CodeServer extends CodeChunkEvaluator {
     startServer: () => Promise<void>;
-    stopServer: () => Promise<void>;
+    stopServer: () => Promise<string>;
 }
 
 /** Describes a response from the code server. */

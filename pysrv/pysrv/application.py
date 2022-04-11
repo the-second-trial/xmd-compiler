@@ -158,6 +158,8 @@ class Application:
             logger.error(f"Method eval_chunk - Invalid body ergs: {type(e).__name__} - {str(e)}")
             return bad(start_response, "Invalid args passed in the body. Expected 'sid' and 'src'.")
 
+        logger.debug(f"Evaluating chunk: '{src}'")
+
         session = self.sessions.get_session(sid)
         if session is None:
             logger.error(f"Method eval_chunk - Session not found: {sid}")
@@ -166,8 +168,8 @@ class Application:
         try:
             eval_result = self.sessions.eval_on_session(sid, src)
             expr_result = eval_result["ret"]
-        except:
-            return error({"error": "Chunk evaluation failed"}, start_response)
+        except BaseException as error:
+            return error({"error": f"Chunk evaluation failed: {error=}"}, start_response)
 
         logger.info(f"Chunk evaluated, expr result is '{expr_result}'")
 

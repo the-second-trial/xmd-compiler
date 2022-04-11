@@ -15,7 +15,7 @@ export class Generator {
      * Generates the output code.
      * @param ast The input AST.
      */
-    public async generate(ast: XmdAst): Promise<string> {
+    public generate(ast: XmdAst): Promise<string> {
         if (!ast || ast.t !== "start") {
             throw new Error("AST cannot be null, undefined or malformed");
         }
@@ -28,21 +28,33 @@ export class Generator {
     }
     
     private async generateStart(node: XmdAst): Promise<string> {
-        const flow = await Promise.all(node.v
-            .map((componentNode: AstComponentNode) => {
-                switch (componentNode.t) {
-                    case Constants.NodeTypes.HEADING:
-                        return Promise.resolve(this.generateHeading(componentNode));
-                    case Constants.NodeTypes.PARAGRAPH:
-                        return Promise.resolve(this.generateParagraph(componentNode));
-                    case Constants.NodeTypes.CODEBLOCK:
-                        // Inherently async
-                        return this.generateCodeblock(componentNode as AstCodeblockComponentNode);
-                    default:
-                        throw new Error(`Unrecognized node type'${componentNode.t}'`);
-                }
-            }));
+        // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
+        const flow: Array<string> = [];
+        for (const componentNode of node.v) {
+            let renderedComponent = "";
+            switch (componentNode.t) {
+                case Constants.NodeTypes.HEADING:
+                    renderedComponent = this.generateHeading(componentNode);
+                    break;
+                case Constants.NodeTypes.PARAGRAPH:
+                    renderedComponent = this.generateParagraph(componentNode);
+                    break;
+                case Constants.NodeTypes.CODEBLOCK:
+                    renderedComponent = await this.generateCodeblock(componentNode as AstCodeblockComponentNode);
+                    break;
+                default:
+                    throw new Error(`Unrecognized node type'${componentNode.t}'`);
+            }
+
+            if (!renderedComponent) {
+                throw new Error("Component did not render");
+            }
+
+            flow.push(renderedComponent);
+        }
+
         const reducedFlow = flow.reduce((a: any, b: any) => `${a}${b}`, "");
+
         return this.template.writeRoot(reducedFlow);
     }
 
@@ -66,10 +78,13 @@ export class Generator {
             switch (evaluation.type) {
                 case "str":
                     evalResult = evaluation.value as string;
+                    break;
                 case "int":
                     evalResult = parseInt(evaluation.value as string).toString();
+                    break;
                 default:
-                    evalResult = `Unknown type ${evaluation.type}`;
+                    evalResult = `Unknown type: '${evaluation.type}'`;
+                    break;
             }
         }
 

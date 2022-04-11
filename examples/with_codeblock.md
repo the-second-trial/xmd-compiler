@@ -2,7 +2,13 @@
 Paragraph text with no newline from heading.
 
 ```
-1+1
+a = 1
+```
+
+Middle text
+
+```
+a + a
 ```
 
 Trailing text.

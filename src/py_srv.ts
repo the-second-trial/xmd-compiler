@@ -1,5 +1,6 @@
 import { execFile } from "child_process";
 import fetch from "node-fetch";
+import { EOL } from "os";
 
 import { BaseCodeServerResponse, CodeServer, CodeServerProcess, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
@@ -11,8 +12,16 @@ const baseAddr = "http://localhost:8080";
 export class PythonCodeServer implements CodeServer {
     private process: CodeServerProcess;
     private sid: string;
+    private srvLog: Array<string>;
 
-    constructor(private path: string) {
+    /**
+     * Initializes a new instance of this class.
+     * @param path The path to the 'main.py' file to run. If not provided, a call to
+     *     @see startServer will fail as the server cannot be started.
+     *     Do not provide a path when a server will already be present.
+     */
+    constructor(private path?: string) {
+        this.srvLog = [];
     }
 
     public async eval(chunk: string): Promise<EvalResult> {
@@ -26,8 +35,22 @@ export class PythonCodeServer implements CodeServer {
 
     /** @inheritdoc */
     public async startServer(): Promise<void> {
-        const srv = execFile("python", [this.path]);
-    
+        const srv = execFile("python", [this.path], (error, stdout, stderr) => {
+            if (error) {
+                console.error(error);
+                console.log(stderr);
+            }
+            console.log(stdout);
+        });
+        srv.stdout.setEncoding("utf8");
+        srv.stdout.on("data", chunk => {
+            this.srvLog.push(`[${new Date().toLocaleString()} - STDOUT] ${chunk.toString()}`);
+        });
+        srv.stderr.setEncoding("utf8");
+        srv.stderr.on("data", chunk => {
+            this.srvLog.push(`[${new Date().toLocaleString()} - STDERR] ${chunk.toString()}`);
+        });
+
         // Poll until the server is online
         for (let i = Constants.PySrv.SRV_PING_MAX_ATTEMPTS_COUNT; i > 0; i--) {
             try {
@@ -38,20 +61,24 @@ export class PythonCodeServer implements CodeServer {
             } catch (error) {
                 // Swallow
             }
-    
+
             await wait(Constants.PySrv.SRV_PING_WAIT_RETRY_MS);
         }
-    
+
         throw new Error("Max attempts reached");
     }
 
     /** @inheritdoc */
-    public stopServer(): Promise<void> {
+    public stopServer(): Promise<string> {
         return new Promise(resolve => {
+            if (!this.process) {
+                resolve("");
+            }
+
             this.process.kill();
             this.process = undefined;
 
-            resolve();
+            resolve(this.srvLog.length === 0 ? "None" : this.srvLog.join(EOL));
         });
     }
 
