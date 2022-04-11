@@ -15,7 +15,7 @@ export class Generator {
      * Generates the output code.
      * @param ast The input AST.
      */
-    public generate(ast: XmdAst): string {
+    public async generate(ast: XmdAst): Promise<string> {
         if (!ast || ast.t !== "start") {
             throw new Error("AST cannot be null, undefined or malformed");
         }
@@ -28,21 +28,22 @@ export class Generator {
     }
     
     private async generateStart(node: XmdAst): Promise<string> {
-        const flow = node.v
+        const flow = await Promise.all(node.v
             .map((componentNode: AstComponentNode) => {
                 switch (componentNode.t) {
                     case Constants.NodeTypes.HEADING:
-                        return this.generateHeading(componentNode);
+                        return Promise.resolve(this.generateHeading(componentNode));
                     case Constants.NodeTypes.PARAGRAPH:
-                        return this.generateParagraph(componentNode);
+                        return Promise.resolve(this.generateParagraph(componentNode));
                     case Constants.NodeTypes.CODEBLOCK:
+                        // Inherently async
                         return this.generateCodeblock(componentNode as AstCodeblockComponentNode);
                     default:
                         throw new Error(`Unrecognized node type'${componentNode.t}'`);
                 }
-            })
-            .reduce((a: any, b: any) => `${a}${b}`, "");
-        return this.template.writeRoot(flow);
+            }));
+        const reducedFlow = flow.reduce((a: any, b: any) => `${a}${b}`, "");
+        return this.template.writeRoot(reducedFlow);
     }
 
     private generateHeading(node: AstComponentNode): string {

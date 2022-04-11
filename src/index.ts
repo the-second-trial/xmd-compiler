@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     }
 
     // Generate
-    const out = new Generator(new HtmlTufteTemplate()).generate(ast);
+    const out = await new Generator(new HtmlTufteTemplate()).generate(ast);
 
     // Kill server
     await pysrv.stopServer();

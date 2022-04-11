@@ -2,8 +2,7 @@
 Paragraph text with no newline from heading.
 
 ```
-myvar = 12
-10 + myvar
+1+1
 ```
 
 Trailing text.
