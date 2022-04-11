@@ -48,7 +48,10 @@ heading
   = symb:"#"+ whitespace* content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
 
 codeblock
-  = "```" mode:"*"? whitespace* newline content:text_char+ newline "```" { return { run: !mode, src: arr2contstr(content) }; }
+  = "```" mode:"*"? whitespace* newline char:[^\n\r`] next_char:codeblock_cont { return { run: !mode, src: char + next_char }; }
+codeblock_cont
+  = newline "```" { return ""; }
+  / char:. next_char:codeblock_cont { return char + next_char; }
 
 blockquote
   = ">" whitespace* content:text_char+ { return arr2contstr(content); }

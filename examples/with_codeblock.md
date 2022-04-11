@@ -3,12 +3,13 @@ Paragraph text with no newline from heading.
 
 ```
 a = 1
+b = 2
 ```
 
 Middle text
 
 ```
-a + a
+a + b
 ```
 
 Trailing text.
