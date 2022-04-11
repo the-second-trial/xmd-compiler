@@ -3,7 +3,7 @@
  */
 
 import * as args from "command-line-args";
-import { join, basename, dirname, resolve } from "path";
+import { join, basename, dirname } from "path";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { exit } from "process";
 
