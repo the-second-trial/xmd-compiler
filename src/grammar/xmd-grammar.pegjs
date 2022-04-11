@@ -30,6 +30,7 @@ par_element
   = content:italic { return content; }
   / content:bold { return content; }
   / content:codeinline { return content; }
+  / content:codeinline_noeval { return content; }
   / content:text { return content; }
 
 text
@@ -42,7 +43,10 @@ bold
   = "*" content:text_char+ "*" { return { t: "bold", v: arr2contstr(content) }; }
 
 codeinline
-  = "`" content:text_char+ "`" { return { t: "codeinline", v: arr2contstr(content) }; }
+  = "```" content:text_char+ "```" { return { t: "codeinline", v: { run: true, src: arr2contstr(content) } }; }
+
+codeinline_noeval
+  = "`" content:text_char+ "`" { return { t: "codeinline", v: { run: false, src: arr2contstr(content) } }; }
 
 heading
   = symb:"#"+ whitespace* content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }

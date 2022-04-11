@@ -1,11 +1,49 @@
 export interface AstHeadingComponentNode {
     t: "heading";
-    v: any;
+    v: {
+        t: "heading_text",
+        v: string,
+        p: {
+            type: number,
+        },
+    };
 }
+
+export interface AstParagraphComponentTextNode {
+    t: "text";
+    v: string;
+}
+
+export interface AstParagraphComponentBoldTextNode {
+    t: "bold";
+    v: string;
+}
+
+export interface AstParagraphComponentItalicTextNode {
+    t: "italic";
+    v: string;
+}
+
+export interface AstParagraphComponentCodeInlineNode {
+    t: "codeinline";
+    v: {
+        run: boolean,
+        src: string,
+    };
+}
+
+export type AstParagraphComponentNodeValue =
+    | AstParagraphComponentTextNode
+    | AstParagraphComponentBoldTextNode
+    | AstParagraphComponentItalicTextNode
+    | AstParagraphComponentCodeInlineNode;
 
 export interface AstParagraphComponentNode {
     t: "paragraph";
-    v: any;
+    v: {
+        t: "par",
+        v: Array<AstParagraphComponentNodeValue>,
+    };
 }
 
 export interface AstCodeblockComponentNode {

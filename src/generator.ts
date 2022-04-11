@@ -1,4 +1,4 @@
-import { AstCodeblockComponentNode, AstComponentNode, XmdAst } from "./ast";
+import { AstCodeblockComponentNode, AstHeadingComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { Template } from "./template";
@@ -34,10 +34,10 @@ export class Generator {
             let renderedComponent = "";
             switch (componentNode.t) {
                 case Constants.NodeTypes.HEADING:
-                    renderedComponent = this.generateHeading(componentNode);
+                    renderedComponent = this.generateHeading(componentNode as AstHeadingComponentNode);
                     break;
                 case Constants.NodeTypes.PARAGRAPH:
-                    renderedComponent = this.generateParagraph(componentNode);
+                    renderedComponent = await this.generateParagraph(componentNode as AstParagraphComponentNode);
                     break;
                 case Constants.NodeTypes.CODEBLOCK:
                     renderedComponent = await this.generateCodeblock(componentNode as AstCodeblockComponentNode);
@@ -58,17 +58,60 @@ export class Generator {
         return this.template.writeRoot(reducedFlow);
     }
 
-    private generateHeading(node: AstComponentNode): string {
+    private generateHeading(node: AstHeadingComponentNode): string {
         const text = node.v.v;
         const level = node.v.p.type;
         return this.template.writeHeading(text, level);
     }
 
-    private generateParagraph(node: AstComponentNode): string {
-        return this.template.writeParagraph(node.v.v);
+    private async generateParagraph(node: AstParagraphComponentNode): Promise<string> {
+        // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
+        const flow: Array<string> = [];
+        for (const par of node.v.v) {
+            let renderedComponent = "";
+            switch (par.t) {
+                case Constants.NodeTypes.PAR_TEXT:
+                    const textPar = par as AstParagraphComponentTextNode;
+                    renderedComponent = this.template.writeParagraphText(textPar.v);
+                    break;
+                case Constants.NodeTypes.PAR_BOLD:
+                    const boldPar = par as AstParagraphComponentBoldTextNode;
+                    renderedComponent = this.template.writeParagraphText(boldPar.v);
+                    break;
+                case Constants.NodeTypes.PAR_ITALIC:
+                    const itslicPar = par as AstParagraphComponentItalicTextNode;
+                    renderedComponent = this.template.writeParagraphText(itslicPar.v);
+                    break;
+                case Constants.NodeTypes.PAR_CODEINLINE:
+                    renderedComponent = await this.generateCodeinline(par as AstParagraphComponentCodeInlineNode);
+                    break;
+                default:
+                    throw new Error(`Unrecognized par type'${par.t}'`);
+            }
+
+            if (!renderedComponent) {
+                throw new Error("Par component did not render");
+            }
+
+            flow.push(renderedComponent);
+        }
+
+        const reducedFlow = flow.reduce((a: any, b: any) => `${a}${b}`, "");
+
+        return this.template.writeParagraph(reducedFlow);
     }
 
     private async generateCodeblock(node: AstCodeblockComponentNode): Promise<string> {
+        const [src, evalResult] = await this.generateCodeComponent(node);
+        return this.template.writeCodeblock(src, evalResult);
+    }
+
+    private async generateCodeinline(node: AstParagraphComponentCodeInlineNode): Promise<string> {
+        const [src, evalResult] = await this.generateCodeComponent(node);
+        return this.template.writeParagraphCodeInline(src, evalResult);
+    }
+
+    private async generateCodeComponent(node: AstCodeblockComponentNode | AstParagraphComponentCodeInlineNode): Promise<[string, string]> {
         const src = node.v.src;
         let evalResult: string = undefined;
 
@@ -88,8 +131,8 @@ export class Generator {
             }
         }
 
-        return this.template.writeCodeblock(src, evalResult);
-    }
+        return [src, evalResult];
+    } 
 
     private evaluateCodeChunk(chunk: string): Promise<EvalResult | undefined> {
         if (!this.codeEvaluator) {

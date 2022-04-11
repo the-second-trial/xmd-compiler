@@ -6,7 +6,7 @@ a = 1
 b = 2
 ```
 
-Middle text.
+Middle text and eval: ```a``` and no eval `a`.
 
 ```
 a + b
