@@ -8,6 +8,7 @@ export interface Template {
     /**
      * Renders the root of the document.
      * @param content The content in the root.
+     * @param docInfo The document info.
      * @returns The rendered node.
      */
     writeRoot: (content: string, docInfo: DocumentInfo) => string;

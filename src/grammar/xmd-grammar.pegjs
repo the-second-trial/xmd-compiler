@@ -32,16 +32,18 @@ par_element
   / content:bold { return content; }
   / content:codeinline { return content; }
   / content:codeinline_noeval { return content; }
-  / content:text { return content; }
+  / content:text { return content; } // Last as very generic
 
 text
   = content:text_char+ { return { t: "text", v: arr2contstr(content) }; }
 
 italic
   = "_" content:text_char+ "_" { return { t: "italic", v: arr2contstr(content) }; }
+  / "*" content:text_char+ "*" { return { t: "italic", v: arr2contstr(content) }; }
 
 bold
-  = "*" content:text_char+ "*" { return { t: "bold", v: arr2contstr(content) }; }
+  = "**" content:text_char+ "**" { return { t: "bold", v: arr2contstr(content) }; }
+  / "__" content:text_char+ "__" { return { t: "bold", v: arr2contstr(content) }; }
 
 codeinline
   = "```" content:text_char+ "```" { return { t: "codeinline", v: { run: true, src: arr2contstr(content) } }; }
@@ -83,6 +85,9 @@ head_delim
 
 text_char
   = [^#\n\r`]
+
+text_char_ns
+  = [^#\n\r`*_]
 
 tab
   = "\t"
