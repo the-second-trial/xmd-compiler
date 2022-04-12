@@ -19,6 +19,7 @@ component
   = newline newline+ content:heading { return { t: "heading", v: content }; }
   / newline newline+ content:codeblock { return { t: "codeblock", v: content }; }
   / newline newline+ content:codeblock_noeval { return { t: "codeblock", v: content }; }
+  / newline newline+ content:eqblock { return { t: "eqblock", v: content }; }
   / newline newline+ content:blockquote { return { t: "blockquote", v: content }; }
   / newline newline+ content:list { return { t: "list", v: content }; }
   / newline newline+ content:hrule { return { t: "hrule" }; }
@@ -30,20 +31,24 @@ paragraph
 par_element
   = content:italic { return content; }
   / content:bold { return content; }
+  / content:eqinline { return content; }
   / content:codeinline { return content; }
   / content:codeinline_noeval { return content; }
   / content:text { return content; } // Last as very generic
 
 text
-  = content:text_char+ { return { t: "text", v: arr2contstr(content) }; }
+  = content:text_char_ns+ { return { t: "text", v: arr2contstr(content) }; }
 
 italic
-  = "_" content:text_char+ "_" { return { t: "italic", v: arr2contstr(content) }; }
-  / "*" content:text_char+ "*" { return { t: "italic", v: arr2contstr(content) }; }
+  = "_" content:[^#\n\r`_]+ "_" { return { t: "italic", v: arr2contstr(content) }; }
+  / "*" content:[^#\n\r`*]+ "*" { return { t: "italic", v: arr2contstr(content) }; }
 
 bold
-  = "**" content:text_char+ "**" { return { t: "bold", v: arr2contstr(content) }; }
-  / "__" content:text_char+ "__" { return { t: "bold", v: arr2contstr(content) }; }
+  = "**" content:[^#\n\r`*]+ "**" { return { t: "bold", v: arr2contstr(content) }; }
+  / "__" content:[^#\n\r`_]+ "__" { return { t: "bold", v: arr2contstr(content) }; }
+
+eqinline
+  = "$" content:text_char+ "$" { return { t: "eqinline", v: arr2contstr(content) }; }
 
 codeinline
   = "```" content:text_char+ "```" { return { t: "codeinline", v: { run: true, src: arr2contstr(content) } }; }
@@ -67,6 +72,12 @@ codeblock_noeval_line
 codeblock_noeval_anotherline
   = nl:newline content:codeblock_noeval_line { return `${nl}${content}`; }
 
+eqblock
+  = "$$" whitespace* newline char:[^\n\r`] next_char:eqblock_cont { return char + next_char; }
+eqblock_cont
+  = newline "$$" { return ""; }
+  / char:. next_char:eqblock_cont { return char + next_char; }
+
 blockquote
   = ">" whitespace* content:text_char+ { return arr2contstr(content); }
 
@@ -87,7 +98,7 @@ text_char
   = [^#\n\r`]
 
 text_char_ns
-  = [^#\n\r`*_]
+  = [^#\n\r`*_$]
 
 tab
   = "\t"

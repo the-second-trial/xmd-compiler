@@ -89,11 +89,11 @@ export class Generator {
                     break;
                 case Constants.NodeTypes.PAR_BOLD:
                     const boldPar = par as AstParagraphComponentBoldTextNode;
-                    renderedComponent = this.template.writeParagraphText(boldPar.v);
+                    renderedComponent = this.template.writeParagraphBoldText(boldPar.v);
                     break;
                 case Constants.NodeTypes.PAR_ITALIC:
                     const itslicPar = par as AstParagraphComponentItalicTextNode;
-                    renderedComponent = this.template.writeParagraphText(itslicPar.v);
+                    renderedComponent = this.template.writeParagraphItalicText(itslicPar.v);
                     break;
                 case Constants.NodeTypes.PAR_CODEINLINE:
                     renderedComponent = await this.generateCodeinline(par as AstParagraphComponentCodeInlineNode);
