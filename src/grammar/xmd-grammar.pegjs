@@ -16,12 +16,13 @@ component_init
   / content:hrule { return { t: "hrule" }; }
 
 component
-  = newline newline* content:paragraph { return { t: "paragraph", v: content }; }
-  / newline newline+ content:heading { return { t: "heading", v: content }; }
+  = newline newline+ content:heading { return { t: "heading", v: content }; }
   / newline newline+ content:codeblock { return { t: "codeblock", v: content }; }
+  / newline newline+ content:codeblock_noeval { return { t: "codeblock", v: content }; }
   / newline newline+ content:blockquote { return { t: "blockquote", v: content }; }
   / newline newline+ content:list { return { t: "list", v: content }; }
   / newline newline+ content:hrule { return { t: "hrule" }; }
+  / newline newline* content:paragraph { return { t: "paragraph", v: content }; } // Should be last as very generic
 
 paragraph
   = content:par_element+ { return { t: "par", v: content }; }
@@ -52,10 +53,17 @@ heading
   = symb:"#"+ whitespace* content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
 
 codeblock
-  = "```" mode:"*"? whitespace* newline char:[^\n\r`] next_char:codeblock_cont { return { run: !mode, src: char + next_char }; }
+  = "```" whitespace* newline char:[^\n\r`] next_char:codeblock_cont { return { run: true, src: char + next_char }; }
 codeblock_cont
   = newline "```" { return ""; }
   / char:. next_char:codeblock_cont { return char + next_char; }
+
+codeblock_noeval
+  = first_line:codeblock_noeval_line other_lines:codeblock_noeval_anotherline* { return { run: false, src: [first_line].concat(other_lines || []).join("") }; }
+codeblock_noeval_line
+  = tab content:[^\n\r`]+ { return arr2contstr(content); }
+codeblock_noeval_anotherline
+  = nl:newline content:codeblock_noeval_line { return `${nl}${content}`; }
 
 blockquote
   = ">" whitespace* content:text_char+ { return arr2contstr(content); }
@@ -75,6 +83,10 @@ head_delim
 
 text_char
   = [^#\n\r`]
+
+tab
+  = "\t"
+  / "    "
 
 alphanumeric_char
   = [a-zA-Z0-9]

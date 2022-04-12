@@ -84,7 +84,7 @@ export class HtmlTufteTemplate implements Template {
             "<html lang='en'>",
             "<head>",
             "<meta charset='utf-8'/>",
-            "<title>Tufte CSS</title>",
+            "<title>Title TBD</title>",
             "<style>",
             HtmlTufteTemplate.getLatexCss(),
             "</style>",
