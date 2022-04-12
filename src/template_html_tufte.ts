@@ -1,14 +1,13 @@
 import { resolve } from "path";
 import { existsSync, readFileSync } from "fs";
 
-import { Constants } from "./constants";
-import { Template } from "./template";
+import { DocumentInfo, Template } from "./template";
 
 /** Describes a template for rendering to HTML Tufte. */
 export class HtmlTufteTemplate implements Template {
     /** @inheritdoc */
-    public writeRoot(content: string): string {
-        return HtmlTufteTemplate.getPageTemplate(content);
+    public writeRoot(content: string, docInfo: DocumentInfo): string {
+        return HtmlTufteTemplate.getPageTemplate(content, docInfo);
     }
 
     /** @inheritdoc */
@@ -79,12 +78,12 @@ export class HtmlTufteTemplate implements Template {
         ].join("");
     }
 
-    private static getPageTemplate(content: string): string {
+    private static getPageTemplate(content: string, docInfo: DocumentInfo): string {
         return [
             "<html lang='en'>",
             "<head>",
             "<meta charset='utf-8'/>",
-            "<title>Title TBD</title>",
+            `<title>${docInfo.title || ""}</title>`,
             "<style>",
             HtmlTufteTemplate.getLatexCss(),
             "</style>",

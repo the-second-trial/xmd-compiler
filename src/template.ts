@@ -1,3 +1,8 @@
+/** Describes a set of information to be associated to the document to generate. */
+export interface DocumentInfo {
+    title?: string;
+}
+
 /** Describes a template for generating an output code. */
 export interface Template {
     /**
@@ -5,7 +10,7 @@ export interface Template {
      * @param content The content in the root.
      * @returns The rendered node.
      */
-    writeRoot: (content: string) => string;
+    writeRoot: (content: string, docInfo: DocumentInfo) => string;
 
     /**
      * Renders a heading.

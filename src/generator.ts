@@ -1,7 +1,7 @@
 import { AstCodeblockComponentNode, AstHeadingComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
-import { Template } from "./template";
+import { DocumentInfo, Template } from "./template";
 
 /** A component capable of rendering the final code. */
 export class Generator {
@@ -26,8 +26,21 @@ export class Generator {
     
         return this.generateStart(ast);
     }
+
+    private extractSemanticInfo(node: XmdAst): DocumentInfo {
+        // Title
+        // The title is considered to be the very first level 1 heading found in the AST root flow.
+        const titleHeading = node.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
+        const title = titleHeading?.v?.v || "Untitled";
+
+        return {
+            title,
+        };
+    }
     
     private async generateStart(node: XmdAst): Promise<string> {
+        const docInfo = this.extractSemanticInfo(node);
+
         // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
         const flow: Array<string> = [];
         for (const componentNode of node.v) {
@@ -55,7 +68,7 @@ export class Generator {
 
         const reducedFlow = flow.reduce((a: any, b: any) => `${a}${b}`, "");
 
-        return this.template.writeRoot(reducedFlow);
+        return this.template.writeRoot(reducedFlow, docInfo);
     }
 
     private generateHeading(node: AstHeadingComponentNode): string {

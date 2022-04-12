@@ -1,4 +1,4 @@
-# Heading
+# Example with code
 Paragraph text with no newline from heading.
 
 ```
