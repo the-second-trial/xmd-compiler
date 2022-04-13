@@ -2,15 +2,6 @@
   "name": "xmd2html",
   "version": "1.0.0",
   "description": "A parser from eXtended MarkDown to HTML",
-  "scripts": {
-    "build": "npm run build:bundlets && npm run build:copypysrv && npm run build:copyres",
-    "build:bundlets": "webpack --mode=development",
-    "build:copypysrv": "node scripts/copy_pysrv.js",
-    "build:copyres": "node scripts/copy_res.js",
-    "clean": "node scripts/clean.js",
-    "start": "node ./src/index.js --src ./examples/simple.md",
-    "test": "jest --config=jest.config.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/the-second-trial/xmd2html.git"
@@ -26,17 +17,12 @@
     "url": "https://github.com/the-second-trial/xmd2html/issues"
   },
   "homepage": "https://github.com/the-second-trial/xmd2html#readme",
-  "dependencies": {
-    "command-line-args": "5.2.1",
-    "pegjs": "0.10.0",
-    "node-fetch": "3.2.3"
-  },
-  "devDependencies": {
-    "jest": "27.5.1",
-    "typescript": "4.6.3",
-    "ts-loader": "9.2.8",
-    "webpack-cli": "4.9.2",
-    "@types/command-line-args": "5.2.0",
-    "@types/pegjs": "0.10.3"
+  "scripts": {
+    "build": "npm run build:xmdparser && npm run build:pysrv && npm run build:res",
+    "build:xmdparser": "npm run build --prefix ./xmdparser && node scripts/copy_xmdparser.js",
+    "build:pysrv": "node scripts/copy_pysrv.js",
+    "build:res": "node scripts/copy_res.js",
+    "clean": "node scripts/clean.js",
+    "start": "node ./lib/xmlparser.js --src ./examples/simple.md"
   }
 }

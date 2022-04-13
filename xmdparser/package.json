@@ -1,0 +1,24 @@
+{
+  "name": "xmdparser",
+  "description": "The TypeScript parser component",
+  "author": "Andrea Tino",
+  "license": "GPL-3.0",
+  "scripts": {
+    "build": "webpack --mode=development",
+    "clean": "node scripts/clean.js",
+    "test": "jest --config=jest.config.js"
+  },
+  "dependencies": {
+    "command-line-args": "5.2.1",
+    "pegjs": "0.10.0",
+    "node-fetch": "3.2.3"
+  },
+  "devDependencies": {
+    "jest": "27.5.1",
+    "typescript": "4.6.3",
+    "ts-loader": "9.2.8",
+    "webpack-cli": "4.9.2",
+    "@types/command-line-args": "5.2.0",
+    "@types/pegjs": "0.10.3"
+  }
+}

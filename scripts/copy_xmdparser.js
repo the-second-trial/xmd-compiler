@@ -20,7 +20,7 @@ function dirExistsSynch(src) {
  */
 function cpSync(src, dst) {
     if (dirExistsSynch(src)) {
-        fs.mkdirSync(dst);
+        if (!dirExistsSynch(dst)) fs.mkdirSync(dst);
         fs.readdirSync(src).forEach(childItemName => {
             cpSync(path.join(src, childItemName), path.join(dst, childItemName));
         });
@@ -29,35 +29,17 @@ function cpSync(src, dst) {
     }
 };
 
-/**
- * Acts like `rm -R`.
- * @param {string} src The path to the directory to remove.
- */
-function rmSync(src) {
-    fs.rmSync(src, { recursive: true, force: true });
-
-    if (dirExistsSynch(dst)) {
-        throw new Error(`Directory ${src} still exists after removal`);
-    }
-}
-
 // Path to the project directory
 const root_path = path.resolve(__dirname, "..");
 
-const src = path.resolve(root_path, "res");
+const src = path.resolve(root_path, "xmdparser", "lib");
 const lib = path.resolve(root_path, "lib");
-const dst = path.resolve(lib, "res");
+const dst = lib;
 
 if (!dirExistsSynch(lib)) {
     console.log("Directory", lib, "does not exist, creating...");
     fs.mkdirSync(lib);
     console.log("Directory", lib, "created");
-}
-
-if (dirExistsSynch(dst)) {
-    console.log("Directory", dst, "already exists, removing...");
-    rmSync(dst);
-    console.log("Directory", dst, "removed");
 }
 
 console.log("Copying", src, "Into", dst, "...");

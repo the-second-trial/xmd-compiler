@@ -2,11 +2,28 @@ import { resolve } from "path";
 import { existsSync, readFileSync } from "fs";
 
 import { DocumentInfo, Template } from "./template";
+import { ResourceManager } from "./res_manager";
+
+export interface HtmlTufteTemplateOptions {
+    outputPsth: string;
+}
 
 /** Describes a template for rendering to HTML Tufte. */
 export class HtmlTufteTemplate implements Template {
+    /**
+     * Initializes a new instance of this class.
+     * @param options The options for customizing the template.
+     */
+    constructor(
+        private options: HtmlTufteTemplateOptions
+    ) {
+    }
+
     /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
+        const resMan = new ResourceManager({ path: this.options.outputPsth });
+        resMan.serveMathjax();
+
         return HtmlTufteTemplate.getPageTemplate(content, docInfo);
     }
 
@@ -90,6 +107,7 @@ export class HtmlTufteTemplate implements Template {
             "<style>",
             HtmlTufteTemplate.getTufteCss(),
             "</style>",
+            "<script id='MathJax-script' async src='__res/mathjax/tex-chtml.js'></script>",
             "<meta name='viewport' content='width=device-width, initial-scale=1'>",
             "</head>",
             "<body>",

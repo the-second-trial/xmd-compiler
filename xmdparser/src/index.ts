@@ -9,7 +9,7 @@ import { exit } from "process";
 
 import { XmdParser } from "./parser";
 import { Generator } from "./generator";
-import { HtmlTufteTemplate } from "./template_html_tufte";
+import { HtmlTufteTemplate, HtmlTufteTemplateOptions } from "./template_html_tufte";
 import { PythonCodeServer } from "./py_srv";
 
 const current_path = __dirname;
@@ -55,7 +55,14 @@ async function main(): Promise<void> {
 
     try {
         // Generate
-        const out = await (new Generator(new HtmlTufteTemplate(), pysrv)).generate(ast);
+        const genOptions: HtmlTufteTemplateOptions = {
+            outputPsth: dirname(output),
+        };
+        const out = await (
+            new Generator(
+                new HtmlTufteTemplate(genOptions), pysrv
+            )
+        ).generate(ast);
 
         writeFileSync(output, out);
         console.info("Output saved into:", output);
