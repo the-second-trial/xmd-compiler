@@ -48,7 +48,7 @@ bold
   / "__" content:[^#\n\r`_]+ "__" { return { t: "bold", v: arr2contstr(content) }; }
 
 eqinline
-  = "$" content:text_char+ "$" { return { t: "eqinline", v: arr2contstr(content) }; }
+  = "$" content:[^#\n\r`$]+ "$" { return { t: "eqinline", v: arr2contstr(content) }; }
 
 codeinline
   = "```" content:text_char+ "```" { return { t: "codeinline", v: { run: true, src: arr2contstr(content) } }; }

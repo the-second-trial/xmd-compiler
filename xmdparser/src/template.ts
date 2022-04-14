@@ -42,12 +42,19 @@ export interface Template {
      */
     writeParagraphBoldText: (text: string) => string;
 
-     /**
+    /**
      * Renders a paragraph italic text.
      * @param text The text to render.
      * @returns The rendered paragraph text.
      */
     writeParagraphItalicText: (text: string) => string;
+
+    /**
+     * Renders a paragraph inline equation text.
+     * @param equation The equation to render.
+     * @returns The rendered paragraph text.
+     */
+    writeParagraphEquationInlineText: (equation: string) => string;
 
     /**
      * Renders a paragraph code inline.

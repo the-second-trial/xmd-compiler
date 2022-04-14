@@ -65,6 +65,11 @@ export class HtmlTufteTemplate implements Template {
     }
 
     /** @inheritdoc */
+    public writeParagraphEquationInlineText(equation: string): string {
+        return `\\(${equation}\\)`;
+    }
+
+    /** @inheritdoc */
     public writeParagraphCodeInline(src: string, evalResult?: string): string {
         if (evalResult) {
             return [

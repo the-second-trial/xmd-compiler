@@ -1,4 +1,4 @@
-import { AstCodeblockComponentNode, AstHeadingComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
+import { AstCodeblockComponentNode, AstHeadingComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { DocumentInfo, Template } from "./template";
@@ -92,11 +92,16 @@ export class Generator {
                     renderedComponent = this.template.writeParagraphBoldText(boldPar.v);
                     break;
                 case Constants.NodeTypes.PAR_ITALIC:
-                    const itslicPar = par as AstParagraphComponentItalicTextNode;
-                    renderedComponent = this.template.writeParagraphItalicText(itslicPar.v);
+                    const italicPar = par as AstParagraphComponentItalicTextNode;
+                    renderedComponent = this.template.writeParagraphItalicText(italicPar.v);
                     break;
                 case Constants.NodeTypes.PAR_CODEINLINE:
-                    renderedComponent = await this.generateCodeinline(par as AstParagraphComponentCodeInlineNode);
+                    const codeinlinePar = par as AstParagraphComponentCodeInlineNode;
+                    renderedComponent = await this.generateCodeinline(codeinlinePar);
+                    break;
+                case Constants.NodeTypes.PAR_EQINLINE:
+                    const eqinlinePar = par as AstParagraphComponentEquationInlineNode;
+                    renderedComponent = await this.template.writeParagraphEquationInlineText(eqinlinePar.v);
                     break;
                 default:
                     throw new Error(`Unrecognized par type'${par.t}'`);

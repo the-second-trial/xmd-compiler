@@ -32,11 +32,17 @@ export interface AstParagraphComponentCodeInlineNode {
     };
 }
 
+export interface AstParagraphComponentEquationInlineNode {
+    t: "eqinline";
+    v: string;
+}
+
 export type AstParagraphComponentNodeValue =
     | AstParagraphComponentTextNode
     | AstParagraphComponentBoldTextNode
     | AstParagraphComponentItalicTextNode
-    | AstParagraphComponentCodeInlineNode;
+    | AstParagraphComponentCodeInlineNode
+    | AstParagraphComponentEquationInlineNode;
 
 export interface AstParagraphComponentNode {
     t: "paragraph";

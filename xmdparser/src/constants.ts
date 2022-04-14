@@ -9,6 +9,7 @@ export const Constants = {
         PAR_ITALIC: "italic",
         PAR_BOLD: "bold",
         PAR_CODEINLINE: "codeinline",
+        PAR_EQINLINE: "eqinline",
         CODEBLOCK: "codeblock",
     },
     PySrv: {
