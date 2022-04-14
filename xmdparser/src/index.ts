@@ -4,7 +4,7 @@
 
 import * as args from "command-line-args";
 import { join, basename, dirname } from "path";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "fs";
 import { exit } from "process";
 
 import { XmdParser } from "./parser";
@@ -15,18 +15,22 @@ import { PythonCodeServer } from "./py_srv";
 const current_path = __dirname;
 
 // Configure the commandline args
-let { verbose, noserver, src, output } = args([
+let { verbose, noserver, src, output, overwrite } = args([
     { name: "verbose", alias: "v", type: Boolean },
     { name: "noserver", alias: "n", type: Boolean },
+    // Path to the XMD/MD file
     { name: "src", type: String, defaultOption: true },
+    // Path to directory
     { name: "output", alias: "t", type: Number },
+    { name: "overwrite", alias: "w", type: Boolean },
 ]);
 
 // Handle defaults
 src = src || join(current_path, "index.md");
 verbose = verbose || false;
 noserver = noserver || false;
-output = output || join(dirname(src), basename(src, ".md") + ".html");
+output = output || join(dirname(src), basename(src, ".md") + "_html");
+overwrite = overwrite === undefined ? false : overwrite
 
 async function main(): Promise<void> {
     console.info(`Compiling: ${src} => ${output}`, "...");
@@ -35,6 +39,14 @@ async function main(): Promise<void> {
     if (!existsSync(src)) {
         throw new Error(`Input file '${src}' could not be found`);
     }
+
+    if (existsSync(output)) {
+        if (!overwrite) {
+            throw new Error(`Location '${output}' exists already`);
+        }
+        rmSync(output, { recursive: true, force: true });
+    }
+    mkdirSync(output);
     
     const source = readFileSync(src).toString();
     console.info("Len:", source.length, "processing", "...");
@@ -56,7 +68,7 @@ async function main(): Promise<void> {
     try {
         // Generate
         const genOptions: HtmlTufteTemplateOptions = {
-            outputPath: dirname(output),
+            outputPath: output,
         };
         const out = await (
             new Generator(
@@ -64,7 +76,7 @@ async function main(): Promise<void> {
             )
         ).generate(ast);
 
-        writeFileSync(output, out);
+        writeFileSync(join(output, "index.html"), out);
         console.info("Output saved into:", output);
     } catch (error) {
         console.error("An error occurred while generating the output code.", error);

@@ -25,7 +25,7 @@ export class ResourceManager {
      * folder which will be created in the output directory
      * when serving files.
      * */
-    public get resourceDirName(): string {
+    public get outputResourceDirName(): string {
         return "__res";
     }
 
@@ -35,11 +35,12 @@ export class ResourceManager {
      *     ready to be used in import fields.
      */
     public serveMathjax(): string {
+        this.ensureOutputResourceDir();
         cp(
             join(this.resDirPath, "html_tufte", "mathjax"),
-            resolve(this.options.path, this.resourceDirName, "mathjax")
+            resolve(this.options.path, this.outputResourceDirName, "mathjax")
         );
-        return join(this.resourceDirName, "mathjax");
+        return webJoin(this.outputResourceDirName, "mathjax");
     }
 
     /**
@@ -48,7 +49,16 @@ export class ResourceManager {
      *     ready to be used in import fields.
      */
     public serveTufteCss(): string {
-        return "";
+        this.ensureOutputResourceDir();
+        cp(
+            join(this.resDirPath, "html_tufte", "tufte.css"),
+            resolve(this.options.path, this.outputResourceDirName, "tufte.css")
+        );
+        cp(
+            join(this.resDirPath, "html_tufte", "et-book"),
+            resolve(this.options.path, this.outputResourceDirName, "et-book")
+        );
+        return webJoin(this.outputResourceDirName, "tufte.css");
     }
 
     /**
@@ -57,12 +67,29 @@ export class ResourceManager {
      *     ready to be used in import fields.
      */
     public serveLatexCss(): string {
-        return "";
+        this.ensureOutputResourceDir();
+        cp(
+            join(this.resDirPath, "html_tufte", "latex.css"),
+            resolve(this.options.path, this.outputResourceDirName, "latex.css")
+        );
+        return webJoin(this.outputResourceDirName, "latex.css");
     }
 
     private get resDirPath(): string {
         return resolve(__dirname, "res");
     }
+
+    private ensureOutputResourceDir(): void {
+        const dirPath = resolve(this.options.path, this.outputResourceDirName);
+        if (dirExists(dirPath)) {
+            return;
+        }
+        mkdirSync(dirPath);
+    }
+}
+
+function webJoin(...names: Array<string>) {
+    return names.join("/");
 }
 
 function dirExists(src: string): boolean {
