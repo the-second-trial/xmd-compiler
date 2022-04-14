@@ -15,13 +15,49 @@ export class ResourceManager {
     constructor(
         private options: ResourceOptions
     ) {
+        if (!dirExists(options.path)) {
+            throw new Error(`Output directory '${options.path}' does not exist`);
+        }
     }
 
-    public serveMathjax(): void {
+    /**
+     * Gets the name of the resources
+     * folder which will be created in the output directory
+     * when serving files.
+     * */
+    public get resourceDirName(): string {
+        return "__res";
+    }
+
+    /**
+     * Places, in the output directory, the Mathjax sources.
+     * @returns The relative path to the copied resource
+     *     ready to be used in import fields.
+     */
+    public serveMathjax(): string {
         cp(
             join(this.resDirPath, "html_tufte", "mathjax"),
-            resolve(this.options.path, "__res")
+            resolve(this.options.path, this.resourceDirName, "mathjax")
         );
+        return join(this.resourceDirName, "mathjax");
+    }
+
+    /**
+     * Places, in the output directory, the 'tufte.css' file.
+     * @returns The relative path to the copied resource
+     *     ready to be used in import fields.
+     */
+    public serveTufteCss(): string {
+        return "";
+    }
+
+    /**
+     * Places, in the output directory, the 'latex.css' file.
+     * @returns The relative path to the copied resource
+     *     ready to be used in import fields.
+     */
+    public serveLatexCss(): string {
+        return "";
     }
 
     private get resDirPath(): string {

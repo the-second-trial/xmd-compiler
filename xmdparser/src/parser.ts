@@ -26,9 +26,7 @@ export class XmdParser {
     private static generateParser(): pegjs.Parser {
         const grammar = readFileSync(
             join(
-                resolve(),
-                "src",
-                "grammar",
+                __dirname,
                 "xmd-grammar.pegjs"
             )
         )

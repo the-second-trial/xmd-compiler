@@ -56,7 +56,7 @@ async function main(): Promise<void> {
     try {
         // Generate
         const genOptions: HtmlTufteTemplateOptions = {
-            outputPsth: dirname(output),
+            outputPath: dirname(output),
         };
         const out = await (
             new Generator(
