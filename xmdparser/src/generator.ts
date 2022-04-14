@@ -1,8 +1,9 @@
-import { AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
+import { AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { DocumentInfo, Template } from "./template";
 
+// TODO: Handle sections.
 /** A component capable of rendering the final code. */
 export class Generator {
     constructor(
@@ -57,6 +58,9 @@ export class Generator {
                     break;
                 case Constants.NodeTypes.EQBLOCK:
                     renderedComponent = await this.generateEquationblock(componentNode as AstEquationblockComponentNode);
+                    break;
+                case Constants.NodeTypes.IMAGE:
+                    renderedComponent = await this.generateImage(componentNode as AstImageComponentNode);
                     break;
                 default:
                     throw new Error(`Unrecognized node type'${componentNode.t}'`);
@@ -129,6 +133,10 @@ export class Generator {
 
     private generateEquationblock(node: AstEquationblockComponentNode): string {
         return this.template.writeEquationblock(node.v);
+    }
+
+    private generateImage(node: AstImageComponentNode): string {
+        return this.template.writeImage(node.v.alt, node.v.path, node.v.title);
     }
 
     private async generateCodeinline(node: AstParagraphComponentCodeInlineNode): Promise<string> {

@@ -78,4 +78,13 @@ export interface Template {
      * @returns The rendered equation block.
      */
     writeEquationblock: (equation: string) => string;
+
+    /**
+     * Renders an image.
+     * @param alt The alt text of the image.
+     * @param path The path to the image.
+     * @param title The title.
+     * @returns The rendered equation block.
+     */
+    writeImage: (alt: string, path: string, title?: string) => string;
 }

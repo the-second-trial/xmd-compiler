@@ -12,6 +12,7 @@ export const Constants = {
         PAR_EQINLINE: "eqinline",
         CODEBLOCK: "codeblock",
         EQBLOCK: "eqblock",
+        IMAGE: "image",
     },
     PySrv: {
         SRV_PING_MAX_ATTEMPTS_COUNT: 10,

@@ -65,11 +65,21 @@ export interface AstEquationblockComponentNode {
     v: string;
 }
 
+export interface AstImageComponentNode {
+    t: "image";
+    v: {
+        alt: string,
+        path: string,
+        title?: string,
+    };
+}
+
 export type AstComponentNode =
     | AstHeadingComponentNode
     | AstParagraphComponentNode
     | AstCodeblockComponentNode
-    | AstEquationblockComponentNode;
+    | AstEquationblockComponentNode
+    | AstImageComponentNode;
 
 export interface XmdAst {
     t: "start";

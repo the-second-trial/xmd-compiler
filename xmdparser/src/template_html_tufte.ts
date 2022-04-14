@@ -1,5 +1,6 @@
 import { DocumentInfo, Template } from "./template";
 import { ResourceManager } from "./res_manager";
+import { idgen } from "./utils";
 
 export interface HtmlTufteTemplateOptions {
     outputPath: string;
@@ -7,6 +8,8 @@ export interface HtmlTufteTemplateOptions {
 
 /** Describes a template for rendering to HTML Tufte. */
 export class HtmlTufteTemplate implements Template {
+    private idg: Generator<string>;
+
     /**
      * Initializes a new instance of this class.
      * @param options The options for customizing the template.
@@ -14,6 +17,7 @@ export class HtmlTufteTemplate implements Template {
     constructor(
         private options: HtmlTufteTemplateOptions
     ) {
+        this.idg = idgen();
     }
 
     /** @inheritdoc */
@@ -110,6 +114,19 @@ export class HtmlTufteTemplate implements Template {
             equation,
             "\\]",
             "</p>",
+        ].join("");
+    }
+
+    /** @inheritdoc */
+    public writeImage(alt: string, path: string, title?: string): string {
+        const ref = this.idg.next().value as string;
+        return [
+            "<figure>",
+            `<label for="${ref}" class="margin-toggle">&#8853;</label>`,
+            `<input type="checkbox" id="${ref}" class="margin-toggle"/>`,
+            `<span class="marginnote">${title || alt}</span>`,
+            `<img src="${path}" alt="${alt}" />`,
+            "</figure>",
         ].join("");
     }
 

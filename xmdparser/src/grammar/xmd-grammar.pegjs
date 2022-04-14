@@ -23,7 +23,13 @@ component
   / newline newline+ content:blockquote { return { t: "blockquote", v: content }; }
   / newline newline+ content:list { return { t: "list", v: content }; }
   / newline newline+ content:hrule { return { t: "hrule" }; }
+  / newline+ content:image { return { t: "image", v: content }; }
   / newline newline* content:paragraph { return { t: "paragraph", v: content }; } // Should be last as very generic
+
+image
+  = whitespace* "!" "[" alt_text:[^\n\r\]]+ "]" "(" file_path:[^'"\n\r ]+ whitespace* imm_title:image_title? ")" whitespace* { return { alt: arr2contstr(alt_text), path: arr2contstr(file_path), title: imm_title }; }
+image_title
+  = ["'] value:[^'"\n\r]+ ["'] { return arr2contstr(value); }
 
 paragraph
   = content:par_element+ { return { t: "par", v: content }; }
