@@ -102,6 +102,17 @@ export class HtmlTufteTemplate implements Template {
         ].join("");
     }
 
+    /** @inheritdoc */
+    public writeEquationblock(equation: string): string {
+        return [
+            "<p>",
+            "\\[",
+            equation,
+            "\\]",
+            "</p>",
+        ].join("");
+    }
+
     private static getPageTemplate(
         content: string,
         paths: {

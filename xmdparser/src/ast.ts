@@ -60,10 +60,16 @@ export interface AstCodeblockComponentNode {
     };
 }
 
+export interface AstEquationblockComponentNode {
+    t: "eqblock";
+    v: string;
+}
+
 export type AstComponentNode =
     | AstHeadingComponentNode
     | AstParagraphComponentNode
-    | AstCodeblockComponentNode;
+    | AstCodeblockComponentNode
+    | AstEquationblockComponentNode;
 
 export interface XmdAst {
     t: "start";

@@ -71,4 +71,11 @@ export interface Template {
      * @returns The rendered code block.
      */
     writeCodeblock: (text: string, evalResult?: string) => string;
+
+    /**
+     * Renders an equation block.
+     * @param text The equation.
+     * @returns The rendered equation block.
+     */
+    writeEquationblock: (equation: string) => string;
 }
