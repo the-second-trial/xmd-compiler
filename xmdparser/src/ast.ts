@@ -1,3 +1,16 @@
+export interface AstExtensionClauseNode {
+    t: "extclause";
+    v: {
+        name: string,
+        value?: string,
+    };
+}
+
+export interface AstExtensionStringNode {
+    t: "ext";
+    v: Array<AstExtensionClauseNode>;
+}
+
 export interface AstHeadingComponentNode {
     t: "heading";
     v: {
@@ -71,6 +84,7 @@ export interface AstImageComponentNode {
         alt: string,
         path: string,
         title?: string,
+        ext?: AstExtensionStringNode,
     };
 }
 

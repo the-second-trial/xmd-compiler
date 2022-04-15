@@ -27,7 +27,7 @@ component
   / newline newline* content:paragraph { return { t: "paragraph", v: content }; } // Should be last as very generic
 
 image
-  = whitespace* "!" "[" alt_text:[^\n\r\]]+ "]" "(" file_path:[^'"\n\r ]+ whitespace* imm_title:image_title? ")" whitespace* { return { alt: arr2contstr(alt_text), path: arr2contstr(file_path), title: imm_title }; }
+  = whitespace* "!" "[" alt_text:[^\n\r\]]+ "]" "(" file_path:[^'"\n\r ]+ whitespace* imm_title:image_title? ")" whitespace* ext:extension_string? whitespace* { return { alt: arr2contstr(alt_text), path: arr2contstr(file_path), title: imm_title, ext: ext }; }
 image_title
   = ["'] value:[^'"\n\r]+ ["'] { return arr2contstr(value); }
 
@@ -92,6 +92,18 @@ list
 
 hrule
   = "---"
+
+extension_string
+  = "{" one:extension_string_one others:extension_string_two* "}" { return { t: "ext", v: [one].concat(others || []) } }
+extension_string_one
+  = whitespace* clause:extension_clause whitespace* { return clause; }
+extension_string_two
+  = "," whitespace* clause:extension_clause whitespace* { return clause; }
+
+extension_clause
+  = name:alphanumeric_char+ value:extension_clause_cont? { return { t: "extclause", v: { name: arr2contstr(name), value: value } }; }
+extension_clause_cont
+  = "=" value:alphanumeric_char+ { return arr2contstr(value); }
 
 // ---------------
 // Special symbols
