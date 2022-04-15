@@ -3,7 +3,7 @@
  */
 
 import * as args from "command-line-args";
-import { join, basename, dirname } from "path";
+import { join, basename, dirname, resolve } from "path";
 import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "fs";
 import { exit } from "process";
 
@@ -26,7 +26,7 @@ let { verbose, noserver, src, output, overwrite } = args([
 ]);
 
 // Handle defaults
-src = src || join(current_path, "index.md");
+src = resolve(src || join(current_path, "index.md"));
 verbose = verbose || false;
 noserver = noserver || false;
 output = output || join(dirname(src), basename(src, ".md") + "_html");
@@ -69,6 +69,7 @@ async function main(): Promise<void> {
         // Generate
         const genOptions: HtmlTufteTemplateOptions = {
             outputPath: output,
+            inputPath: dirname(src),
         };
         const out = await (
             new Generator(

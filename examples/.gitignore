@@ -1,3 +1,9 @@
+# Ref images
+*.jpg
+*.jpeg
+*.svg
+*.png
+
 # Code generated from examples
 *.html
 */**

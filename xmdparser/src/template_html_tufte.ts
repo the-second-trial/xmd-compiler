@@ -3,12 +3,22 @@ import { ResourceManager } from "./res_manager";
 import { idgen } from "./utils";
 
 export interface HtmlTufteTemplateOptions {
+    /** The path to the output directory. */
     outputPath: string;
+    /**
+     * The path to the folder containing the input file.
+     * This is necessary to correctly resolve the file
+     * references present in the input file.
+     * All references in the input source are assumed
+     * relative to that input source file.
+     */
+    inputPath: string;
 }
 
 /** Describes a template for rendering to HTML Tufte. */
 export class HtmlTufteTemplate implements Template {
-    private idg: Generator<string>;
+    private refIdGen: Generator<string>;
+    private resMan: ResourceManager;
 
     /**
      * Initializes a new instance of this class.
@@ -17,17 +27,20 @@ export class HtmlTufteTemplate implements Template {
     constructor(
         private options: HtmlTufteTemplateOptions
     ) {
-        this.idg = idgen();
+        this.refIdGen = idgen("ref");
+        this.resMan = new ResourceManager({
+            path: this.options.outputPath,
+            srcPath: this.options.inputPath,
+        });
     }
 
     /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
-        const resMan = new ResourceManager({ path: this.options.outputPath });
         const paths = {
-            tufteCss: resMan.serveTufteCss(),
-            latexCss: resMan.serveLatexCss(),
+            tufteCss: this.resMan.serveTufteCss(),
+            latexCss: this.resMan.serveLatexCss(),
             // TODO: Optimization, do not serve mathjax if no equation is found in AST
-            mathjaxJs: resMan.serveMathjax()
+            mathjaxJs: this.resMan.serveMathjax()
         };
 
         return HtmlTufteTemplate.getPageTemplate(content, paths, docInfo);
@@ -119,13 +132,14 @@ export class HtmlTufteTemplate implements Template {
 
     /** @inheritdoc */
     public writeImage(alt: string, path: string, title?: string): string {
-        const ref = this.idg.next().value as string;
+        const immPath = this.resMan.serveImage(path); // Auto name
+        const ref = this.refIdGen.next().value as string;
         return [
             "<figure>",
             `<label for="${ref}" class="margin-toggle">&#8853;</label>`,
             `<input type="checkbox" id="${ref}" class="margin-toggle"/>`,
             `<span class="marginnote">${title || alt}</span>`,
-            `<img src="${path}" alt="${alt}" />`,
+            `<img src="${immPath}" alt="${alt}" />`,
             "</figure>",
         ].join("");
     }
