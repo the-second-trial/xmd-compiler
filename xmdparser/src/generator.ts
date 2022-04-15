@@ -1,15 +1,19 @@
 import { AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
-import { DocumentInfo, Template } from "./template";
+import { ExtensionsManager } from "./extensions";
+import { DocumentInfo, Template, WriteImageExtensions } from "./template";
 
 // TODO: Handle sections.
 /** A component capable of rendering the final code. */
 export class Generator {
+    private extMan: ExtensionsManager;
+
     constructor(
         private template: Template,
         private codeEvaluator?: CodeChunkEvaluator
     ) {
+        this.extMan = new ExtensionsManager();
     }
 
     /**
@@ -136,7 +140,12 @@ export class Generator {
     }
 
     private generateImage(node: AstImageComponentNode): string {
-        return this.template.writeImage(node.v.alt, node.v.path, node.v.title);
+        const ext = this.extMan.parse(
+            (node.v.ext?.v || [])
+                .map(x => `${x.v.name}=${x.v.value || "true"}`)
+                .join(",")
+        );
+        return this.template.writeImage(node.v.alt, node.v.path, node.v.title, ext.result as WriteImageExtensions);
     }
 
     private async generateCodeinline(node: AstParagraphComponentCodeInlineNode): Promise<string> {

@@ -1,4 +1,4 @@
-import { DocumentInfo, Template } from "./template";
+import { DocumentInfo, Template, WriteImageExtensions } from "./template";
 import { ResourceManager } from "./res_manager";
 import { idgen } from "./utils";
 
@@ -131,8 +131,17 @@ export class HtmlTufteTemplate implements Template {
     }
 
     /** @inheritdoc */
-    public writeImage(alt: string, path: string, title?: string): string {
+    public writeImage(alt: string, path: string, title?: string, ext?: WriteImageExtensions): string {
         const immPath = this.resMan.serveImage(path); // Auto name
+        
+        if (ext.fullwidth === "true") {
+            return [
+                "<figure class='fullwidth'>",
+                `<img src="${immPath}" alt="${alt}" />`,
+                "</figure>",
+            ].join("");
+        }
+
         const ref = this.refIdGen.next().value as string;
         return [
             "<figure>",

@@ -1,7 +1,11 @@
+import { ExtensionAttributes } from "./extensions";
+
 /** Describes a set of information to be associated to the document to generate. */
 export interface DocumentInfo {
     title?: string;
 }
+
+export type WriteImageExtensions = Pick<Record<ExtensionAttributes, string>, "fullwidth">;
 
 /** Describes a template for generating an output code. */
 export interface Template {
@@ -84,7 +88,8 @@ export interface Template {
      * @param alt The alt text of the image.
      * @param path The path to the image.
      * @param title The title.
+     * @param ext The extensions.
      * @returns The rendered equation block.
      */
-    writeImage: (alt: string, path: string, title?: string) => string;
+    writeImage: (alt: string, path: string, title?: string, ext?: WriteImageExtensions) => string;
 }

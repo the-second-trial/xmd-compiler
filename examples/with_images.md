@@ -6,3 +6,5 @@ Showing off some images.
 Some text in between. Below now we have a full width image.
 
 ![Extended image](example_imm_2.png "This is an extended image."){fullwidth}
+
+Ending text after the image.
