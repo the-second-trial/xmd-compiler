@@ -4,7 +4,6 @@ import { Constants } from "./constants";
 import { ExtensionsManager } from "./extensions";
 import { DocumentInfo, Template, WriteImageExtensions } from "./template";
 
-// TODO: Handle sections.
 /** A component capable of rendering the final code. */
 export class Generator {
     private extMan: ExtensionsManager;
@@ -30,6 +29,15 @@ export class Generator {
         }
     
         return this.generateStart(ast);
+    }
+
+    /**
+     * Writes the output to file
+     * @param output The output code to write to file.
+     * @returns The path where the file has been saved.
+     */
+    public write(output: string): string {
+        return this.template.writeToFile(output);
     }
 
     private extractSemanticInfo(node: XmdAst): DocumentInfo {

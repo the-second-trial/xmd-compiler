@@ -10,6 +10,13 @@ export type WriteImageExtensions = Pick<Record<ExtensionAttributes, string>, "fu
 /** Describes a template for generating an output code. */
 export interface Template {
     /**
+     * Writes the output to a file.
+     * @param output The output to save.
+     * @returns The path to the location where the file has been saved.
+     */
+    writeToFile: (output: string) => string;
+
+    /**
      * Renders the root of the document.
      * @param content The content in the root.
      * @param docInfo The document info.

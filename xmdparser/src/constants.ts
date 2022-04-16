@@ -1,5 +1,9 @@
 /** Global constants. */
 export const Constants = {
+    OutputTypes: {
+        HTML_TUFTE: "html_tufte",
+        TEX_TUFTE: "tex_tufte",
+    },
     NodeTypes: {
         START: "start",
         HEADING: "heading",

@@ -1,13 +1,17 @@
-import { extname, resolve, join } from "path";
-import { existsSync, copyFileSync, statSync, mkdirSync, readdirSync, rmSync } from "fs";
+import { basename, dirname, extname, resolve, join } from "path";
+import { existsSync, copyFileSync, statSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "fs";
 import { idgen } from "./utils";
 
 /** Describes the options for configuring the @see ResourceManager. */
 export interface ResourceOptions {
-    /** Output directory. */
-    path: string;
-    /** The directory where the input source is present. */
+    /** Directory where the output directory will be created. */
+    outputLocDir: string;
+    /** The input source file path. */
     srcPath: string;
+    /** The extension for generated code output files. */
+    outputExtension: string;
+    /** Name (no ext) to give to the output file. */
+    outputFileName: string;
 }
 
 /** Handles resources for the different output types. */
@@ -21,9 +25,11 @@ export class ResourceManager {
     constructor(
         private options: ResourceOptions
     ) {
-        if (!dirExists(options.path)) {
-            throw new Error(`Output directory '${options.path}' does not exist`);
+        if (!dirExists(options.outputLocDir)) {
+            throw new Error(`Output location directory '${options.outputLocDir}' does not exist`);
         }
+
+        this.createOutputDir();
 
         this.idg = idgen("imm");
     }
@@ -41,13 +47,25 @@ export class ResourceManager {
      * Gets the name of the folder, under @see outputResourceDirName,
      * where all images will be placed.
      * */
-     public get outputImagesDirName(): string {
+    public get outputImagesDirName(): string {
         return "images";
     }
 
     /**
+     * Writes the output file.
+     * @param output The output to write.
+     * @returns The path where the file has been saved.
+     */
+    public writeToPutputFile(output: string): string {
+        const path = resolve(this.outputDir, `${this.options.outputFileName}.${this.options.outputExtension}`);
+        writeFileSync(path, output);
+
+        return path;
+    }
+
+    /**
      * Places, in the output directory, an image file.
-     * @param path The path to the image.
+     * @param path The path to the image (relative to the source dir).
      * @param newName The name to give to the file once copied in the new location.
      *     If not provided, a generic ID will be created. If provided, it must include
      *     the extension.
@@ -55,7 +73,7 @@ export class ResourceManager {
      *     ready to be used in import fields.
      */
     public serveImage(path: string, newName?: string): string {
-        const pathToFile = join(this.options.srcPath, path);
+        const pathToFile = join(dirname(this.outputDir), path);
 
         if (!fileExists(pathToFile)) {
             throw new Error(`Image '${pathToFile}' does not exists, file not found`);
@@ -70,7 +88,7 @@ export class ResourceManager {
         }
 
         const immName = newName || this.idg.next().value + ext;
-        const dst = resolve(this.options.path, this.outputResourceDirName, this.outputImagesDirName, immName);
+        const dst = resolve(this.dstPath, this.outputImagesDirName, immName);
 
         cp(pathToFile, dst);
 
@@ -86,7 +104,7 @@ export class ResourceManager {
         this.ensureOutputResourceDir();
         cp(
             join(this.resDirPath, "html_tufte", "mathjax"),
-            resolve(this.options.path, this.outputResourceDirName, "mathjax")
+            resolve(this.dstPath, "mathjax")
         );
         return webJoin(this.outputResourceDirName, "mathjax");
     }
@@ -100,11 +118,11 @@ export class ResourceManager {
         this.ensureOutputResourceDir();
         cp(
             join(this.resDirPath, "html_tufte", "tufte.css"),
-            resolve(this.options.path, this.outputResourceDirName, "tufte.css")
+            resolve(this.dstPath, "tufte.css")
         );
         cp(
             join(this.resDirPath, "html_tufte", "et-book"),
-            resolve(this.options.path, this.outputResourceDirName, "et-book")
+            resolve(this.dstPath, "et-book")
         );
         return webJoin(this.outputResourceDirName, "tufte.css");
     }
@@ -118,9 +136,24 @@ export class ResourceManager {
         this.ensureOutputResourceDir();
         cp(
             join(this.resDirPath, "html_tufte", "latex.css"),
-            resolve(this.options.path, this.outputResourceDirName, "latex.css")
+            resolve(this.dstPath, "latex.css")
         );
         return webJoin(this.outputResourceDirName, "latex.css");
+    }
+
+    private createOutputDir(): void {
+        if (dirExists(this.outputDir)) {
+            rm(this.outputDir);
+        }
+        mkdirSync(this.outputDir);
+    }
+
+    private get outputDir(): string {
+        return resolve(this.options.outputLocDir, basename(this.options.srcPath, ".md") + "_" + this.options.outputExtension);
+    }
+
+    private get dstPath(): string {
+        return resolve(this.outputDir, this.outputResourceDirName);
     }
 
     private get resDirPath(): string {
@@ -128,12 +161,12 @@ export class ResourceManager {
     }
 
     private ensureOutputResourceDir(): void {
-        ensureDir(resolve(this.options.path, this.outputResourceDirName));
+        ensureDir(this.dstPath);
     }
 
     private ensureOutputImagesDir(): void {
         this.ensureOutputResourceDir();
-        ensureDir(resolve(this.options.path, this.outputResourceDirName, this.outputImagesDirName));
+        ensureDir(resolve(this.dstPath, this.outputImagesDirName));
     }
 }
 

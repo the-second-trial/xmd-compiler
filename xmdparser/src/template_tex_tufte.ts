@@ -1,8 +1,10 @@
+const { EOL } = require("os");
+
 import { DocumentInfo, Template, WriteImageExtensions } from "./template";
 import { ResourceManager } from "./res_manager";
 import { idgen } from "./utils";
 
-export interface HtmlTufteTemplateOptions {
+export interface TexTufteTemplateOptions {
     /** The path to the output directory location. */
     outputPath: string;
     /**
@@ -15,9 +17,8 @@ export interface HtmlTufteTemplateOptions {
     inputPath: string;
 }
 
-// TODO: Handle sections.
 /** Describes a template for rendering to HTML Tufte. */
-export class HtmlTufteTemplate implements Template {
+export class TexTufteTemplate implements Template {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
@@ -26,14 +27,14 @@ export class HtmlTufteTemplate implements Template {
      * @param options The options for customizing the template.
      */
     constructor(
-        private options: HtmlTufteTemplateOptions
+        private options: TexTufteTemplateOptions
     ) {
         this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager({
             outputLocDir: this.options.outputPath,
             srcPath: this.options.inputPath,
-            outputFileName: "index",
-            outputExtension: "html",
+            outputFileName: "main",
+            outputExtension: "tex",
         });
     }
 
@@ -44,14 +45,9 @@ export class HtmlTufteTemplate implements Template {
 
     /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
-        const paths = {
-            tufteCss: this.resMan.serveTufteCss(),
-            latexCss: this.resMan.serveLatexCss(),
-            // TODO: Optimization, do not serve mathjax if no equation is found in AST
-            mathjaxJs: this.resMan.serveMathjax()
-        };
+        // TODO: Server files
 
-        return HtmlTufteTemplate.getPageTemplate(content, paths, docInfo);
+        return TexTufteTemplate.getPageTemplate(content, docInfo);
     }
 
     /** @inheritdoc */
@@ -163,28 +159,39 @@ export class HtmlTufteTemplate implements Template {
 
     private static getPageTemplate(
         content: string,
-        paths: {
-            mathjaxJs: string,
-            tufteCss: string,
-            latexCss: string
-        },
         docInfo: DocumentInfo
     ): string {
         return [
-            "<html lang='en'>",
-            "<head>",
-            "<meta charset='utf-8'/>",
-            `<title>${docInfo.title || "Untitled"}</title>`,
-            `<link rel='stylesheet' href='${paths.latexCss}'>`,
-            `<link rel='stylesheet' href='${paths.tufteCss}'>`,
-            `<script id='MathJax-script' async src='${paths.mathjaxJs}/tex-chtml.js'></script>`,
-            "<meta name='viewport' content='width=device-width, initial-scale=1'>",
-            "</head>",
-            "<body>",
-            "<article>",
+            "\\documentclass{tufte-handout}",
+            `\\title{${docInfo.title || "Untitled"}}`,
+            "\\author[The Tufte-LaTeX Developers]{The Developers}",
+            "\\usepackage{graphicx} % allow embedded images",
+            "\\setkeys{Gin}{width=\\linewidth,totalheight=\\textheight,keepaspectratio}",
+            "\\graphicspath{{graphics/}} % set of paths to search for images",
+            "\\usepackage{amsmath} % extended mathematics",
+            "\\usepackage{booktabs} % book-quality tables",
+            "\\usepackage{units} % non-stacked fractions and better unit spacing",
+            "\\usepackage{multicol} % multiple column layout facilities",
+            "\\usepackage{fancyvrb} % extended verbatim environments",
+            "\\fvset{fontsize=\\normalsize} % default font size for fancy-verbatim environments",
+            "\\newcommand{\\doccmd}[1]{\\texttt{\\textbackslash#1}}% command name -- adds backslash automatically",
+            "\\newcommand{\\docopt}[1]{\\ensuremath{\\langle}\\textrm{\\textit{#1}}\\ensuremath{\\rangle}}% optional command argument",
+            "\\newcommand{\\docarg}[1]{\\textrm{\\textit{#1}}}% (required) command argument",
+            "\\newcommand{\\docenv}[1]{\\textsf{#1}}% environment name",
+            "\\newcommand{\\docpkg}[1]{\\texttt{#1}}% package name",
+            "\\newcommand{\\doccls}[1]{\\texttt{#1}}% document class name",
+            "\\newcommand{\\docclsopt}[1]{\\texttt{#1}}% document class option name",
+            "\\newenvironment{docspec}{\\begin{quote}\\noindent}{\\end{quote}}% command specification environment",
+            "\\begin{document}",
+            "\\maketitle% this prints the handout title, author, and date",
+            "\\begin{abstract}",
+            "\\noindent",
+            "This is the abstract.",
+            "\\end{abstract}",
             content,
-            "</article>",
-            "</body>",
-        ].join("");
+            "\\bibliography{sample-handout}",
+            "\\bibliographystyle{plainnat}",
+            "\\end{document}",
+        ].join(EOL);
     }
 }
