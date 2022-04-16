@@ -45,29 +45,25 @@ export class TexTufteTemplate implements Template {
 
     /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
-        // TODO: Server files
+        this.resMan.serveTexTufteTemplateFiles();
 
         return TexTufteTemplate.getPageTemplate(content, docInfo);
     }
 
     /** @inheritdoc */
     public writeHeading(text: string, level: number): string {
-        const levels = ["h1", "h2", "h3", "h4", "h5", "h6"];
+        const levels = ["section", "subsection", "subsubsection", "paragraph"];
         if (level <= 0 || level > levels.length) {
             throw new Error(`Invalid level '${level}'. Allowed is 1..${levels.length}`);
         }
 
-        const tagname = levels[Math.min(level - 1, levels.length)];
-        return [
-            `<${tagname}>`,
-            text,
-            `</${tagname}>`,
-        ].join("");
+        const envname = levels[Math.min(level - 1, levels.length)];
+        return `\\${envname}{${text}}` + EOL;
     }
 
     /** @inheritdoc */
     public writeParagraph(content: string): string {
-        return `<p>${content}</p>`;
+        return content + EOL;
     }
 
     /** @inheritdoc */
@@ -77,84 +73,73 @@ export class TexTufteTemplate implements Template {
 
     /** @inheritdoc */
     public writeParagraphBoldText(text: string): string {
-        return `<strong>${text}</strong>`;
+        return `\\textbf{${text}}`;
     }
 
     /** @inheritdoc */
     public writeParagraphItalicText(text: string): string {
-        return `<em>${text}</em>`;
+        return `\\textit{${text}}`;
     }
 
     /** @inheritdoc */
     public writeParagraphEquationInlineText(equation: string): string {
-        return `\\(${equation}\\)`;
+        return `$${equation}$`;
     }
 
     /** @inheritdoc */
     public writeParagraphCodeInline(src: string, evalResult?: string): string {
         if (evalResult) {
-            return [
-                `<code title="Evaluated from: '${src}'">`,
-                evalResult,
-                `</code>`,
-            ].join("");
+            return `\\Verb|${evalResult}|`;
         }
 
-        return [
-            `<code>`,
-            src,
-            `</code>`,
-        ].join("");
+        return `\\Verb|${src}|`;
     }
 
     /** @inheritdoc */
     public writeCodeblock(src: string, evalResult?: string): string {
         return [
-            "<pre>",
-            "<code>",
+            "\\begin{docspec}",
             src,
-            `</code>`,
-            `</pre>`,
-            evalResult ? "<pre>" : "",
-            evalResult ? "<code>" : "",
+            `\\end{docspec}`,
+            evalResult ? "Result:" : "",
+            evalResult ? "\\begin{docspec}" : "",
             evalResult ? evalResult : "",
-            evalResult ? `</code>` : "",
-            evalResult ? `</pre>` : "",
-        ].join("");
+            evalResult ? `\\end{docspec}` : "",
+        ].join(EOL);
     }
 
     /** @inheritdoc */
     public writeEquationblock(equation: string): string {
         return [
-            "<p>",
-            "\\[",
+            "\\begin{equation}",
             equation,
-            "\\]",
-            "</p>",
-        ].join("");
+            "\\end{equation}",
+        ].join(EOL);
     }
 
     /** @inheritdoc */
     public writeImage(alt: string, path: string, title?: string, ext?: WriteImageExtensions): string {
         const immPath = this.resMan.serveImage(path); // Auto name
+        const ref = this.refIdGen.next().value as string;
         
         if (ext.fullwidth === "true") {
             return [
-                "<figure class='fullwidth'>",
-                `<img src="${immPath}" alt="${alt}" />`,
-                "</figure>",
-            ].join("");
+                "\\begin{figure*}[h]",
+                `\\includegraphics{${immPath}}`,
+                `\\caption{${title}}`,
+                `\\label{${ref}}`,
+                "\\end{figure*}",
+            ].join(EOL);
         }
 
-        const ref = this.refIdGen.next().value as string;
         return [
-            "<figure>",
-            `<label for="${ref}" class="margin-toggle">&#8853;</label>`,
-            `<input type="checkbox" id="${ref}" class="margin-toggle"/>`,
-            `<span class="marginnote">${title || alt}</span>`,
-            `<img src="${immPath}" alt="${alt}" />`,
-            "</figure>",
-        ].join("");
+            "\\begin{figure}",
+            `\\includegraphics{${immPath}}`,
+            `\\caption{${title}}`,
+            `\\label{${ref}}`,
+            "\\setfloatalignment{b}",
+            "\\end{figure}",
+        ].join(EOL);
     }
 
     private static getPageTemplate(

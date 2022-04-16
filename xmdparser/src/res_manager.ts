@@ -88,7 +88,7 @@ export class ResourceManager {
         }
 
         const immName = newName || this.idg.next().value + ext;
-        const dst = resolve(this.dstPath, this.outputImagesDirName, immName);
+        const dst = resolve(this.outputResDirPath, this.outputImagesDirName, immName);
 
         cp(pathToFile, dst);
 
@@ -104,7 +104,7 @@ export class ResourceManager {
         this.ensureOutputResourceDir();
         cp(
             join(this.resDirPath, "html_tufte", "mathjax"),
-            resolve(this.dstPath, "mathjax")
+            resolve(this.outputResDirPath, "mathjax")
         );
         return webJoin(this.outputResourceDirName, "mathjax");
     }
@@ -118,11 +118,11 @@ export class ResourceManager {
         this.ensureOutputResourceDir();
         cp(
             join(this.resDirPath, "html_tufte", "tufte.css"),
-            resolve(this.dstPath, "tufte.css")
+            resolve(this.outputResDirPath, "tufte.css")
         );
         cp(
             join(this.resDirPath, "html_tufte", "et-book"),
-            resolve(this.dstPath, "et-book")
+            resolve(this.outputResDirPath, "et-book")
         );
         return webJoin(this.outputResourceDirName, "tufte.css");
     }
@@ -136,9 +136,27 @@ export class ResourceManager {
         this.ensureOutputResourceDir();
         cp(
             join(this.resDirPath, "html_tufte", "latex.css"),
-            resolve(this.dstPath, "latex.css")
+            resolve(this.outputResDirPath, "latex.css")
         );
         return webJoin(this.outputResourceDirName, "latex.css");
+    }
+
+    /**
+     * Places, in the output directory, the TeX template sources for Tufte Handout.
+     * @returns The relative paths to the copied resources
+     *     ready to be used in import fields.
+     */
+    public serveTexTufteTemplateFiles(): Array<string> {
+        this.ensureOutputResourceDir();
+        const srcFiles = ["tufte-common.def", "tufte-handout.cls", "tufte.bst"];
+        for (const srcFile of srcFiles) {
+            cp(
+                join(this.resDirPath, "tex_tufte", srcFile),
+                // To correctly compile, these files must be in the same dir as the output file
+                resolve(this.outputDir, srcFile)
+            );
+        }
+        return srcFiles.map(x => webJoin(this.outputResourceDirName, x));
     }
 
     private createOutputDir(): void {
@@ -152,7 +170,7 @@ export class ResourceManager {
         return resolve(this.options.outputLocDir, basename(this.options.srcPath, ".md") + "_" + this.options.outputExtension);
     }
 
-    private get dstPath(): string {
+    private get outputResDirPath(): string {
         return resolve(this.outputDir, this.outputResourceDirName);
     }
 
@@ -161,12 +179,12 @@ export class ResourceManager {
     }
 
     private ensureOutputResourceDir(): void {
-        ensureDir(this.dstPath);
+        ensureDir(this.outputResDirPath);
     }
 
     private ensureOutputImagesDir(): void {
         this.ensureOutputResourceDir();
-        ensureDir(resolve(this.dstPath, this.outputImagesDirName));
+        ensureDir(resolve(this.outputResDirPath, this.outputImagesDirName));
     }
 }
 
