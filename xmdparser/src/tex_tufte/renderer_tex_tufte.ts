@@ -1,8 +1,9 @@
 const { EOL } = require("os");
 
-import { DocumentInfo, Template, WriteImageExtensions } from "./template";
-import { ResourceManager } from "./res_manager";
-import { idgen } from "./utils";
+import { ImageExtensionAttributes } from "../extensions";
+import { ResourceManager } from "../res_manager";
+import { DocumentInfo } from "../semantics";
+import { idgen } from "../utils";
 
 export interface TexTufteTemplateOptions {
     /** The path to the output directory location. */
@@ -18,7 +19,7 @@ export interface TexTufteTemplateOptions {
 }
 
 /** Describes a template for rendering to Tex Tufte. */
-export class TexTufteTemplate implements Template {
+export class TexTufteRenderer {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
@@ -38,19 +39,16 @@ export class TexTufteTemplate implements Template {
         });
     }
 
-    /** @inheritdoc */
     public writeToFile(output: string): string {
         return this.resMan.writeToPutputFile(output);
     }
 
-    /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
         this.resMan.serveTexTufteTemplateFiles();
 
-        return TexTufteTemplate.getPageTemplate(content, docInfo);
+        return TexTufteRenderer.getPageTemplate(content, docInfo);
     }
 
-    /** @inheritdoc */
     public writeHeading(text: string, level: number): string {
         const levels = ["section", "subsection", "subsubsection", "paragraph"];
         if (level <= 0 || level > levels.length) {
@@ -61,32 +59,26 @@ export class TexTufteTemplate implements Template {
         return `\\${envname}{${text}}` + EOL;
     }
 
-    /** @inheritdoc */
     public writeParagraph(content: string): string {
         return content + EOL;
     }
 
-    /** @inheritdoc */
     public writeParagraphText(text: string): string {
         return text;
     }
 
-    /** @inheritdoc */
     public writeParagraphBoldText(text: string): string {
         return `\\textbf{${text}}`;
     }
 
-    /** @inheritdoc */
     public writeParagraphItalicText(text: string): string {
         return `\\textit{${text}}`;
     }
 
-    /** @inheritdoc */
     public writeParagraphEquationInlineText(equation: string): string {
         return `$${equation}$`;
     }
 
-    /** @inheritdoc */
     public writeParagraphCodeInline(src: string, evalResult?: string): string {
         if (evalResult) {
             return `\\Verb|${evalResult}|`;
@@ -95,7 +87,6 @@ export class TexTufteTemplate implements Template {
         return `\\Verb|${src}|`;
     }
 
-    /** @inheritdoc */
     public writeCodeblock(src: string, evalResult?: string): string {
         return [
             "\\begin{docspec}",
@@ -108,7 +99,6 @@ export class TexTufteTemplate implements Template {
         ].join(EOL);
     }
 
-    /** @inheritdoc */
     public writeEquationblock(equation: string): string {
         return [
             "\\begin{equation}",
@@ -117,8 +107,7 @@ export class TexTufteTemplate implements Template {
         ].join(EOL);
     }
 
-    /** @inheritdoc */
-    public writeImage(alt: string, path: string, title?: string, ext?: WriteImageExtensions): string {
+    public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
         const immPath = this.resMan.serveImage(path); // Auto name
         const ref = this.refIdGen.next().value as string;
         

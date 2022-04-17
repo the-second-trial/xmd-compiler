@@ -1,6 +1,7 @@
-import { DocumentInfo, Template, WriteImageExtensions } from "./template";
-import { ResourceManager } from "./res_manager";
-import { idgen } from "./utils";
+import { ImageExtensionAttributes } from "../extensions";
+import { ResourceManager } from "../res_manager";
+import { DocumentInfo } from "../semantics";
+import { idgen } from "../utils";
 
 export interface HtmlSlidesTemplateOptions {
     /** The path to the output directory location. */
@@ -21,7 +22,7 @@ export interface HtmlSlidesTemplateOptions {
  * - The first level-1 heading is picked up as the title of the presentation.
  * - Every level-2 heading defines a slide.
  */
-export class HtmlSlidesTemplate implements Template {
+export class HtmlSlidesRenderer {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
@@ -53,7 +54,7 @@ export class HtmlSlidesTemplate implements Template {
             plugin: this.resMan.serveRevealJsPluginDir()
         };
 
-        return HtmlSlidesTemplate.getPageTemplate(content, paths, docInfo);
+        return HtmlSlidesRenderer.getPageTemplate(content, paths, docInfo);
     }
 
     /** @inheritdoc */
@@ -141,7 +142,7 @@ export class HtmlSlidesTemplate implements Template {
     }
 
     /** @inheritdoc */
-    public writeImage(alt: string, path: string, title?: string, ext?: WriteImageExtensions): string {
+    public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
         const immPath = this.resMan.serveImage(path); // Auto name
         
         if (ext.fullwidth === "true") {

@@ -1,9 +1,10 @@
 import { Constants } from "./constants";
-import { Generator } from "./generator";
+import { HtmlTufteGenerator } from "./html_tufte/generator_html_tufte";
 import { PythonCodeServer } from "./py_srv";
-import { HtmlSlidesTemplate } from "./template_html_slides";
-import { HtmlTufteTemplate } from "./template_html_tufte";
-import { TexTufteTemplate } from "./template_tex_tufte";
+import { HtmlSlidesRenderer } from "./html_slides/renderer_html_slides";
+import { TexTufteGenerator } from "./tex_tufte/generator_tex_tufte";
+import { Generator } from "./generator";
+import { HtmlSlidesGenerator } from "./html_slides/generator_html_slides";
 
 /** Creates a properly configured generator. */
 export class GeneratorFactory {
@@ -42,32 +43,26 @@ export class GeneratorFactory {
         throw new Error(`Cannot create generator, output type '${this.outputType}' not recognized`);
     }
 
-    private createForHtmlTufte(): Generator {
-        return new Generator(
-            new HtmlTufteTemplate({
-                outputPath: this.outputDir,
-                inputPath: this.srcPath,
-            }),
+    private createForHtmlTufte(): HtmlTufteGenerator {
+        return new HtmlTufteGenerator(
+            this.outputDir,
+            this.srcPath,
             this.pysrv
         )
     }
 
-    private createForTexTufte(): Generator {
-        return new Generator(
-            new TexTufteTemplate({
-                outputPath: this.outputDir,
-                inputPath: this.srcPath,
-            }),
+    private createForTexTufte(): TexTufteGenerator {
+        return new TexTufteGenerator(
+            this.outputDir,
+            this.srcPath,
             this.pysrv
         )
     }
 
-    private createForHtmlSlides(): Generator {
-        return new Generator(
-            new HtmlSlidesTemplate({
-                outputPath: this.outputDir,
-                inputPath: this.srcPath,
-            }),
+    private createForHtmlSlides(): HtmlSlidesGenerator {
+        return new HtmlSlidesGenerator(
+            this.outputDir,
+            this.srcPath,
             this.pysrv
         )
     }

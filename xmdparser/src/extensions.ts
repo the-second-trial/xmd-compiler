@@ -5,6 +5,8 @@ export type ExtensionAttributes =
      */
     | "fullwidth";
 
+export type ImageExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "fullwidth">;
+
 export type ExtensionValues = Record<ExtensionAttributes, string>;
 
 /** Handles extensions in XMD syntax. */

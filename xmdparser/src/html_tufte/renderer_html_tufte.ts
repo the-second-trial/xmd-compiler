@@ -1,6 +1,7 @@
-import { DocumentInfo, Template, WriteImageExtensions } from "./template";
-import { ResourceManager } from "./res_manager";
-import { idgen } from "./utils";
+import { ImageExtensionAttributes } from "../extensions";
+import { ResourceManager } from "../res_manager";
+import { DocumentInfo } from "../semantics";
+import { idgen } from "../utils";
 
 export interface HtmlTufteTemplateOptions {
     /** The path to the output directory location. */
@@ -17,7 +18,7 @@ export interface HtmlTufteTemplateOptions {
 
 // TODO: Handle sections.
 /** Describes a template for rendering to HTML Tufte. */
-export class HtmlTufteTemplate implements Template {
+export class HtmlTufteRenderer {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
@@ -51,7 +52,7 @@ export class HtmlTufteTemplate implements Template {
             mathjaxJs: this.resMan.serveMathjax()
         };
 
-        return HtmlTufteTemplate.getPageTemplate(content, paths, docInfo);
+        return HtmlTufteRenderer.getPageTemplate(content, paths, docInfo);
     }
 
     /** @inheritdoc */
@@ -139,7 +140,7 @@ export class HtmlTufteTemplate implements Template {
     }
 
     /** @inheritdoc */
-    public writeImage(alt: string, path: string, title?: string, ext?: WriteImageExtensions): string {
+    public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
         const immPath = this.resMan.serveImage(path); // Auto name
         
         if (ext.fullwidth === "true") {
