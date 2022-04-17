@@ -8,9 +8,9 @@ export interface ResourceOptions {
     outputLocDir: string;
     /** The input source file path. */
     srcPath: string;
-    /** The extension for generated code output files. */
-    outputExtension: string;
-    /** Name (no ext) to give to the output file. */
+    /** A name to identify the output type. */
+    outputName: string;
+    /** Name (with ext) to give to the output file. */
     outputFileName: string;
 }
 
@@ -57,7 +57,7 @@ export class ResourceManager {
      * @returns The path where the file has been saved.
      */
     public writeToPutputFile(output: string): string {
-        const path = resolve(this.outputDir, `${this.options.outputFileName}.${this.options.outputExtension}`);
+        const path = resolve(this.outputDir, `${this.options.outputFileName}`);
         writeFileSync(path, output);
 
         return path;
@@ -159,6 +159,34 @@ export class ResourceManager {
         return srcFiles.map(x => webJoin(this.outputResourceDirName, x));
     }
 
+    /**
+     * Places, in the output directory, the directory containing
+     * the distribution files of Reveal.js.
+     * @returns The path to the distribution directory.
+     */
+    public serveRevealJsDistDir(): string {
+        this.ensureOutputResourceDir();
+        cp(
+            join(this.resDirPath, "html_slides", "dist"),
+            resolve(this.outputResDirPath, "dist")
+        );
+        return webJoin(this.outputResourceDirName, "dist");
+    }
+
+    /**
+     * Places, in the output directory, the directory containing
+     * the plugin files of Reveal.js.
+     * @returns The path to the distribution directory.
+     */
+    public serveRevealJsPluginDir(): string {
+        this.ensureOutputResourceDir();
+        cp(
+            join(this.resDirPath, "html_slides", "plugin"),
+            resolve(this.outputResDirPath, "plugin")
+        );
+        return webJoin(this.outputResourceDirName, "plugin");
+    }
+
     private createOutputDir(): void {
         if (dirExists(this.outputDir)) {
             rm(this.outputDir);
@@ -167,7 +195,7 @@ export class ResourceManager {
     }
 
     private get outputDir(): string {
-        return resolve(this.options.outputLocDir, basename(this.options.srcPath, ".md") + "_" + this.options.outputExtension);
+        return resolve(this.options.outputLocDir, basename(this.options.srcPath, ".md") + "_" + this.options.outputName);
     }
 
     private get outputResDirPath(): string {

@@ -17,7 +17,7 @@ export interface TexTufteTemplateOptions {
     inputPath: string;
 }
 
-/** Describes a template for rendering to HTML Tufte. */
+/** Describes a template for rendering to Tex Tufte. */
 export class TexTufteTemplate implements Template {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
@@ -33,8 +33,8 @@ export class TexTufteTemplate implements Template {
         this.resMan = new ResourceManager({
             outputLocDir: this.options.outputPath,
             srcPath: this.options.inputPath,
-            outputFileName: "main",
-            outputExtension: "tex",
+            outputFileName: "main.tex",
+            outputName: "textufte",
         });
     }
 

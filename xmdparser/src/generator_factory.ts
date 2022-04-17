@@ -1,6 +1,7 @@
 import { Constants } from "./constants";
 import { Generator } from "./generator";
 import { PythonCodeServer } from "./py_srv";
+import { HtmlSlidesTemplate } from "./template_html_slides";
 import { HtmlTufteTemplate } from "./template_html_tufte";
 import { TexTufteTemplate } from "./template_tex_tufte";
 
@@ -34,6 +35,10 @@ export class GeneratorFactory {
             return this.createForTexTufte();
         }
 
+        if (this.outputType === Constants.OutputTypes.HTML_SLIDES) {
+            return this.createForHtmlSlides();
+        }
+
         throw new Error(`Cannot create generator, output type '${this.outputType}' not recognized`);
     }
 
@@ -50,6 +55,16 @@ export class GeneratorFactory {
     private createForTexTufte(): Generator {
         return new Generator(
             new TexTufteTemplate({
+                outputPath: this.outputDir,
+                inputPath: this.srcPath,
+            }),
+            this.pysrv
+        )
+    }
+
+    private createForHtmlSlides(): Generator {
+        return new Generator(
+            new HtmlSlidesTemplate({
                 outputPath: this.outputDir,
                 inputPath: this.srcPath,
             }),

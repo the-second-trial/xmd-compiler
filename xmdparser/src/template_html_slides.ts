@@ -2,7 +2,7 @@ import { DocumentInfo, Template, WriteImageExtensions } from "./template";
 import { ResourceManager } from "./res_manager";
 import { idgen } from "./utils";
 
-export interface HtmlTufteTemplateOptions {
+export interface HtmlSlidesTemplateOptions {
     /** The path to the output directory location. */
     outputPath: string;
     /**
@@ -15,9 +15,13 @@ export interface HtmlTufteTemplateOptions {
     inputPath: string;
 }
 
-// TODO: Handle sections.
-/** Describes a template for rendering to HTML Tufte. */
-export class HtmlTufteTemplate implements Template {
+/**
+ * Describes a template for rendering to HTML Reveal JS slides.
+ * In this context, the following rules apply:
+ * - The first level-1 heading is picked up as the title of the presentation.
+ * - Every level-2 heading defines a slide.
+ */
+export class HtmlSlidesTemplate implements Template {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
@@ -26,14 +30,14 @@ export class HtmlTufteTemplate implements Template {
      * @param options The options for customizing the template.
      */
     constructor(
-        private options: HtmlTufteTemplateOptions
+        private options: HtmlSlidesTemplateOptions
     ) {
         this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager({
             outputLocDir: this.options.outputPath,
             srcPath: this.options.inputPath,
             outputFileName: "index.html",
-            outputName: "htmltufte",
+            outputName: "htmlslides",
         });
     }
 
@@ -45,13 +49,11 @@ export class HtmlTufteTemplate implements Template {
     /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
         const paths = {
-            tufteCss: this.resMan.serveTufteCss(),
-            latexCss: this.resMan.serveLatexCss(),
-            // TODO: Optimization, do not serve mathjax if no equation is found in AST
-            mathjaxJs: this.resMan.serveMathjax()
+            dist: this.resMan.serveRevealJsDistDir(),
+            plugin: this.resMan.serveRevealJsPluginDir()
         };
 
-        return HtmlTufteTemplate.getPageTemplate(content, paths, docInfo);
+        return HtmlSlidesTemplate.getPageTemplate(content, paths, docInfo);
     }
 
     /** @inheritdoc */
@@ -164,9 +166,8 @@ export class HtmlTufteTemplate implements Template {
     private static getPageTemplate(
         content: string,
         paths: {
-            mathjaxJs: string,
-            tufteCss: string,
-            latexCss: string
+            dist: string,
+            plugin: string
         },
         docInfo: DocumentInfo
     ): string {
@@ -175,16 +176,25 @@ export class HtmlTufteTemplate implements Template {
             "<html>",
             "<head>",
             "<meta charset='utf-8'/>",
+            "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>",
             `<title>${docInfo.title || "Untitled"}</title>`,
-            `<link rel='stylesheet' href='${paths.latexCss}'>`,
-            `<link rel='stylesheet' href='${paths.tufteCss}'>`,
-            `<script id='MathJax-script' async src='${paths.mathjaxJs}/tex-chtml.js'></script>`,
-            "<meta name='viewport' content='width=device-width, initial-scale=1'>",
+            `<link rel="stylesheet" href="${paths.dist}/reset.css">`,
+            `<link rel="stylesheet" href="${paths.dist}/reveal.css">`,
+            `<link rel="stylesheet" href="${paths.dist}/theme/white.css">`,
+            `<link rel="stylesheet" href="${paths.plugin}/highlight/monokai.css">`,
             "</head>",
             "<body>",
-            "<article>",
+            `<div class="reveal">`,
+            `<div class="slides">`,
             content,
-            "</article>",
+            "</div>",
+            "</div>",
+            `<script src="${paths.dist}/reveal.js"></script>`,
+            `<script src="${paths.plugin}/notes/notes.js"></script>`,
+            `<script src="${paths.plugin}/highlight/highlight.js"></script>`,
+            `<script>`,
+            "Reveal.initialize({hash: true, plugins: [ RevealHighlight, RevealNotes ]});",
+            `</script>`,
             "</body>",
             "</html>",
         ].join("");
