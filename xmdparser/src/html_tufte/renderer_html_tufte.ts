@@ -1,3 +1,4 @@
+import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../extensions";
 import { ResourceManager } from "../res_manager";
 import { DocumentInfo } from "../semantics";
@@ -18,7 +19,7 @@ export interface HtmlTufteTemplateOptions {
 
 // TODO: Handle sections.
 /** Describes a template for rendering to HTML Tufte. */
-export class HtmlTufteRenderer {
+export class HtmlTufteRenderer implements DirectFlowRenderer {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 

@@ -1,5 +1,6 @@
 const { EOL } = require("os");
 
+import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../extensions";
 import { ResourceManager } from "../res_manager";
 import { DocumentInfo } from "../semantics";
@@ -19,7 +20,7 @@ export interface TexTufteTemplateOptions {
 }
 
 /** Describes a template for rendering to Tex Tufte. */
-export class TexTufteRenderer {
+export class TexTufteRenderer implements DirectFlowRenderer {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
