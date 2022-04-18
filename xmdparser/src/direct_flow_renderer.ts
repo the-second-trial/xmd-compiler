@@ -93,4 +93,9 @@ export interface DirectFlowRenderer {
      * @returns The rendered equation block.
      */
     writeImage: (alt: string, path: string, title?: string, ext?: ImageExtensionAttributes) => string;
+
+    /**
+     * Renders an HRule.
+     */
+    writeHRule: () => string;
 }

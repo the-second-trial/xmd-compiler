@@ -88,12 +88,17 @@ export interface AstImageComponentNode {
     };
 }
 
+export interface AstHRuleNode {
+    t: "hrule";
+}
+
 export type AstComponentNode =
     | AstHeadingComponentNode
     | AstParagraphComponentNode
     | AstCodeblockComponentNode
     | AstEquationblockComponentNode
-    | AstImageComponentNode;
+    | AstImageComponentNode
+    | AstHRuleNode;
 
 export interface XmdAst {
     t: "start";

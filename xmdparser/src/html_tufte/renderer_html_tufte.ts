@@ -163,6 +163,10 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
         ].join("");
     }
 
+    public writeHRule(): string {
+        return "<!--HRULE-->";
+    }
+
     private static getPageTemplate(
         content: string,
         paths: {

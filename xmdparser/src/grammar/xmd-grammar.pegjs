@@ -12,8 +12,8 @@ component_init
   / content:heading { return { t: "heading", v: content }; }
   / content:codeblock { return { t: "codeblock", v: content }; }
   / content:blockquote { return { t: "blockquote", v: content }; }
+  / hrule { return { t: "hrule" }; } // Must come before list
   / content:list { return { t: "list", v: content }; }
-  / content:hrule { return { t: "hrule" }; }
 
 component
   = newline newline+ content:heading { return { t: "heading", v: content }; }
@@ -88,7 +88,7 @@ blockquote
   = ">" whitespace* content:text_char+ { return arr2contstr(content); }
 
 list
-  = "-" whitespace? content:text_char+ { return { t: "listitem", v: content }; }
+  = "-" whitespace content:text_char+ { return { t: "listitem", v: content }; }
 
 hrule
   = "---"

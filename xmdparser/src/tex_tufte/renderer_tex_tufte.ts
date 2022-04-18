@@ -132,6 +132,10 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         ].join(EOL);
     }
 
+    public writeHRule(): string {
+        return `${EOL}%HRULE${EOL}`;
+    }
+
     private static getPageTemplate(
         content: string,
         docInfo: DocumentInfo

@@ -18,6 +18,7 @@ export const Constants = {
         CODEBLOCK: "codeblock",
         EQBLOCK: "eqblock",
         IMAGE: "image",
+        HRULE: "hrule",
     },
     PySrv: {
         SRV_PING_MAX_ATTEMPTS_COUNT: 10,

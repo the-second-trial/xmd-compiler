@@ -1,4 +1,4 @@
-import { AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
+import { AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { ExtensionsManager, ImageExtensionAttributes } from "./extensions";
@@ -73,6 +73,9 @@ export class DirectFlowGenerator implements Generator {
                     break;
                 case Constants.NodeTypes.IMAGE:
                     renderedComponent = await this.generateImage(componentNode as AstImageComponentNode);
+                    break;
+                case Constants.NodeTypes.HRULE:
+                    renderedComponent = this.generateHRule(componentNode as AstHRuleNode);
                     break;
                 default:
                     throw new Error(`Unrecognized node type'${componentNode.t}'`);
@@ -154,6 +157,10 @@ export class DirectFlowGenerator implements Generator {
                 .join(",")
         );
         return this.renderer.writeImage(node.v.alt, node.v.path, node.v.title, ext.result as ImageExtensionAttributes);
+    }
+
+    private generateHRule(node: AstHRuleNode): string {
+        return this.renderer.writeHRule();
     }
 
     private async generateCodeinline(node: AstParagraphComponentCodeInlineNode): Promise<string> {
