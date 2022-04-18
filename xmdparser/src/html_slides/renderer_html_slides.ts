@@ -159,27 +159,12 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
     public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
         const immPath = this.resMan.serveImage(path); // Auto name
         
-        if (ext.fullwidth === "true") {
-            return [
-                "<figure class='fullwidth'>",
-                `<img src="${immPath}" alt="${alt}" />`,
-                "</figure>",
-            ].join("");
-        }
-
-        const ref = this.refIdGen.next().value as string;
-        return [
-            "<figure>",
-            `<label for="${ref}" class="margin-toggle">&#8853;</label>`,
-            `<input type="checkbox" id="${ref}" class="margin-toggle"/>`,
-            `<span class="marginnote">${title || alt}</span>`,
-            `<img src="${immPath}" alt="${alt}" />`,
-            "</figure>",
-        ].join("");
+        return `<img src="${immPath}" alt="${alt}" />`;
     }
 
     /** @inheritdoc */
     public writeHRule(): string {
+        // Should never get to this point as the generator absorbs all HRules
         throw new Error("Not implemented");
     }
 
@@ -212,8 +197,9 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
             `<script src="${paths.dist}/reveal.js"></script>`,
             `<script src="${paths.plugin}/notes/notes.js"></script>`,
             `<script src="${paths.plugin}/highlight/highlight.js"></script>`,
+            `<script src="${paths.plugin}/math/math.js"></script>`,
             `<script>`,
-            "Reveal.initialize({hash: true, plugins: [ RevealHighlight, RevealNotes ]});",
+            "Reveal.initialize({hash: true, plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]});",
             `</script>`,
             "</body>",
             "</html>",
