@@ -1,3 +1,4 @@
+import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../extensions";
 import { ResourceManager } from "../res_manager";
 import { DocumentInfo } from "../semantics";
@@ -22,7 +23,7 @@ export interface HtmlSlidesTemplateOptions {
  * - The first level-1 heading is picked up as the title of the presentation.
  * - Every level-2 heading defines a slide.
  */
-export class HtmlSlidesRenderer {
+export class HtmlSlidesRenderer implements DirectFlowRenderer {
     private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
@@ -40,6 +41,19 @@ export class HtmlSlidesRenderer {
             outputFileName: "index.html",
             outputName: "htmlslides",
         });
+    }
+
+    /**
+     * Renders a slide.
+     * @param content 
+     * @returns 
+     */
+    public writeSlide(content: string): string {
+        return [
+            "<section>",
+            content,
+            "</section>",
+        ].join("");
     }
 
     /** @inheritdoc */
@@ -162,6 +176,11 @@ export class HtmlSlidesRenderer {
             `<img src="${immPath}" alt="${alt}" />`,
             "</figure>",
         ].join("");
+    }
+
+    /** @inheritdoc */
+    public writeHRule(): string {
+        throw new Error("Not implemented");
     }
 
     private static getPageTemplate(

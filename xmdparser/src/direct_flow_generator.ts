@@ -1,4 +1,4 @@
-import { AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
+import { AstCodeblockComponentNode, AstComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { ExtensionsManager, ImageExtensionAttributes } from "./extensions";
@@ -40,20 +40,12 @@ export class DirectFlowGenerator implements Generator {
         return this.renderer.writeToFile(output);
     }
 
-    private extractSemanticInfo(node: XmdAst): DocumentInfo {
-        // Title
-        // The title is considered to be the very first level 1 heading found in the AST root flow.
-        const titleHeading = node.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
-        const title = titleHeading?.v?.v || "Untitled";
-
-        return {
-            title,
-        };
-    }
-    
-    private async generateStart(node: XmdAst): Promise<string> {
-        const docInfo = this.extractSemanticInfo(node);
-
+    /**
+     * Handles the root level and generates the flow.
+     * @param node The input root node.
+     * @returns The rendered flow.
+     */
+    public async generateFlow(node: { v: Array<AstComponentNode> }): Promise<string> {
         // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
         const flow: Array<string> = [];
         for (const componentNode of node.v) {
@@ -90,7 +82,25 @@ export class DirectFlowGenerator implements Generator {
 
         const reducedFlow = flow.reduce((a: any, b: any) => `${a}${b}`, "");
 
-        return this.renderer.writeRoot(reducedFlow, docInfo);
+        return reducedFlow;
+    }
+
+    private async generateStart(node: { v: Array<AstComponentNode> }): Promise<string> {
+        const docInfo = this.extractSemanticInfo(node);
+        const flow: string = await this.generateFlow(node);
+        
+        return this.renderer.writeRoot(flow, docInfo);
+    }
+
+    private extractSemanticInfo(node: { v: Array<AstComponentNode> }): DocumentInfo {
+        // Title
+        // The title is considered to be the very first level 1 heading found in the AST root flow.
+        const titleHeading = node.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
+        const title = titleHeading?.v?.v || "Untitled";
+
+        return {
+            title,
+        };
     }
 
     private generateHeading(node: AstHeadingComponentNode): string {
