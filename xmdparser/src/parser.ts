@@ -3,6 +3,7 @@ import { join, resolve } from "path";
 import * as pegjs from "pegjs";
 
 import { XmdAst } from "./ast";
+import { ProgressController } from "./progress_controller";
 
 /** The Xmd parser. */
 export class XmdParser {
@@ -12,7 +13,11 @@ export class XmdParser {
     }
 
     public parse(input: string): XmdAst {
-        return this.parser.parse(input);
+        const result = this.parser.parse(input);
+
+        ProgressController.instance.updateStateOfParse(100);
+
+        return result;
     }
 
     private get parser(): pegjs.Parser {
@@ -32,6 +37,10 @@ export class XmdParser {
         )
         .toString();
         
-        return pegjs.generate(grammar);
+        const parser = pegjs.generate(grammar);
+
+        ProgressController.instance.updateStateOfParse(50);
+
+        return parser;
     }
 }

@@ -11,7 +11,8 @@
   "dependencies": {
     "command-line-args": "5.2.1",
     "pegjs": "0.10.0",
-    "node-fetch": "3.2.3"
+    "node-fetch": "3.2.3",
+    "cli-progress": "3.10.0"
   },
   "devDependencies": {
     "jest": "27.5.1",
@@ -19,6 +20,7 @@
     "ts-loader": "9.2.8",
     "webpack-cli": "4.9.2",
     "@types/command-line-args": "5.2.0",
-    "@types/pegjs": "0.10.3"
+    "@types/pegjs": "0.10.3",
+    "@types/cli-progress": "3.9.2"
   }
 }

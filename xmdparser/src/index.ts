@@ -11,6 +11,8 @@ import { XmdParser } from "./parser";
 import { PythonCodeServer } from "./py_srv";
 import { Constants } from "./constants";
 import { GeneratorFactory } from "./generator_factory";
+import { ProgressController } from "./progress_controller";
+import { printGenInfo } from "./print";
 
 const current_path = __dirname;
 
@@ -33,9 +35,6 @@ output = resolve(output || dirname(src));
 template = template || Constants.OutputTypes.HTML_TUFTE;
 
 async function main(): Promise<void> {
-    console.info(`Compiling: ${src} => ${output}`, "...");
-
-    // Fetch input file content
     if (!existsSync(src)) {
         throw new Error(`Input file '${src}' could not be found`);
     }
@@ -43,15 +42,21 @@ async function main(): Promise<void> {
     if (!existsSync(output)) {
         throw new Error(`Output location '${output}' does not exist`);
     }
+
+    console.log(printGenInfo(template));
+
+    console.info(`Compiling: ${src} => ${output}`, "...");
     
     const source = readFileSync(src).toString();
     console.info("Len:", source.length, "processing", "...");
+
+    ProgressController.instance.initialize();
     
     // Parse
     const ast = new XmdParser().parse(source);
-    if (verbose) {
-        console.log("AST:", JSON.stringify(ast));
-    }
+    // if (verbose) {
+    //     console.log("AST:", JSON.stringify(ast));
+    // }
 
     // Launch and wait for the Py Srv to be online
     // Remember that code evaluation happens at generation time, not parse time
@@ -68,15 +73,19 @@ async function main(): Promise<void> {
         const out = await generator.generate(ast);
 
         const outputPath = generator.write(out);
-        console.info("Output saved into:", outputPath);
+        //console.info("Output saved into:", outputPath);
     } catch (error) {
         console.error("An error occurred while generating the output code.", error);
     } finally {
         // Kill server
         const srvLog = await pysrv.stopServer();
 
-        console.log("Code server logs");
-        console.log(srvLog);
+        // console.log("Code server logs");
+        // console.log(srvLog);
+
+        ProgressController.instance.complete();
+
+        console.log("Done");
     }
 }
 

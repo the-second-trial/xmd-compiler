@@ -5,6 +5,7 @@ import { ExtensionsManager, ImageExtensionAttributes } from "./extensions";
 import { Generator } from "./generator";
 import { DocumentInfo } from "./semantics";
 import { DirectFlowRenderer } from "./direct_flow_renderer"
+import { ProgressController } from "./progress_controller";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
@@ -48,6 +49,7 @@ export class DirectFlowGenerator implements Generator {
     public async generateFlow(node: { v: Array<AstComponentNode> }): Promise<string> {
         // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
         const flow: Array<string> = [];
+        let componentsProcessedCount = 0;
         for (const componentNode of node.v) {
             let renderedComponent = "";
             switch (componentNode.t) {
@@ -78,6 +80,10 @@ export class DirectFlowGenerator implements Generator {
             }
 
             flow.push(renderedComponent);
+
+            ProgressController.instance.updateStateOfGenerate(
+                Math.ceil(++componentsProcessedCount / node.v.length * 100)
+            );
         }
 
         const reducedFlow = flow.reduce((a: any, b: any) => `${a}${b}`, "");
