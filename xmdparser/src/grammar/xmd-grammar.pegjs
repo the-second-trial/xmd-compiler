@@ -94,7 +94,7 @@ hrule
   = "---"
 
 extension_string
-  = "{" one:extension_string_one others:extension_string_two* "}" { return { t: "ext", v: [one].concat(others || []) } }
+  = "{{" one:extension_string_one others:extension_string_two* "}}" { return { t: "ext", v: [one].concat(others || []) } }
 extension_string_one
   = whitespace* clause:extension_clause whitespace* { return clause; }
 extension_string_two

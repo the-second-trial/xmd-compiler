@@ -21,3 +21,15 @@ export function* idgen(prefix = "id"): Generator<string> {
 
     return `${prefix}-end`
 }
+
+/**
+ * Truncates a string in the middle.
+ * @param input The string to truncate.
+ * @param limit The length limit.
+ * @returns The truncated string.
+ */
+export function truncate(input: string, limit = 50): string {
+    return input.length > limit
+        ? `${input.substring(0, Math.floor(limit/2))}...${input.substring(input.length - Math.floor(limit/2))}`
+        : input;
+}

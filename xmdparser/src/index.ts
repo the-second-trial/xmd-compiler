@@ -13,6 +13,7 @@ import { Constants } from "./constants";
 import { GeneratorFactory } from "./generator_factory";
 import { ProgressController } from "./progress_controller";
 import { printGenInfo } from "./print";
+import { truncate } from "./utils";
 
 const current_path = __dirname;
 
@@ -45,10 +46,9 @@ async function main(): Promise<void> {
 
     console.log(printGenInfo(template));
 
-    console.info(`Compiling: ${src} => ${output}`, "...");
+    console.info(`${truncate(src)} => ${truncate(output)}`);
     
     const source = readFileSync(src).toString();
-    console.info("Len:", source.length, "processing", "...");
 
     ProgressController.instance.initialize();
     
