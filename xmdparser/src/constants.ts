@@ -20,6 +20,9 @@ export const Constants = {
         IMAGE: "image",
         HRULE: "hrule",
     },
+    ExtendedNodeTypes: {
+        THEOREM: "theorem",
+    },
     PySrv: {
         SRV_PING_MAX_ATTEMPTS_COUNT: 10,
         SRV_PING_WAIT_RETRY_MS: 1000,

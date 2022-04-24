@@ -1,5 +1,5 @@
 import { DirectFlowRenderer } from "../direct_flow_renderer";
-import { ImageExtensionAttributes } from "../extensions";
+import { ImageExtensionAttributes } from "../extensions/extensions";
 import { ResourceManager } from "../res_manager";
 import { DocumentInfo } from "../semantics";
 import { idgen } from "../utils";
@@ -24,7 +24,6 @@ export interface HtmlSlidesTemplateOptions {
  * - Every level-2 heading defines a slide.
  */
 export class HtmlSlidesRenderer implements DirectFlowRenderer {
-    private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
     /**
@@ -34,7 +33,6 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
     constructor(
         private options: HtmlSlidesTemplateOptions
     ) {
-        this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager({
             outputLocDir: this.options.outputPath,
             srcPath: this.options.inputPath,

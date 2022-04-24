@@ -1,7 +1,7 @@
-import { AstCodeblockComponentNode, AstComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
+import { AstBaseNode, AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
-import { ExtensionsManager, ImageExtensionAttributes } from "./extensions";
+import { ExtensionsManager, ImageExtensionAttributes, stringifyExtensionCluasesArray } from "./extensions/extensions";
 import { Generator } from "./generator";
 import { DocumentInfo } from "./semantics";
 import { DirectFlowRenderer } from "./direct_flow_renderer"
@@ -25,15 +25,13 @@ export class DirectFlowGenerator implements Generator {
 
     /** @inheritdoc */
     public generate(ast: XmdAst): Promise<string> {
-        if (!ast || ast.t !== "start") {
-            throw new Error("AST cannot be null, undefined or malformed");
-        }
-    
-        if (!DirectFlowGenerator.checkAst(ast)) {
+        if (!this.checkAst(ast)) {
             throw new Error("Malformed AST");
         }
     
-        return this.generateStart(ast);
+        return this.generateStart(
+            this.transformAst(ast)
+        );
     }
 
     /** @inheritdoc */
@@ -46,34 +44,13 @@ export class DirectFlowGenerator implements Generator {
      * @param node The input root node.
      * @returns The rendered flow.
      */
-    public async generateFlow(node: { v: Array<AstComponentNode> }): Promise<string> {
+    public async generateFlow(node: { v: Array<AstBaseNode> }): Promise<string> {
         // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
         const flow: Array<string> = [];
         let componentsProcessedCount = 0;
+
         for (const componentNode of node.v) {
-            let renderedComponent = "";
-            switch (componentNode.t) {
-                case Constants.NodeTypes.HEADING:
-                    renderedComponent = this.generateHeading(componentNode as AstHeadingComponentNode);
-                    break;
-                case Constants.NodeTypes.PARAGRAPH:
-                    renderedComponent = await this.generateParagraph(componentNode as AstParagraphComponentNode);
-                    break;
-                case Constants.NodeTypes.CODEBLOCK:
-                    renderedComponent = await this.generateCodeblock(componentNode as AstCodeblockComponentNode);
-                    break;
-                case Constants.NodeTypes.EQBLOCK:
-                    renderedComponent = await this.generateEquationblock(componentNode as AstEquationblockComponentNode);
-                    break;
-                case Constants.NodeTypes.IMAGE:
-                    renderedComponent = await this.generateImage(componentNode as AstImageComponentNode);
-                    break;
-                case Constants.NodeTypes.HRULE:
-                    renderedComponent = this.generateHRule(componentNode as AstHRuleNode);
-                    break;
-                default:
-                    throw new Error(`Unrecognized node type'${componentNode.t}'`);
-            }
+            const renderedComponent = await this.handleAstComponentNodeRendering(componentNode);
 
             if (!renderedComponent) {
                 throw new Error("Component did not render");
@@ -91,14 +68,64 @@ export class DirectFlowGenerator implements Generator {
         return reducedFlow;
     }
 
-    private async generateStart(node: { v: Array<AstComponentNode> }): Promise<string> {
+    /**
+     * Handles the rendering of a component node.
+     * @param componentNode The component node.
+     * @returns The rendered component node.
+     */
+    protected async handleAstComponentNodeRendering(componentNode: AstBaseNode): Promise<string> {
+        switch (componentNode.t) {
+            case Constants.NodeTypes.HEADING:
+                return this.generateHeading(componentNode as AstHeadingComponentNode);
+            case Constants.NodeTypes.PARAGRAPH:
+                return await this.generateParagraph(componentNode as AstParagraphComponentNode);
+            case Constants.NodeTypes.CODEBLOCK:
+                return await this.generateCodeblock(componentNode as AstCodeblockComponentNode);
+            case Constants.NodeTypes.EQBLOCK:
+                return await this.generateEquationblock(componentNode as AstEquationblockComponentNode);
+            case Constants.NodeTypes.IMAGE:
+                return await this.generateImage(componentNode as AstImageComponentNode);
+            case Constants.NodeTypes.HRULE:
+                return this.generateHRule(componentNode as AstHRuleNode);
+            default:
+                throw new Error(`Unrecognized node type'${componentNode.t}'`);
+        }
+    }
+
+    /**
+     * Returns a value indicating whether the root node is correct.
+     * @param ast The root node.
+     * @returns True if ok, false otherwise.
+     */
+    protected checkAst(ast: any): boolean {
+        if (!ast.t || ast.t !== Constants.NodeTypes.START) {
+            return false;
+        }
+    
+        if (!ast.v || typeof ast.v !== "object" || ast.v.length <= 0) {
+            return false;
+        }
+    
+        return true;
+    }
+
+    /**
+     * Transforms the AST before it is processed for tracversal and generation.
+     * @param ast The input AST.
+     * @returns A new AST.
+     */
+    protected transformAst(ast: XmdAst): { v: Array<AstBaseNode> } {
+        return ast;
+    }
+
+    private async generateStart(node: { v: Array<AstBaseNode> }): Promise<string> {
         const docInfo = this.extractSemanticInfo(node);
         const flow: string = await this.generateFlow(node);
         
         return this.renderer.writeRoot(flow, docInfo);
     }
 
-    private extractSemanticInfo(node: { v: Array<AstComponentNode> }): DocumentInfo {
+    private extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
         // Title
         // The title is considered to be the very first level 1 heading found in the AST root flow.
         const titleHeading = node.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
@@ -167,11 +194,7 @@ export class DirectFlowGenerator implements Generator {
     }
 
     private generateImage(node: AstImageComponentNode): string {
-        const ext = this.extMan.parse(
-            (node.v.ext?.v || [])
-                .map(x => `${x.v.name}=${x.v.value || "true"}`)
-                .join(",")
-        );
+        const ext = this.extMan.parse(stringifyExtensionCluasesArray(node.v.ext?.v));
         return this.renderer.writeImage(node.v.alt, node.v.path, node.v.title, ext.result as ImageExtensionAttributes);
     }
 
@@ -214,17 +237,5 @@ export class DirectFlowGenerator implements Generator {
         }
 
         return this.codeEvaluator.eval(chunk);
-    }
-
-    private static checkAst(ast: any): boolean {
-        if (!ast.t || ast.t !== Constants.NodeTypes.START) {
-            return false;
-        }
-    
-        if (!ast.v || typeof ast.v !== "object" || ast.v.length <= 0) {
-            return false;
-        }
-    
-        return true;
     }
 }

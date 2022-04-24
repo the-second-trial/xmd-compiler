@@ -1,7 +1,7 @@
 const { EOL } = require("os");
 
 import { DirectFlowRenderer } from "../direct_flow_renderer";
-import { ImageExtensionAttributes } from "../extensions";
+import { ImageExtensionAttributes } from "../extensions/extensions";
 import { ResourceManager } from "../res_manager";
 import { DocumentInfo } from "../semantics";
 import { idgen } from "../utils";

@@ -1,11 +1,20 @@
+import { AstExtensionClauseNode } from "../ast";
+
 export type ExtensionAttributes =
     /**
      * Applies to: images.
      * Used to indicate the resource will be rendered at full page width.
      */
-    | "fullwidth";
+    | "fullwidth"
+    /**
+     * Applies to: heading.
+     * Environment "Theorem".
+     */
+    | "theorem";
 
 export type ImageExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "fullwidth">;
+
+export type HeadingExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "theorem">;
 
 export type ExtensionValues = Record<ExtensionAttributes, string>;
 
@@ -35,6 +44,7 @@ export class ExtensionsManager {
         return {
             result: {
                 fullwidth: parsed_clauses["fullwidth"],
+                theorem: parsed_clauses["theorem"],
             },
             unknown: {},
         };
@@ -47,4 +57,10 @@ export class ExtensionsManager {
     public static get assignment(): string {
         return "=";
     }
+}
+
+export function stringifyExtensionCluasesArray(clauses?: Array<AstExtensionClauseNode>) {
+    return (clauses || [])
+        .map(x => `${x.v.name}=${x.v.value || "true"}`)
+        .join(",")
 }

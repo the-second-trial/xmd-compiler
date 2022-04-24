@@ -1,4 +1,4 @@
-import { ImageExtensionAttributes } from "./extensions";
+import { ImageExtensionAttributes } from "./extensions/extensions";
 import { DocumentInfo } from "./semantics";
 
 /** Describes a template for generating an output code. */

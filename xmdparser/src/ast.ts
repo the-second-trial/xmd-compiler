@@ -1,4 +1,9 @@
-export interface AstExtensionClauseNode {
+export interface AstBaseNode {
+    t: string;
+    v: string | number | object;
+}
+
+export interface AstExtensionClauseNode extends AstBaseNode {
     t: "extclause";
     v: {
         name: string,
@@ -6,12 +11,12 @@ export interface AstExtensionClauseNode {
     };
 }
 
-export interface AstExtensionStringNode {
+export interface AstExtensionStringNode extends AstBaseNode {
     t: "ext";
     v: Array<AstExtensionClauseNode>;
 }
 
-export interface AstHeadingComponentNode {
+export interface AstHeadingComponentNode extends AstBaseNode {
     t: "heading";
     v: {
         t: "heading_text",
@@ -19,25 +24,26 @@ export interface AstHeadingComponentNode {
         p: {
             type: number,
         },
+        ext?: AstExtensionStringNode,
     };
 }
 
-export interface AstParagraphComponentTextNode {
+export interface AstParagraphComponentTextNode extends AstBaseNode {
     t: "text";
     v: string;
 }
 
-export interface AstParagraphComponentBoldTextNode {
+export interface AstParagraphComponentBoldTextNode extends AstBaseNode {
     t: "bold";
     v: string;
 }
 
-export interface AstParagraphComponentItalicTextNode {
+export interface AstParagraphComponentItalicTextNode extends AstBaseNode {
     t: "italic";
     v: string;
 }
 
-export interface AstParagraphComponentCodeInlineNode {
+export interface AstParagraphComponentCodeInlineNode extends AstBaseNode {
     t: "codeinline";
     v: {
         run: boolean,
@@ -45,7 +51,7 @@ export interface AstParagraphComponentCodeInlineNode {
     };
 }
 
-export interface AstParagraphComponentEquationInlineNode {
+export interface AstParagraphComponentEquationInlineNode extends AstBaseNode {
     t: "eqinline";
     v: string;
 }
@@ -57,7 +63,7 @@ export type AstParagraphComponentNodeValue =
     | AstParagraphComponentCodeInlineNode
     | AstParagraphComponentEquationInlineNode;
 
-export interface AstParagraphComponentNode {
+export interface AstParagraphComponentNode extends AstBaseNode {
     t: "paragraph";
     v: {
         t: "par",
@@ -65,7 +71,7 @@ export interface AstParagraphComponentNode {
     };
 }
 
-export interface AstCodeblockComponentNode {
+export interface AstCodeblockComponentNode extends AstBaseNode {
     t: "codeblock";
     v: {
         run: boolean,
@@ -73,12 +79,12 @@ export interface AstCodeblockComponentNode {
     };
 }
 
-export interface AstEquationblockComponentNode {
+export interface AstEquationblockComponentNode extends AstBaseNode {
     t: "eqblock";
     v: string;
 }
 
-export interface AstImageComponentNode {
+export interface AstImageComponentNode extends AstBaseNode {
     t: "image";
     v: {
         alt: string,
@@ -88,7 +94,7 @@ export interface AstImageComponentNode {
     };
 }
 
-export interface AstHRuleNode {
+export interface AstHRuleNode extends AstBaseNode {
     t: "hrule";
 }
 
@@ -100,7 +106,7 @@ export type AstComponentNode =
     | AstImageComponentNode
     | AstHRuleNode;
 
-export interface XmdAst {
+export interface XmdAst extends AstBaseNode {
     t: "start";
     v: Array<AstComponentNode>;
 }

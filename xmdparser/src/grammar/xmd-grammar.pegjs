@@ -63,7 +63,7 @@ codeinline_noeval
   = "`" content:text_char+ "`" { return { t: "codeinline", v: { run: false, src: arr2contstr(content) } }; }
 
 heading
-  = symb:"#"+ whitespace* content:text_char+ { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length } }; }
+  = symb:"#"+ whitespace* content:[^{]+ ext:extension_string? { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length }, ext: ext }; }
 
 codeblock
   = "```" whitespace* newline char:[^\n\r`] next_char:codeblock_cont { return { run: true, src: char + next_char }; }
@@ -92,6 +92,10 @@ list
 
 hrule
   = "---"
+
+// ----------
+// Extensions
+// ----------
 
 extension_string
   = "{{" one:extension_string_one others:extension_string_two* "}}" { return { t: "ext", v: [one].concat(others || []) } }
