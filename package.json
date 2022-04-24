@@ -1,10 +1,10 @@
 {
-  "name": "xmd2html",
+  "name": "xmd-parser",
   "version": "1.0.0",
   "description": "A parser from eXtended MarkDown to HTML",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/the-second-trial/xmd2html.git"
+    "url": "git+https://github.com/the-second-trial/xmd-parser.git"
   },
   "keywords": [
     "parser",
@@ -14,9 +14,9 @@
   "author": "Andrea Tino",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/the-second-trial/xmd2html/issues"
+    "url": "https://github.com/the-second-trial/xmd-parser/issues"
   },
-  "homepage": "https://github.com/the-second-trial/xmd2html#readme",
+  "homepage": "https://github.com/the-second-trial/xmd-parser#readme",
   "scripts": {
     "build": "npm run build:xmdparser && npm run build:grammar && npm run build:pysrv && npm run build:res",
     "build:xmdparser": "npm run build --prefix ./xmdparser && node scripts/copy_xmdparser.js",

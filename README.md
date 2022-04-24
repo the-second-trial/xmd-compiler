@@ -1,2 +1,2 @@
-# xmd2html
-Parser for converting an eXtended MarkDown into HTML
+# xmd-parser
+Parser for converting an eXtended MarkDown into different formats.
