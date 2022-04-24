@@ -109,8 +109,8 @@ export class EnvironmentAstTransformer implements AstTransformer<WithEnvironsAst
                 t: "theorem",
                 v: {
                     title: titleNode.v.v,
-                    statement: statementNode.v.v.join(""),
-                    proof: proofNode.v.v.join(""),
+                    statement: statementNode.v.v.map(x => x.v).join(""),
+                    proof: proofNode.v.v.map(x => x.v).join(""),
                 },
             },
             skip: 3,
