@@ -29,6 +29,6 @@ export class TexMathEnvironmentsRenderer implements MathEnvironmentsRenderer {
             `\\begin{proof}`,
             proof,
             `\\end{proof}`,
-        ].join(EOL);
+        ].join(EOL) + EOL;
     }
 }

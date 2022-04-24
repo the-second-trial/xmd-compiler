@@ -97,7 +97,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
             evalResult ? "\\begin{docspec}" : "",
             evalResult ? evalResult : "",
             evalResult ? `\\end{docspec}` : "",
-        ].join(EOL);
+        ].join(EOL) + EOL;
     }
 
     public writeEquationblock(equation: string): string {
@@ -105,7 +105,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
             "\\begin{equation}",
             equation,
             "\\end{equation}",
-        ].join(EOL);
+        ].join(EOL) + EOL;
     }
 
     public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
@@ -119,7 +119,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
                 `\\caption{${title}}`,
                 `\\label{${ref}}`,
                 "\\end{figure*}",
-            ].join(EOL);
+            ].join(EOL) + EOL;
         }
 
         return [
@@ -129,7 +129,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
             `\\label{${ref}}`,
             "\\setfloatalignment{b}",
             "\\end{figure}",
-        ].join(EOL);
+        ].join(EOL) + EOL;
     }
 
     public writeHRule(): string {

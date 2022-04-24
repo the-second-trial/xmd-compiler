@@ -6,6 +6,7 @@ import { Generator } from "./generator";
 import { DocumentInfo } from "./semantics";
 import { DirectFlowRenderer } from "./direct_flow_renderer"
 import { ProgressController } from "./progress_controller";
+import { DebugController } from "./debugging";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
@@ -29,9 +30,10 @@ export class DirectFlowGenerator implements Generator {
             throw new Error("Malformed AST");
         }
     
-        return this.generateStart(
-            this.transformAst(ast)
-        );
+        const transformedAst = this.transformAst(ast);
+        DebugController.instance.transformedAst = JSON.stringify(transformedAst);
+        
+        return this.generateStart(transformedAst);
     }
 
     /** @inheritdoc */

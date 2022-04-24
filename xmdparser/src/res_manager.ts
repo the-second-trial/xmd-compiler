@@ -1,5 +1,6 @@
 import { basename, dirname, extname, resolve, join } from "path";
 import { existsSync, copyFileSync, statSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "fs";
+
 import { idgen } from "./utils";
 
 /** Describes the options for configuring the @see ResourceManager. */
