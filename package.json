@@ -23,6 +23,8 @@
     "build:grammar": "node scripts/copy_grammar.js",
     "build:pysrv": "node scripts/copy_pysrv.js",
     "build:res": "node scripts/copy_res.js",
+    "test": "npm run test:xmdparser",
+    "test:xmdparser": "npm test --prefix ./xmdparser",
     "clean": "node scripts/clean.js",
     "start": "node ./lib/xmlparser.js --src ./examples/simple.md"
   }
