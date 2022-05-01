@@ -1,4 +1,4 @@
-import { AstBaseNode, AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst } from "./ast";
+import { AstBaseNode, AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstRootDirectiveNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst, AstInlineDirectiveNode } from "./ast";
 import { CodeChunkEvaluator, EvalResult } from "./code_srv";
 import { Constants } from "./constants";
 import { ExtensionsManager, ImageExtensionAttributes, stringifyExtensionCluasesArray } from "./extensions/extensions";
@@ -7,10 +7,12 @@ import { DocumentInfo } from "./semantics";
 import { DirectFlowRenderer } from "./direct_flow_renderer"
 import { ProgressController } from "./progress_controller";
 import { DebugController } from "./debugging";
+import { DirectivesController } from "./directives";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
     private extMan: ExtensionsManager;
+    private directivesController: DirectivesController;
 
     /**
      * Initializes a new instance of this class.
@@ -22,6 +24,12 @@ export class DirectFlowGenerator implements Generator {
         private codeEvaluator?: CodeChunkEvaluator
     ) {
         this.extMan = new ExtensionsManager();
+        this.directivesController = new DirectivesController();
+    }
+
+    /** @inheritdoc */
+    public get outputDirPath(): string {
+        return this.renderer.outputDirPath;
     }
 
     /** @inheritdoc */
@@ -54,10 +62,6 @@ export class DirectFlowGenerator implements Generator {
         for (const componentNode of node.v) {
             const renderedComponent = await this.handleAstComponentNodeRendering(componentNode);
 
-            if (!renderedComponent) {
-                throw new Error("Component did not render");
-            }
-
             flow.push(renderedComponent);
 
             ProgressController.instance.updateStateOfGenerate(
@@ -89,6 +93,8 @@ export class DirectFlowGenerator implements Generator {
                 return await this.generateImage(componentNode as AstImageComponentNode);
             case Constants.NodeTypes.HRULE:
                 return this.generateHRule(componentNode as AstHRuleNode);
+            case Constants.NodeTypes.ROOT_DIRECTIVE:
+                return this.generateRootDirective(componentNode as AstRootDirectiveNode);
             default:
                 throw new Error(`Unrecognized node type'${componentNode.t}'`);
         }
@@ -144,6 +150,21 @@ export class DirectFlowGenerator implements Generator {
         return this.renderer.writeHeading(text, level);
     }
 
+    private generateRootDirective(node: AstRootDirectiveNode): string {
+        // A directive generates no output
+        this.directivesController.processDirective(node.v);
+        return "";
+    }
+
+    private generateInlineDirective(node: AstInlineDirectiveNode): string {
+        const result = this.directivesController.processDirective(node.v, true);
+        if (typeof result === "string") {
+            return result;
+        }
+
+        throw new Error(`Error while processing inline directive`);
+    }
+
     private async generateParagraph(node: AstParagraphComponentNode): Promise<string> {
         // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
         const flow: Array<string> = [];
@@ -170,8 +191,12 @@ export class DirectFlowGenerator implements Generator {
                     const eqinlinePar = par as AstParagraphComponentEquationInlineNode;
                     renderedComponent = await this.renderer.writeParagraphEquationInlineText(eqinlinePar.v);
                     break;
+                case Constants.NodeTypes.INLINE_DIRECTIVE:
+                    const inlineDirectPar = par as AstInlineDirectiveNode;
+                    renderedComponent = this.generateInlineDirective(inlineDirectPar);
+                    break;
                 default:
-                    throw new Error(`Unrecognized par type'${par.t}'`);
+                    throw new Error(`Unrecognized par type: '${par.t}'`);
             }
 
             if (!renderedComponent) {

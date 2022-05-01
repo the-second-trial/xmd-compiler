@@ -4,17 +4,20 @@
     }
 }
 
+// Whitespaces specified here are covering the BOF and EOF
 start
   = newline* init:component_init flow:component* newline* { return { t: "start", v: [init].concat(flow || []) }; }
 
 component_init
-  = content:paragraph { return { t: "paragraph", v: content }; }
+  = content:root_directive { return { t: "rootdirect", v: content }; }
+  / content:paragraph { return { t: "paragraph", v: content }; }
   / content:heading { return { t: "heading", v: content }; }
   / content:codeblock { return { t: "codeblock", v: content }; }
   / content:blockquote { return { t: "blockquote", v: content }; }
   / hrule { return { t: "hrule" }; } // Must come before list
   / content:list { return { t: "list", v: content }; }
 
+// Here we cover whitespaces between different syntax blocks
 component
   = newline newline+ content:heading { return { t: "heading", v: content }; }
   / newline newline+ content:codeblock { return { t: "codeblock", v: content }; }
@@ -24,6 +27,7 @@ component
   / newline newline+ content:list { return { t: "list", v: content }; }
   / newline newline+ content:hrule { return { t: "hrule" }; }
   / newline+ content:image { return { t: "image", v: content }; }
+  / newline* content:root_directive { return { t: "rootdirect", v: content }; }
   / newline newline* content:paragraph { return { t: "paragraph", v: content }; } // Should be last as very generic
 
 image
@@ -40,6 +44,7 @@ par_element
   / content:eqinline { return content; }
   / content:codeinline { return content; }
   / content:codeinline_noeval { return content; }
+  / content:inline_directive { return { t: "inlinedirect", v: content }; }
   / content:text { return content; } // Last as very generic
 
 text
@@ -94,24 +99,45 @@ hrule
   = "---"
 
 // ----------
+// Directives
+// ----------
+
+root_directive
+  = extension_string
+
+inline_directive
+  = extension_string
+
+// ----------
 // Extensions
 // ----------
 
 extension_string
-  = "{{" one:extension_string_one others:extension_string_two* "}}" { return { t: "ext", v: [one].concat(others || []) } }
+  = ext_delim_open one:extension_string_one others:extension_string_two* ext_delim_close { return { t: "ext", v: [one].concat(others || []) } }
 extension_string_one
   = whitespace* clause:extension_clause whitespace* { return clause; }
 extension_string_two
-  = "," whitespace* clause:extension_clause whitespace* { return clause; }
+  = extension_clause_sep whitespace* clause:extension_clause whitespace* { return clause; }
 
 extension_clause
   = name:alphanumeric_char+ value:extension_clause_cont? { return { t: "extclause", v: { name: arr2contstr(name), value: value } }; }
 extension_clause_cont
-  = "=" value:alphanumeric_char+ { return arr2contstr(value); }
+  = extension_clause_assign value:[^#\n\r{}]+ { return arr2contstr(value); }
+
+extension_clause_sep
+  = ","
+extension_clause_assign
+  = "="
 
 // ---------------
 // Special symbols
 // ---------------
+
+ext_delim_open
+  = "{{"
+
+ext_delim_close
+  = "}}"
 
 head_delim
   = "#"
@@ -120,7 +146,7 @@ text_char
   = [^#\n\r`]
 
 text_char_ns
-  = [^#\n\r`*_$]
+  = [^#\n\r`*_${}]
 
 tab
   = "\t"

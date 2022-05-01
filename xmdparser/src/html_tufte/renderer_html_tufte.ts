@@ -40,8 +40,13 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
     }
 
     /** @inheritdoc */
+    public get outputDirPath(): string {
+        return this.resMan.outputDir;
+    }
+
+    /** @inheritdoc */
     public writeToFile(output: string): string {
-        return this.resMan.writeToPutputFile(output);
+        return this.resMan.writeToOutputFile(output);
     }
 
     /** @inheritdoc */

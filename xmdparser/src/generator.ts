@@ -14,4 +14,7 @@ export interface Generator {
      * @returns The path where the file has been saved.
      */
     write(output: string): string;
+
+    /** Gets the output directory path. */
+    outputDirPath: string;
 }

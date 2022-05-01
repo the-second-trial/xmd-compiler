@@ -43,6 +43,11 @@ export interface AstParagraphComponentItalicTextNode extends AstBaseNode {
     v: string;
 }
 
+export interface AstInlineDirectiveNode extends AstBaseNode {
+    t: "inlinedirect";
+    v: AstExtensionStringNode;
+}
+
 export interface AstParagraphComponentCodeInlineNode extends AstBaseNode {
     t: "codeinline";
     v: {
@@ -60,6 +65,7 @@ export type AstParagraphComponentNodeValue =
     | AstParagraphComponentTextNode
     | AstParagraphComponentBoldTextNode
     | AstParagraphComponentItalicTextNode
+    | AstInlineDirectiveNode
     | AstParagraphComponentCodeInlineNode
     | AstParagraphComponentEquationInlineNode;
 
@@ -98,13 +104,19 @@ export interface AstHRuleNode extends AstBaseNode {
     t: "hrule";
 }
 
+export interface AstRootDirectiveNode extends AstBaseNode {
+    t: "rootdirect";
+    v: AstExtensionStringNode;
+}
+
 export type AstComponentNode =
     | AstHeadingComponentNode
     | AstParagraphComponentNode
     | AstCodeblockComponentNode
     | AstEquationblockComponentNode
     | AstImageComponentNode
-    | AstHRuleNode;
+    | AstHRuleNode
+    | AstRootDirectiveNode;
 
 export interface XmdAst extends AstBaseNode {
     t: "start";

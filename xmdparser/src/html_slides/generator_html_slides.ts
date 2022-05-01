@@ -36,6 +36,11 @@ export class HtmlSlidesGenerator implements Generator {
     }
 
     /** @inheritdoc */
+    public get outputDirPath(): string {
+        return this.renderer.outputDirPath;
+    }
+
+    /** @inheritdoc */
     public generate(ast: XmdAst): Promise<string> {
         if (!ast || ast.t !== "start") {
             throw new Error("AST cannot be null, undefined or malformed");

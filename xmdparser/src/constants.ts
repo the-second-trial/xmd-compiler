@@ -19,6 +19,11 @@ export const Constants = {
         EQBLOCK: "eqblock",
         IMAGE: "image",
         HRULE: "hrule",
+        ROOT_DIRECTIVE: "rootdirect",
+        INLINE_DIRECTIVE: "inlinedirect",
+    },
+    Directives: {
+        ABBREVATION: "a",
     },
     ExtendedNodeTypes: {
         THEOREM: "theorem",

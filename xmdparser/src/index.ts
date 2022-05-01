@@ -65,16 +65,17 @@ async function main(): Promise<void> {
         await pysrv.startServer();
     }
 
+    let outputPath = "";
     try {
         // Generate
         const generator = new GeneratorFactory(template, pysrv, output, src)
             .create();
+        outputPath = generator.outputDirPath;
+
         const out = await generator.generate(ast);
 
-        const outputPath = generator.write(out);
+        generator.write(out);
         logDebug(`Output saved into: '${outputPath}'`);
-
-        DebugController.instance.save(dirname(outputPath));
     } catch (error) {
         console.error("An error occurred while generating the output code.", error);
     } finally {
@@ -84,8 +85,9 @@ async function main(): Promise<void> {
         logDebug(`Code server logs: '${srvLog}'`);
 
         ProgressController.instance.complete();
+        DebugController.instance.save(outputPath);
 
-        console.log("Done");
+        console.log("Done and saved:", outputPath);
     }
 }
 

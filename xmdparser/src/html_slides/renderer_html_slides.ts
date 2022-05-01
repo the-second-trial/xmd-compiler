@@ -41,6 +41,11 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
         });
     }
 
+    /** @inheritdoc */
+    public get outputDirPath(): string {
+        return this.resMan.outputDir;
+    }
+
     /**
      * Renders a slide.
      * @param content 
@@ -56,7 +61,7 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeToFile(output: string): string {
-        return this.resMan.writeToPutputFile(output);
+        return this.resMan.writeToOutputFile(output);
     }
 
     /** @inheritdoc */

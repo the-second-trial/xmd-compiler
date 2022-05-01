@@ -40,16 +40,24 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         });
     }
 
-    public writeToFile(output: string): string {
-        return this.resMan.writeToPutputFile(output);
+    /** @inheritdoc */
+    public get outputDirPath(): string {
+        return this.resMan.outputDir;
     }
 
+    /** @inheritdoc */
+    public writeToFile(output: string): string {
+        return this.resMan.writeToOutputFile(output);
+    }
+
+    /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
         this.resMan.serveTexTufteTemplateFiles();
 
         return TexTufteRenderer.getPageTemplate(content, docInfo);
     }
 
+    /** @inheritdoc */
     public writeHeading(text: string, level: number): string {
         const levels = ["section", "subsection", "subsubsection", "paragraph"];
         if (level <= 0 || level > levels.length) {
@@ -60,26 +68,32 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         return `\\${envname}{${text}}` + EOL;
     }
 
+    /** @inheritdoc */
     public writeParagraph(content: string): string {
         return content + EOL;
     }
 
+    /** @inheritdoc */
     public writeParagraphText(text: string): string {
         return text;
     }
 
+    /** @inheritdoc */
     public writeParagraphBoldText(text: string): string {
         return `\\textbf{${text}}`;
     }
 
+    /** @inheritdoc */
     public writeParagraphItalicText(text: string): string {
         return `\\textit{${text}}`;
     }
 
+    /** @inheritdoc */
     public writeParagraphEquationInlineText(equation: string): string {
         return `$${equation}$`;
     }
 
+    /** @inheritdoc */
     public writeParagraphCodeInline(src: string, evalResult?: string): string {
         if (evalResult) {
             return `\\Verb|${evalResult}|`;
@@ -88,6 +102,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         return `\\Verb|${src}|`;
     }
 
+    /** @inheritdoc */
     public writeCodeblock(src: string, evalResult?: string): string {
         return [
             "\\begin{docspec}",
@@ -100,6 +115,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         ].join(EOL) + EOL;
     }
 
+    /** @inheritdoc */
     public writeEquationblock(equation: string): string {
         return [
             "\\begin{equation}",
@@ -108,6 +124,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         ].join(EOL) + EOL;
     }
 
+    /** @inheritdoc */
     public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
         const immPath = this.resMan.serveImage(path); // Auto name
         const ref = this.refIdGen.next().value as string;
@@ -132,6 +149,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         ].join(EOL) + EOL;
     }
 
+    /** @inheritdoc */
     public writeHRule(): string {
         return `${EOL}%HRULE${EOL}`;
     }

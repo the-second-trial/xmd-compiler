@@ -57,7 +57,7 @@ export class ResourceManager {
      * @param output The output to write.
      * @returns The path where the file has been saved.
      */
-    public writeToPutputFile(output: string): string {
+    public writeToOutputFile(output: string): string {
         const path = resolve(this.outputDir, `${this.options.outputFileName}`);
         writeFileSync(path, output);
 
@@ -188,15 +188,16 @@ export class ResourceManager {
         return webJoin(this.outputResourceDirName, "plugin");
     }
 
+    /** Gets the output dir. */
+    public get outputDir(): string {
+        return resolve(this.options.outputLocDir, basename(this.options.srcPath, ".md") + "_" + this.options.outputName);
+    }
+
     private createOutputDir(): void {
         if (dirExists(this.outputDir)) {
             rm(this.outputDir);
         }
         mkdirSync(this.outputDir);
-    }
-
-    private get outputDir(): string {
-        return resolve(this.options.outputLocDir, basename(this.options.srcPath, ".md") + "_" + this.options.outputName);
     }
 
     private get outputResDirPath(): string {
