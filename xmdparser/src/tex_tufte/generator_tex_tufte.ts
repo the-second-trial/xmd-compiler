@@ -1,5 +1,3 @@
-import { dirname } from "path";
-
 import { AstBaseNode, XmdAst } from "../ast";
 import { CodeChunkEvaluator } from "../code_srv";
 import { Constants } from "../constants";
