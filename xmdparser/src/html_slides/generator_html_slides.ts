@@ -1,3 +1,5 @@
+import { dirname } from "path";
+
 import { AstHeadingComponentNode, XmdAst } from "../ast";
 import { CodeChunkEvaluator } from "../code_srv";
 import { Constants } from "../constants";

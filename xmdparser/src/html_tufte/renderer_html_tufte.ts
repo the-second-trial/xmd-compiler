@@ -58,7 +58,7 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
             mathjaxJs: this.resMan.serveMathjax()
         };
 
-        return HtmlTufteRenderer.getPageTemplate(content, paths, docInfo);
+        return this.getPageTemplate(content, paths, docInfo);
     }
 
     /** @inheritdoc */
@@ -168,11 +168,19 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
         ].join("");
     }
 
+    /** @inheritdoc */
     public writeHRule(): string {
         return "<!--HRULE-->";
     }
 
-    private static getPageTemplate(
+    /**
+     * Renders the enclosing structure of the page.
+     * @param content 
+     * @param paths 
+     * @param docInfo 
+     * @returns The rendered enclosing structure
+     */
+    protected getPageTemplate(
         content: string,
         paths: {
             mathjaxJs: string,
@@ -199,5 +207,31 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
             "</body>",
             "</html>",
         ].join("");
+    }
+}
+
+/** Describes a template for rendering to HTML Tufte (imported files). */
+export class HtmlTufteImportedRenderer extends HtmlTufteRenderer {
+    /**
+     * Initializes a new instance of this class.
+     * @param options The options for customizing the template.
+     */
+    constructor(
+        options: HtmlTufteTemplateOptions
+    ) {
+        super(options);
+    }
+
+    /** @inheritdoc */
+    protected getPageTemplate(
+        content: string,
+        paths: {
+            mathjaxJs: string,
+            tufteCss: string,
+            latexCss: string
+        },
+        docInfo: DocumentInfo
+    ): string {
+        return content;
     }
 }

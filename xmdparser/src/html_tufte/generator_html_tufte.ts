@@ -1,6 +1,9 @@
+import { dirname } from "path";
+
 import { CodeChunkEvaluator } from "../code_srv";
+import { DirectivesController } from "../directives";
 import { DirectFlowGenerator } from "../direct_flow_generator";
-import { HtmlTufteRenderer } from "./renderer_html_tufte";
+import { HtmlTufteImportedRenderer, HtmlTufteRenderer } from "./renderer_html_tufte";
 
 /** A component capable of rendering the final code. */
 export class HtmlTufteGenerator extends DirectFlowGenerator {
@@ -11,8 +14,8 @@ export class HtmlTufteGenerator extends DirectFlowGenerator {
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
-        outputDir: string,
-        srcPath: string,
+        private outputDir: string,
+        private srcPath: string,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
@@ -21,6 +24,38 @@ export class HtmlTufteGenerator extends DirectFlowGenerator {
                 inputPath: srcPath,
             }),
             codeEvaluator
+        );
+    }
+
+    /** @inheritdoc */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return new DirectivesController(
+            dirname(this.srcPath),
+            new HtmlTufteImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
+        );
+    }
+}
+
+class HtmlTufteImportedGenerator extends DirectFlowGenerator {
+    constructor(
+        private outputDir: string,
+        private srcPath: string,
+        codeEvaluator?: CodeChunkEvaluator
+    ) {
+        super(
+            new HtmlTufteImportedRenderer({
+                outputPath: outputDir,
+                inputPath: srcPath,
+            }),
+            codeEvaluator
+        );
+    }
+
+    /** @inheritdoc */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return new DirectivesController(
+            dirname(this.srcPath),
+            new HtmlTufteImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
         );
     }
 }

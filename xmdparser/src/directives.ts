@@ -1,6 +1,11 @@
+import { existsSync, readFileSync } from "fs";
+import { resolve } from "path";
+
 import { AstExtensionClauseNode, AstExtensionStringNode } from "./ast";
 import { Constants } from "./constants";
 import { logDebug } from "./debugging";
+import { Generator } from "./generator";
+import { XmdParser } from "./parser";
 
 interface Abbrevation {
     [name: string]: string;
@@ -13,7 +18,15 @@ interface Abbrevation {
 export class DirectivesController {
     private abbrevations: Abbrevation;
 
-    constructor() {
+    /**
+     * Initializes a new instance of this class.
+     * @param srcDirPath The path to the directory containing the master file.
+     * @param generator The generator to use when processing import directives.
+     */
+    constructor(
+        private srcDirPath: string,
+        private generator: Generator
+    ) {
         this.abbrevations = {};
     }
 
@@ -23,7 +36,10 @@ export class DirectivesController {
      * @param inline A value indicating whether the directive is inline.
      * @returns Nothing or a value.
      */
-    public processDirective(directive: AstExtensionStringNode, inline = false): void | string {
+    public async processDirective(
+        directive: AstExtensionStringNode,
+        inline = false
+    ): Promise<void | string> {
         if (!this.checkDirective(directive)) {
             throw new Error("Directive check failed");
         }
@@ -31,6 +47,9 @@ export class DirectivesController {
         const directiveName = directive.v[0].v.name;
         let result = undefined;
         switch (directiveName) {
+            case Constants.Directives.IMPORT:
+                result = this.handleImport(directive.v[0]);
+                break;
             case Constants.Directives.ABBREVATION:
                 if (inline) {
                     result = this.retrieveAbbreviationValue(directive.v[0]);
@@ -43,6 +62,28 @@ export class DirectivesController {
         }
 
         return result;
+    }
+
+    private async handleImport(importDefinition: AstExtensionClauseNode): Promise<string> {
+        const fileName = importDefinition.v.value;
+        if (!fileName || fileName.length <= 0) {
+            throw new Error("Import file name cannot be empty, null or undefined");
+        }
+
+        const filePath = resolve(this.srcDirPath, fileName);
+        if (!existsSync(filePath)) {
+            throw new Error(`File '${filePath}' could not be found, failed to import`);
+        }
+
+        const source = readFileSync(filePath).toString();
+
+        // Parse
+        const ast = new XmdParser().parse(source);
+
+        // Generate
+        const out = await this.generator.generate(ast);
+
+        return out;
     }
 
     private retrieveAbbreviationValue(abbreviationRef: AstExtensionClauseNode): string {

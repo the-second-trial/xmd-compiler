@@ -24,6 +24,7 @@ export const Constants = {
     },
     Directives: {
         ABBREVATION: "a",
+        IMPORT: "import",
     },
     ExtendedNodeTypes: {
         THEOREM: "theorem",

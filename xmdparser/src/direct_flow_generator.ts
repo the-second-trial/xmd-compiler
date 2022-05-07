@@ -12,7 +12,7 @@ import { DirectivesController } from "./directives";
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
     private extMan: ExtensionsManager;
-    private directivesController: DirectivesController;
+    private _directivesController: DirectivesController;
 
     /**
      * Initializes a new instance of this class.
@@ -21,10 +21,9 @@ export class DirectFlowGenerator implements Generator {
      */
     constructor(
         private renderer: DirectFlowRenderer,
-        private codeEvaluator?: CodeChunkEvaluator
+        protected codeEvaluator?: CodeChunkEvaluator
     ) {
         this.extMan = new ExtensionsManager();
-        this.directivesController = new DirectivesController();
     }
 
     /** @inheritdoc */
@@ -75,6 +74,14 @@ export class DirectFlowGenerator implements Generator {
     }
 
     /**
+     * Creates the @see DirectivesController.
+     * @returns The controller.
+     */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return undefined;
+    }
+
+    /**
      * Handles the rendering of a component node.
      * @param componentNode The component node.
      * @returns The rendered component node.
@@ -94,7 +101,7 @@ export class DirectFlowGenerator implements Generator {
             case Constants.NodeTypes.HRULE:
                 return this.generateHRule(componentNode as AstHRuleNode);
             case Constants.NodeTypes.ROOT_DIRECTIVE:
-                return this.generateRootDirective(componentNode as AstRootDirectiveNode);
+                return await this.generateRootDirective(componentNode as AstRootDirectiveNode);
             default:
                 throw new Error(`Unrecognized node type'${componentNode.t}'`);
         }
@@ -126,6 +133,14 @@ export class DirectFlowGenerator implements Generator {
         return ast;
     }
 
+    private get directivesController(): DirectivesController {
+        if (!this._directivesController) {
+            this._directivesController = this.createDirectivesController();
+        }
+
+        return this._directivesController;
+    }
+
     private async generateStart(node: { v: Array<AstBaseNode> }): Promise<string> {
         const docInfo = this.extractSemanticInfo(node);
         const flow: string = await this.generateFlow(node);
@@ -150,14 +165,13 @@ export class DirectFlowGenerator implements Generator {
         return this.renderer.writeHeading(text, level);
     }
 
-    private generateRootDirective(node: AstRootDirectiveNode): string {
-        // A directive generates no output
-        this.directivesController.processDirective(node.v);
-        return "";
+    private async generateRootDirective(node: AstRootDirectiveNode): Promise<string> {
+        const result = await this.directivesController.processDirective(node.v);
+        return result || "";
     }
 
-    private generateInlineDirective(node: AstInlineDirectiveNode): string {
-        const result = this.directivesController.processDirective(node.v, true);
+    private async generateInlineDirective(node: AstInlineDirectiveNode): Promise<string> {
+        const result = await this.directivesController.processDirective(node.v, true);
         if (typeof result === "string") {
             return result;
         }
@@ -193,7 +207,7 @@ export class DirectFlowGenerator implements Generator {
                     break;
                 case Constants.NodeTypes.INLINE_DIRECTIVE:
                     const inlineDirectPar = par as AstInlineDirectiveNode;
-                    renderedComponent = this.generateInlineDirective(inlineDirectPar);
+                    renderedComponent = await this.generateInlineDirective(inlineDirectPar);
                     break;
                 default:
                     throw new Error(`Unrecognized par type: '${par.t}'`);
