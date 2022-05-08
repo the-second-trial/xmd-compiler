@@ -1,18 +1,18 @@
+import { dirname } from "path";
+
 import { AstHeadingComponentNode, XmdAst } from "../ast";
 import { CodeChunkEvaluator } from "../code_srv";
 import { Constants } from "../constants";
+import { DebugController } from "../debugging";
+import { DirectivesController } from "../directives";
 import { DirectFlowGenerator } from "../direct_flow_generator";
-import { Generator } from "../generator";
 import { DocumentInfo } from "../semantics";
 import { HtmlSlidesTransformedAst, SlideAstNode } from "./ast_html_slides";
 import { HtmlSlidesAstTransformer, HTML_SLIDES_NODE_TYPE_SLIDE } from "./ast_transformer_html_slides";
-import { HtmlSlidesRenderer } from "./renderer_html_slides";
+import { HtmlSlidesImportedRenderer, HtmlSlidesRenderer } from "./renderer_html_slides";
 
 /** A component capable of rendering the final code. */
-export class HtmlSlidesGenerator implements Generator {
-    private renderer: HtmlSlidesRenderer;
-    private generator: DirectFlowGenerator;
-
+export class HtmlSlidesGenerator extends DirectFlowGenerator {
     /**
      * Initializes a new instance of this class.
      * @param outputDir The path to the location where the output directory will be created.
@@ -20,24 +20,17 @@ export class HtmlSlidesGenerator implements Generator {
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
-        outputDir: string,
-        srcPath: string,
+        private outputDir: string,
+        private srcPath: string,
         codeEvaluator?: CodeChunkEvaluator
     ) {
-        const renderer = new HtmlSlidesRenderer({
-            outputPath: outputDir,
-            inputPath: srcPath,
-        });
-        this.renderer = renderer;
-        this.generator = new DirectFlowGenerator(
-            renderer,
+        super(
+            new HtmlSlidesRenderer({
+                outputPath: outputDir,
+                inputPath: srcPath,
+            }),
             codeEvaluator
         );
-    }
-
-    /** @inheritdoc */
-    public get outputDirPath(): string {
-        return this.renderer.outputDirPath;
     }
 
     /** @inheritdoc */
@@ -51,16 +44,12 @@ export class HtmlSlidesGenerator implements Generator {
         }
 
         const transformedAst = new HtmlSlidesAstTransformer().transform(ast);
+        DebugController.instance.transformedAst = JSON.stringify(transformedAst);
     
         return this.generateStart(transformedAst);
     }
 
-    /** @inheritdoc */
-    public write(output: string): string {
-        return this.renderer.writeToFile(output);
-    }
-
-    private extractSemanticInfo(node: HtmlSlidesTransformedAst): DocumentInfo {
+    protected extractSemanticInfo(node: HtmlSlidesTransformedAst): DocumentInfo {
         // Title
         // The title is considered to be the very first level 1 heading found in the AST root flow.
         const searchTitle = (n: SlideAstNode) => n.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
@@ -74,7 +63,7 @@ export class HtmlSlidesGenerator implements Generator {
         };
     }
     
-    private async generateStart(node: HtmlSlidesTransformedAst): Promise<string> {
+    protected async generateStart(node: HtmlSlidesTransformedAst): Promise<string> {
         const docInfo = this.extractSemanticInfo(node);
 
         // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
@@ -101,9 +90,17 @@ export class HtmlSlidesGenerator implements Generator {
         return this.renderer.writeRoot(reducedFlow, docInfo);
     }
 
+    /** @inheritdoc */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return new DirectivesController(
+            dirname(this.srcPath),
+            new HtmlSlidesImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
+        );
+    }
+
     private async generateSlide(node: SlideAstNode): Promise<string> {
-        return this.renderer.writeSlide(
-            await this.generator.generateFlow(node)
+        return (this.renderer as HtmlSlidesRenderer).writeSlide(
+            await this.generateFlow(node)
         );
     }
 
@@ -117,5 +114,29 @@ export class HtmlSlidesGenerator implements Generator {
         }
     
         return true;
+    }
+}
+
+class HtmlSlidesImportedGenerator extends DirectFlowGenerator {
+    constructor(
+        private outputDir: string,
+        private srcPath: string,
+        codeEvaluator?: CodeChunkEvaluator
+    ) {
+        super(
+            new HtmlSlidesImportedRenderer({
+                outputPath: outputDir,
+                inputPath: srcPath,
+            }),
+            codeEvaluator
+        );
+    }
+
+    /** @inheritdoc */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return new DirectivesController(
+            dirname(this.srcPath),
+            new HtmlSlidesImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
+        );
     }
 }

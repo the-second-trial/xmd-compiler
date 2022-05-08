@@ -20,7 +20,7 @@ export class DirectFlowGenerator implements Generator {
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
-        private renderer: DirectFlowRenderer,
+        protected renderer: DirectFlowRenderer,
         protected codeEvaluator?: CodeChunkEvaluator
     ) {
         this.extMan = new ExtensionsManager();
@@ -78,7 +78,7 @@ export class DirectFlowGenerator implements Generator {
      * @returns The controller.
      */
     protected createDirectivesController(): DirectivesController | undefined {
-        return undefined;
+        throw new Error("Not implemented");
     }
 
     /**
@@ -133,15 +133,18 @@ export class DirectFlowGenerator implements Generator {
         return ast;
     }
 
-    private get directivesController(): DirectivesController {
-        if (!this._directivesController) {
-            this._directivesController = this.createDirectivesController();
-        }
+    protected extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
+        // Title
+        // The title is considered to be the very first level 1 heading found in the AST root flow.
+        const titleHeading = node.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
+        const title = titleHeading?.v?.v || "Untitled";
 
-        return this._directivesController;
+        return {
+            title,
+        };
     }
 
-    private async generateStart(node: { v: Array<AstBaseNode> }): Promise<string> {
+    protected async generateStart(node: { v: Array<AstBaseNode> }): Promise<string> {
         const docInfo = this.extractSemanticInfo(node);
         const flow: string = await this.generateFlow(node);
 
@@ -152,15 +155,12 @@ export class DirectFlowGenerator implements Generator {
         return this.renderer.writeRoot(flow, docInfo);
     }
 
-    private extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
-        // Title
-        // The title is considered to be the very first level 1 heading found in the AST root flow.
-        const titleHeading = node.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
-        const title = titleHeading?.v?.v || "Untitled";
+    private get directivesController(): DirectivesController {
+        if (!this._directivesController) {
+            this._directivesController = this.createDirectivesController();
+        }
 
-        return {
-            title,
-        };
+        return this._directivesController;
     }
 
     private generateHeading(node: AstHeadingComponentNode): string {

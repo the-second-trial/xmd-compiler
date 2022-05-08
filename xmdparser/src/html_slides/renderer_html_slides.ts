@@ -179,9 +179,11 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
         },
         docInfo: DocumentInfo
     ): string {
+        const langAttribute = docInfo.language ? ` lang="${docInfo.language}"` : "";
+
         return [
             "<!DOCTYPE html>",
-            "<html>",
+            `<html${langAttribute}>`,
             "<head>",
             "<meta charset='utf-8'/>",
             "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>",
@@ -207,5 +209,31 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
             "</body>",
             "</html>",
         ].join("");
+    }
+}
+
+/** Describes a template for rendering to HTML Slides (imported files). */
+export class HtmlSlidesImportedRenderer extends HtmlSlidesRenderer {
+    /**
+     * Initializes a new instance of this class.
+     * @param options The options for customizing the template.
+     */
+    constructor(
+        options: HtmlSlidesTemplateOptions
+    ) {
+        super(options);
+    }
+
+    /** @inheritdoc */
+    protected getPageTemplate(
+        content: string,
+        paths: {
+            mathjaxJs: string,
+            tufteCss: string,
+            latexCss: string
+        },
+        docInfo: DocumentInfo
+    ): string {
+        return content;
     }
 }
