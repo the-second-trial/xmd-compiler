@@ -3,7 +3,9 @@
 
 {{a=acr3:My acronym 3}}
 
-# Simple content
+{{lang=en}}
+
+# Content with directives
 Paragraph text with no newline from heading and my {{a=acr1}}.
 
 ## Second heading separated by a newline from prev

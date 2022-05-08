@@ -24,6 +24,7 @@ export const Constants = {
     },
     Directives: {
         ABBREVATION: "a",
+        LANG: "lang",
         IMPORT: "import",
     },
     ExtendedNodeTypes: {

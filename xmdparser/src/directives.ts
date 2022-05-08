@@ -17,6 +17,7 @@ interface Abbrevation {
  */
 export class DirectivesController {
     private abbrevations: Abbrevation;
+    private _lang: string;
 
     /**
      * Initializes a new instance of this class.
@@ -44,17 +45,21 @@ export class DirectivesController {
             throw new Error("Directive check failed");
         }
 
-        const directiveName = directive.v[0].v.name;
+        const directiveClause = directive.v[0];
+        const directiveName = directiveClause.v.name;
         let result = undefined;
         switch (directiveName) {
             case Constants.Directives.IMPORT:
-                result = this.handleImport(directive.v[0]);
+                result = this.handleImport(directiveClause);
+                break;
+            case Constants.Directives.LANG:
+                result = this.handleLangDefinition(directiveClause);
                 break;
             case Constants.Directives.ABBREVATION:
                 if (inline) {
-                    result = this.retrieveAbbreviationValue(directive.v[0]);
+                    result = this.retrieveAbbreviationValue(directiveClause);
                 } else {
-                    this.handleAbbreviationDefinition(directive.v[0]);
+                    this.handleAbbreviationDefinition(directiveClause);
                 }
                 break;
             default:
@@ -62,6 +67,20 @@ export class DirectivesController {
         }
 
         return result;
+    }
+
+    /** Gets the language definition retrieved before while scanning. */
+    public get lang(): string {
+        return this._lang;
+    }
+
+    private handleLangDefinition(langDefinition: AstExtensionClauseNode): void {
+        const langValue = langDefinition.v.value;
+        if (!langValue || langValue.length <= 0) {
+            throw new Error("Lang definition cannot be empty, null or undefined");
+        }
+
+        this._lang = langValue;
     }
 
     private async handleImport(importDefinition: AstExtensionClauseNode): Promise<string> {

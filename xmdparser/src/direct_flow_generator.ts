@@ -144,6 +144,10 @@ export class DirectFlowGenerator implements Generator {
     private async generateStart(node: { v: Array<AstBaseNode> }): Promise<string> {
         const docInfo = this.extractSemanticInfo(node);
         const flow: string = await this.generateFlow(node);
+
+        // Here, we have gone through the whole tree and certain
+        // properties will be available at this point
+        docInfo.language = this.directivesController.lang;
         
         return this.renderer.writeRoot(flow, docInfo);
     }

@@ -189,9 +189,11 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
         },
         docInfo: DocumentInfo
     ): string {
+        const langAttribute = docInfo.language ? ` lang="${docInfo.language}"` : "";
+
         return [
             "<!DOCTYPE html>",
-            "<html>",
+            `<html${langAttribute}>`,
             "<head>",
             "<meta charset='utf-8'/>",
             `<title>${docInfo.title || "Untitled"}</title>`,
