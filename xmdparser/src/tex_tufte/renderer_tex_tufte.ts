@@ -158,12 +158,13 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         content: string,
         docInfo: DocumentInfo
     ): string {
+        const hasAuthor = docInfo.author && docInfo.author.length > 0;
         const hasAbstract = docInfo.abstract && docInfo.abstract.length > 0;
 
         return [
             "\\documentclass{tufte-handout}",
             `\\title{${docInfo.title || "Untitled"}}`,
-            "\\author[The Tufte-LaTeX Developers]{The Developers}",
+            hasAuthor ? `\\author[${docInfo.author}]{${docInfo.author}}` : "",
             "\\usepackage{graphicx} % allow embedded images",
             "\\setkeys{Gin}{width=\\linewidth,totalheight=\\textheight,keepaspectratio}",
             "\\graphicspath{{graphics/}} % set of paths to search for images",

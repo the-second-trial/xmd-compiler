@@ -36,5 +36,6 @@ export const Constants = {
     },
     Keywords: {
         ABSTRACT: "abstract",
+        AUTHOR: "author",
     },
 };

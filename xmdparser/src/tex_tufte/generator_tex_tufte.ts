@@ -9,6 +9,7 @@ import { MathEnvironmentsRenderer } from "../extensions/renderer_math_environ";
 import { TheoremEnvironAstComponentNode } from "../generic/ast_environ";
 import { EnvironmentAstTransformer } from "../generic/ast_environ_transformer";
 import { AbstractHelper } from "../helpers/abstract_helper";
+import { AuthorHelper } from "../helpers/author_helper";
 import { DocumentInfo } from "../semantics";
 import { TexMathEnvironmentsRenderer } from "./renderer_math_environ_tex";
 import { TexTufteImportedRenderer, TexTufteRenderer } from "./renderer_tex_tufte";
@@ -23,7 +24,7 @@ export class TexTufteGenerator extends DirectFlowGenerator {
      * @param srcPath The path to the input source file.
      * @param codeEvaluator The Python code chunk evaluator.
      */
-     constructor(
+    constructor(
         private outputDir: string,
         private srcPath: string,
         codeEvaluator?: CodeChunkEvaluator
@@ -60,8 +61,13 @@ export class TexTufteGenerator extends DirectFlowGenerator {
     protected extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
         const docInfo = super.extractSemanticInfo(node);
 
+        // Author
+        const author = new AuthorHelper(node).getAuthor();
+        if (author) {
+            docInfo.author = author;
+        }
+
         // Abstract
-        // Identify the title, below it a header with title "Abstract"
         const abstract = new AbstractHelper(node).getAbstract().join("");
         if (abstract) {
             docInfo.abstract = abstract;
