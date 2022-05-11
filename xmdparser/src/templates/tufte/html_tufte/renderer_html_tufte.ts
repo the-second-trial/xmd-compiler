@@ -190,6 +190,9 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
         docInfo: DocumentInfo
     ): string {
         const langAttribute = docInfo.language ? ` lang="${docInfo.language}"` : "";
+        const hasTitle = docInfo.title && docInfo.title.length > 0;
+        const hasAuthor = docInfo.author && docInfo.author.length > 0;
+        const hasAbstract = docInfo.abstract && docInfo.abstract.length > 0;
 
         return [
             "<!DOCTYPE html>",
@@ -204,6 +207,12 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
             "</head>",
             "<body>",
             "<article>",
+            hasTitle ? "<h1>" : "",
+            docInfo.title || "",
+            hasTitle ? "</h1>" : "",
+            hasAuthor ? "<p class='subtitle'>" : "",
+            docInfo.author || "",
+            hasAuthor ? "</p>" : "",
             content,
             "</article>",
             "</body>",
