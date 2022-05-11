@@ -1,21 +1,19 @@
 import { dirname } from "path";
 
-import { AstBaseNode, XmdAst, AstHeadingComponentNode, AstParagraphComponentNode } from "../../ast";
-import { CodeChunkEvaluator } from "../../code_srv";
-import { Constants } from "../../constants";
-import { DirectivesController } from "../../directives";
-import { DirectFlowGenerator } from "../direct_flow_generator";
-import { MathEnvironmentsRenderer } from "../../extensions/renderer_math_environ";
-import { TheoremEnvironAstComponentNode } from "../../generic/ast_environ";
-import { EnvironmentAstTransformer } from "../../generic/ast_environ_transformer";
-import { AbstractHelper } from "../../helpers/abstract_helper";
-import { AuthorHelper } from "../../helpers/author_helper";
-import { DocumentInfo } from "../../semantics";
+import { AstBaseNode, XmdAst } from "../../../ast";
+import { CodeChunkEvaluator } from "../../../code_srv";
+import { Constants } from "../../../constants";
+import { DirectivesController } from "../../../directives";
+import { DirectFlowGenerator } from "../../direct_flow_generator";
+import { MathEnvironmentsRenderer } from "../../../extensions/renderer_math_environ";
+import { TheoremEnvironAstComponentNode } from "../../../generic/ast_environ";
+import { EnvironmentAstTransformer } from "../../../generic/ast_environ_transformer";
 import { TexMathEnvironmentsRenderer } from "./renderer_math_environ_tex";
 import { TexTufteImportedRenderer, TexTufteRenderer } from "./renderer_tex_tufte";
+import { TufteGenerator } from "../generator_tufte";
 
 /** A component capable of rendering the final code. */
-export class TexTufteGenerator extends DirectFlowGenerator {
+export class TexTufteGenerator extends TufteGenerator {
     private mathEnvironRenderer: MathEnvironmentsRenderer;
 
     /**
@@ -55,25 +53,6 @@ export class TexTufteGenerator extends DirectFlowGenerator {
     protected transformAst(ast: XmdAst): { v: Array<AstBaseNode> } {
         const transformer = new EnvironmentAstTransformer();
         return transformer.transform(ast);
-    }
-
-    /** @inheritdoc */
-    protected extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
-        const docInfo = super.extractSemanticInfo(node);
-
-        // Author
-        const author = new AuthorHelper(node).getAuthor();
-        if (author) {
-            docInfo.author = author;
-        }
-
-        // Abstract
-        const abstract = new AbstractHelper(node).getAbstract().join("");
-        if (abstract) {
-            docInfo.abstract = abstract;
-        }
-
-        return docInfo;
     }
 
     /** @inheritdoc */

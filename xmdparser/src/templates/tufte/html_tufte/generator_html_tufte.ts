@@ -1,12 +1,13 @@
 import { dirname } from "path";
 
-import { CodeChunkEvaluator } from "../../code_srv";
-import { DirectivesController } from "../../directives";
-import { DirectFlowGenerator } from "../direct_flow_generator";
+import { CodeChunkEvaluator } from "../../../code_srv";
+import { DirectivesController } from "../../../directives";
+import { DirectFlowGenerator } from "../../direct_flow_generator";
+import { TufteGenerator } from "../generator_tufte";
 import { HtmlTufteImportedRenderer, HtmlTufteRenderer } from "./renderer_html_tufte";
 
 /** A component capable of rendering the final code. */
-export class HtmlTufteGenerator extends DirectFlowGenerator {
+export class HtmlTufteGenerator extends TufteGenerator {
     /**
      * Initializes a new instance of this class.
      * @param outputDir The path to the location where the output directory will be created.

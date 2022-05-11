@@ -1,8 +1,7 @@
 import { Constants } from "./constants";
-import { HtmlTufteGenerator } from "./templates/html_tufte/generator_html_tufte";
+import { HtmlTufteGenerator } from "./templates/tufte/html_tufte/generator_html_tufte";
 import { PythonCodeServer } from "./py_srv";
-import { HtmlSlidesRenderer } from "./templates/html_slides/renderer_html_slides";
-import { TexTufteGenerator } from "./templates/tex_tufte/generator_tex_tufte";
+import { TexTufteGenerator } from "./templates/tufte/tex_tufte/generator_tex_tufte";
 import { Generator } from "./generator";
 import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 
