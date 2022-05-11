@@ -8,6 +8,7 @@ import { DirectFlowGenerator } from "../direct_flow_generator";
 import { MathEnvironmentsRenderer } from "../extensions/renderer_math_environ";
 import { TheoremEnvironAstComponentNode } from "../generic/ast_environ";
 import { EnvironmentAstTransformer } from "../generic/ast_environ_transformer";
+import { AbstractHelper } from "../helpers/abstract_helper";
 import { DocumentInfo } from "../semantics";
 import { TexMathEnvironmentsRenderer } from "./renderer_math_environ_tex";
 import { TexTufteImportedRenderer, TexTufteRenderer } from "./renderer_tex_tufte";
@@ -61,20 +62,9 @@ export class TexTufteGenerator extends DirectFlowGenerator {
 
         // Abstract
         // Identify the title, below it a header with title "Abstract"
-        const titleIndex = node.v.findIndex(child => child.t === Constants.NodeTypes.HEADING && (child as AstHeadingComponentNode).v.p.type === 1);
-        if (titleIndex >= 0) {
-            const childrenFromTitle = node.v.slice(titleIndex); // Title not included
-            const abstractNodeIndex = childrenFromTitle.findIndex(child => child.t === Constants.NodeTypes.HEADING && (child as AstHeadingComponentNode).v.p.type <= 2 && (child as AstHeadingComponentNode).v.v.toLowerCase().trim() === Constants.Keywords.ABSTRACT);
-            if (abstractNodeIndex >= 0) {
-                const childrenFromAbstractHeading = node.v.slice(titleIndex); // Heading not included
-                const abstractParNode = childrenFromAbstractHeading.find(child => child.t === Constants.NodeTypes.PARAGRAPH);
-                if (abstractParNode) {
-                    const content = (abstractParNode as AstParagraphComponentNode).v.v
-                        .map(x => x.v)
-                        .join("");
-                    docInfo.abstract = content;
-                }
-            }
+        const abstract = new AbstractHelper(node).getAbstract().join("");
+        if (abstract) {
+            docInfo.abstract = abstract;
         }
 
         return docInfo;
