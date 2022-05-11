@@ -1,13 +1,13 @@
-import { AstBaseNode, AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstRootDirectiveNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst, AstInlineDirectiveNode } from "./ast";
-import { CodeChunkEvaluator, EvalResult } from "./code_srv";
-import { Constants } from "./constants";
-import { ExtensionsManager, ImageExtensionAttributes, stringifyExtensionCluasesArray } from "./extensions/extensions";
-import { Generator } from "./generator";
-import { DocumentInfo } from "./semantics";
+import { AstBaseNode, AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstRootDirectiveNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst, AstInlineDirectiveNode } from "../ast";
+import { CodeChunkEvaluator, EvalResult } from "../code_srv";
+import { Constants } from "../constants";
+import { ExtensionsManager, ImageExtensionAttributes, stringifyExtensionCluasesArray } from "../extensions/extensions";
+import { Generator } from "../generator";
+import { DocumentInfo } from "../semantics";
 import { DirectFlowRenderer } from "./direct_flow_renderer"
-import { ProgressController } from "./progress_controller";
-import { DebugController } from "./debugging";
-import { DirectivesController } from "./directives";
+import { ProgressController } from "../progress_controller";
+import { DebugController } from "../debugging";
+import { DirectivesController } from "../directives";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {

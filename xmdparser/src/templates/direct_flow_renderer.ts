@@ -1,5 +1,5 @@
-import { ImageExtensionAttributes } from "./extensions/extensions";
-import { DocumentInfo } from "./semantics";
+import { ImageExtensionAttributes } from "../extensions/extensions";
+import { DocumentInfo } from "../semantics";
 
 /** Describes a template for generating an output code. */
 export interface DirectFlowRenderer {

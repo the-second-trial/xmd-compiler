@@ -1,10 +1,10 @@
 import { Constants } from "./constants";
-import { HtmlTufteGenerator } from "./html_tufte/generator_html_tufte";
+import { HtmlTufteGenerator } from "./templates/html_tufte/generator_html_tufte";
 import { PythonCodeServer } from "./py_srv";
-import { HtmlSlidesRenderer } from "./html_slides/renderer_html_slides";
-import { TexTufteGenerator } from "./tex_tufte/generator_tex_tufte";
+import { HtmlSlidesRenderer } from "./templates/html_slides/renderer_html_slides";
+import { TexTufteGenerator } from "./templates/tex_tufte/generator_tex_tufte";
 import { Generator } from "./generator";
-import { HtmlSlidesGenerator } from "./html_slides/generator_html_slides";
+import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 
 /** Creates a properly configured generator. */
 export class GeneratorFactory {

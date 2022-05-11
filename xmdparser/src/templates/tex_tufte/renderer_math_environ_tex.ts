@@ -1,6 +1,6 @@
 const { EOL } = require("os");
 
-import { MathEnvironmentsRenderer } from "../extensions/renderer_math_environ";
+import { MathEnvironmentsRenderer } from "../../extensions/renderer_math_environ";
 
 /**
  * Renderer for Math environments in LaTeX.

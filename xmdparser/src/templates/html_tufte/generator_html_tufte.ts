@@ -1,7 +1,7 @@
 import { dirname } from "path";
 
-import { CodeChunkEvaluator } from "../code_srv";
-import { DirectivesController } from "../directives";
+import { CodeChunkEvaluator } from "../../code_srv";
+import { DirectivesController } from "../../directives";
 import { DirectFlowGenerator } from "../direct_flow_generator";
 import { HtmlTufteImportedRenderer, HtmlTufteRenderer } from "./renderer_html_tufte";
 

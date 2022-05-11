@@ -1,4 +1,4 @@
-import { AstComponentNode } from "../ast";
+import { AstComponentNode } from "../../ast";
 
 export interface HtmlSlidesTransformedAst {
     t: "start";

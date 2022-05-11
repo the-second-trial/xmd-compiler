@@ -1,16 +1,16 @@
 import { dirname } from "path";
 
-import { AstBaseNode, XmdAst, AstHeadingComponentNode, AstParagraphComponentNode } from "../ast";
-import { CodeChunkEvaluator } from "../code_srv";
-import { Constants } from "../constants";
-import { DirectivesController } from "../directives";
+import { AstBaseNode, XmdAst, AstHeadingComponentNode, AstParagraphComponentNode } from "../../ast";
+import { CodeChunkEvaluator } from "../../code_srv";
+import { Constants } from "../../constants";
+import { DirectivesController } from "../../directives";
 import { DirectFlowGenerator } from "../direct_flow_generator";
-import { MathEnvironmentsRenderer } from "../extensions/renderer_math_environ";
-import { TheoremEnvironAstComponentNode } from "../generic/ast_environ";
-import { EnvironmentAstTransformer } from "../generic/ast_environ_transformer";
-import { AbstractHelper } from "../helpers/abstract_helper";
-import { AuthorHelper } from "../helpers/author_helper";
-import { DocumentInfo } from "../semantics";
+import { MathEnvironmentsRenderer } from "../../extensions/renderer_math_environ";
+import { TheoremEnvironAstComponentNode } from "../../generic/ast_environ";
+import { EnvironmentAstTransformer } from "../../generic/ast_environ_transformer";
+import { AbstractHelper } from "../../helpers/abstract_helper";
+import { AuthorHelper } from "../../helpers/author_helper";
+import { DocumentInfo } from "../../semantics";
 import { TexMathEnvironmentsRenderer } from "./renderer_math_environ_tex";
 import { TexTufteImportedRenderer, TexTufteRenderer } from "./renderer_tex_tufte";
 

@@ -1,6 +1,6 @@
-import { XmdAst } from "../ast";
-import { AstTransformer } from "../ast_transformer";
-import { Constants } from "../constants";
+import { XmdAst } from "../../ast";
+import { AstTransformer } from "../../ast_transformer";
+import { Constants } from "../../constants";
 import { HtmlSlidesTransformedAst, SlideAstNode } from "./ast_html_slides";
 
 export const HTML_SLIDES_NODE_TYPE_SLIDE = "slide";

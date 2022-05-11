@@ -1,10 +1,10 @@
 import { DirectFlowRenderer } from "../direct_flow_renderer";
-import { ImageExtensionAttributes } from "../extensions/extensions";
-import { ResourceManager } from "../res_manager";
-import { DocumentInfo } from "../semantics";
-import { idgen } from "../utils";
+import { ImageExtensionAttributes } from "../../extensions/extensions";
+import { ResourceManager } from "../../res_manager";
+import { DocumentInfo } from "../../semantics";
+import { idgen } from "../../utils";
 
-export interface HtmlSlidesTemplateOptions {
+export interface HtmlTufteTemplateOptions {
     /** The path to the output directory location. */
     outputPath: string;
     /**
@@ -17,13 +17,10 @@ export interface HtmlSlidesTemplateOptions {
     inputPath: string;
 }
 
-/**
- * Describes a template for rendering to HTML Reveal JS slides.
- * In this context, the following rules apply:
- * - The first level-1 heading is picked up as the title of the presentation.
- * - Every level-2 heading defines a slide.
- */
-export class HtmlSlidesRenderer implements DirectFlowRenderer {
+// TODO: Handle sections.
+/** Describes a template for rendering to HTML Tufte. */
+export class HtmlTufteRenderer implements DirectFlowRenderer {
+    private refIdGen: Generator<string>;
     private resMan: ResourceManager;
 
     /**
@@ -31,32 +28,20 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        private options: HtmlSlidesTemplateOptions
+        private options: HtmlTufteTemplateOptions
     ) {
+        this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager({
             outputLocDir: this.options.outputPath,
             srcPath: this.options.inputPath,
             outputFileName: "index.html",
-            outputName: "htmlslides",
+            outputName: "htmltufte",
         });
     }
 
     /** @inheritdoc */
     public get outputDirPath(): string {
         return this.resMan.outputDir;
-    }
-
-    /**
-     * Renders a slide.
-     * @param content 
-     * @returns 
-     */
-    public writeSlide(content: string): string {
-        return [
-            "<section>",
-            content,
-            "</section>",
-        ].join("");
     }
 
     /** @inheritdoc */
@@ -67,11 +52,13 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
     /** @inheritdoc */
     public writeRoot(content: string, docInfo: DocumentInfo): string {
         const paths = {
-            dist: this.resMan.serveRevealJsDistDir(),
-            plugin: this.resMan.serveRevealJsPluginDir()
+            tufteCss: this.resMan.serveTufteCss(),
+            latexCss: this.resMan.serveLatexCss(),
+            // TODO: Optimization, do not serve mathjax if no equation is found in AST
+            mathjaxJs: this.resMan.serveMathjax()
         };
 
-        return HtmlSlidesRenderer.getPageTemplate(content, paths, docInfo);
+        return this.getPageTemplate(content, paths, docInfo);
     }
 
     /** @inheritdoc */
@@ -162,20 +149,43 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
     public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
         const immPath = this.resMan.serveImage(path); // Auto name
         
-        return `<img src="${immPath}" alt="${alt}" />`;
+        if (ext.fullwidth === "true") {
+            return [
+                "<figure class='fullwidth'>",
+                `<img src="${immPath}" alt="${alt}" />`,
+                "</figure>",
+            ].join("");
+        }
+
+        const ref = this.refIdGen.next().value as string;
+        return [
+            "<figure>",
+            `<label for="${ref}" class="margin-toggle">&#8853;</label>`,
+            `<input type="checkbox" id="${ref}" class="margin-toggle"/>`,
+            `<span class="marginnote">${title || alt}</span>`,
+            `<img src="${immPath}" alt="${alt}" />`,
+            "</figure>",
+        ].join("");
     }
 
     /** @inheritdoc */
     public writeHRule(): string {
-        // Should never get to this point as the generator absorbs all HRules
-        throw new Error("Not implemented");
+        return "<!--HRULE-->";
     }
 
-    private static getPageTemplate(
+    /**
+     * Renders the enclosing structure of the page.
+     * @param content 
+     * @param paths 
+     * @param docInfo 
+     * @returns The rendered enclosing structure
+     */
+    protected getPageTemplate(
         content: string,
         paths: {
-            dist: string,
-            plugin: string
+            mathjaxJs: string,
+            tufteCss: string,
+            latexCss: string
         },
         docInfo: DocumentInfo
     ): string {
@@ -186,40 +196,30 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
             `<html${langAttribute}>`,
             "<head>",
             "<meta charset='utf-8'/>",
-            "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>",
             `<title>${docInfo.title || "Untitled"}</title>`,
-            `<link rel="stylesheet" href="${paths.dist}/reset.css">`,
-            `<link rel="stylesheet" href="${paths.dist}/reveal.css">`,
-            `<link rel="stylesheet" href="${paths.dist}/theme/white.css">`,
-            `<link rel="stylesheet" href="${paths.plugin}/highlight/monokai.css">`,
+            `<link rel='stylesheet' href='${paths.latexCss}'>`,
+            `<link rel='stylesheet' href='${paths.tufteCss}'>`,
+            `<script id='MathJax-script' async src='${paths.mathjaxJs}/tex-chtml.js'></script>`,
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>",
             "</head>",
             "<body>",
-            `<div class="reveal">`,
-            `<div class="slides">`,
+            "<article>",
             content,
-            "</div>",
-            "</div>",
-            `<script src="${paths.dist}/reveal.js"></script>`,
-            `<script src="${paths.plugin}/notes/notes.js"></script>`,
-            `<script src="${paths.plugin}/highlight/highlight.js"></script>`,
-            `<script src="${paths.plugin}/math/math.js"></script>`,
-            `<script>`,
-            "Reveal.initialize({hash: true, plugins: [ RevealHighlight, RevealNotes, RevealMath.MathJax3 ]});",
-            `</script>`,
+            "</article>",
             "</body>",
             "</html>",
         ].join("");
     }
 }
 
-/** Describes a template for rendering to HTML Slides (imported files). */
-export class HtmlSlidesImportedRenderer extends HtmlSlidesRenderer {
+/** Describes a template for rendering to HTML Tufte (imported files). */
+export class HtmlTufteImportedRenderer extends HtmlTufteRenderer {
     /**
      * Initializes a new instance of this class.
      * @param options The options for customizing the template.
      */
     constructor(
-        options: HtmlSlidesTemplateOptions
+        options: HtmlTufteTemplateOptions
     ) {
         super(options);
     }

@@ -1,12 +1,12 @@
 import { dirname } from "path";
 
-import { AstHeadingComponentNode, XmdAst } from "../ast";
-import { CodeChunkEvaluator } from "../code_srv";
-import { Constants } from "../constants";
-import { DebugController } from "../debugging";
-import { DirectivesController } from "../directives";
+import { AstHeadingComponentNode, XmdAst } from "../../ast";
+import { CodeChunkEvaluator } from "../../code_srv";
+import { Constants } from "../../constants";
+import { DebugController } from "../../debugging";
+import { DirectivesController } from "../../directives";
 import { DirectFlowGenerator } from "../direct_flow_generator";
-import { DocumentInfo } from "../semantics";
+import { DocumentInfo } from "../../semantics";
 import { HtmlSlidesTransformedAst, SlideAstNode } from "./ast_html_slides";
 import { HtmlSlidesAstTransformer, HTML_SLIDES_NODE_TYPE_SLIDE } from "./ast_transformer_html_slides";
 import { HtmlSlidesImportedRenderer, HtmlSlidesRenderer } from "./renderer_html_slides";
