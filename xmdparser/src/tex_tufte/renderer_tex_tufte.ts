@@ -54,7 +54,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
     public writeRoot(content: string, docInfo: DocumentInfo): string {
         this.resMan.serveTexTufteTemplateFiles();
 
-        return TexTufteRenderer.getPageTemplate(content, docInfo);
+        return this.getPageTemplate(content, docInfo);
     }
 
     /** @inheritdoc */
@@ -154,10 +154,12 @@ export class TexTufteRenderer implements DirectFlowRenderer {
         return `${EOL}%HRULE${EOL}`;
     }
 
-    private static getPageTemplate(
+    protected getPageTemplate(
         content: string,
         docInfo: DocumentInfo
     ): string {
+        const hasAbstract = docInfo.abstract && docInfo.abstract.length > 0;
+
         return [
             "\\documentclass{tufte-handout}",
             `\\title{${docInfo.title || "Untitled"}}`,
@@ -181,14 +183,34 @@ export class TexTufteRenderer implements DirectFlowRenderer {
             "\\newenvironment{docspec}{\\begin{quote}\\noindent}{\\end{quote}}% command specification environment",
             "\\begin{document}",
             "\\maketitle% this prints the handout title, author, and date",
-            "\\begin{abstract}",
-            "\\noindent",
-            "This is the abstract.",
-            "\\end{abstract}",
+            hasAbstract ? "\\begin{abstract}" : "",
+            hasAbstract ? "\\noindent" : "",
+            hasAbstract ? docInfo.abstract : "",
+            hasAbstract ? "\\end{abstract}" : "",
             content,
             "\\bibliography{sample-handout}",
             "\\bibliographystyle{plainnat}",
             "\\end{document}",
         ].join(EOL);
+    }
+}
+
+/** Describes a template for rendering to Tex Tufte (imported files). */
+export class TexTufteImportedRenderer extends TexTufteRenderer {
+    /**
+     * Initializes a new instance of this class.
+     * @param options The options for customizing the template.
+     */
+    constructor(
+        options: TexTufteTemplateOptions
+    ) {
+        super(options);
+    }
+
+    protected getPageTemplate(
+        content: string,
+        docInfo: DocumentInfo
+    ): string {
+        return content;
     }
 }

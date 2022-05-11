@@ -1,12 +1,16 @@
-import { AstBaseNode, XmdAst } from "../ast";
+import { dirname } from "path";
+
+import { AstBaseNode, XmdAst, AstHeadingComponentNode, AstParagraphComponentNode } from "../ast";
 import { CodeChunkEvaluator } from "../code_srv";
 import { Constants } from "../constants";
+import { DirectivesController } from "../directives";
 import { DirectFlowGenerator } from "../direct_flow_generator";
 import { MathEnvironmentsRenderer } from "../extensions/renderer_math_environ";
 import { TheoremEnvironAstComponentNode } from "../generic/ast_environ";
 import { EnvironmentAstTransformer } from "../generic/ast_environ_transformer";
+import { DocumentInfo } from "../semantics";
 import { TexMathEnvironmentsRenderer } from "./renderer_math_environ_tex";
-import { TexTufteRenderer } from "./renderer_tex_tufte";
+import { TexTufteImportedRenderer, TexTufteRenderer } from "./renderer_tex_tufte";
 
 /** A component capable of rendering the final code. */
 export class TexTufteGenerator extends DirectFlowGenerator {
@@ -19,8 +23,8 @@ export class TexTufteGenerator extends DirectFlowGenerator {
      * @param codeEvaluator The Python code chunk evaluator.
      */
      constructor(
-        outputDir: string,
-        srcPath: string,
+        private outputDir: string,
+        private srcPath: string,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
@@ -49,6 +53,74 @@ export class TexTufteGenerator extends DirectFlowGenerator {
     protected transformAst(ast: XmdAst): { v: Array<AstBaseNode> } {
         const transformer = new EnvironmentAstTransformer();
         return transformer.transform(ast);
+    }
+
+    /** @inheritdoc */
+    protected extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
+        const docInfo = super.extractSemanticInfo(node);
+
+        // Abstract
+        // Identify the title, below it a header with title "Abstract"
+        const titleIndex = node.v.findIndex(child => child.t === Constants.NodeTypes.HEADING && (child as AstHeadingComponentNode).v.p.type === 1);
+        if (titleIndex >= 0) {
+            const childrenFromTitle = node.v.slice(titleIndex); // Title not included
+            const abstractNodeIndex = childrenFromTitle.findIndex(child => child.t === Constants.NodeTypes.HEADING && (child as AstHeadingComponentNode).v.p.type <= 2 && (child as AstHeadingComponentNode).v.v.toLowerCase().trim() === Constants.Keywords.ABSTRACT);
+            if (abstractNodeIndex >= 0) {
+                const childrenFromAbstractHeading = node.v.slice(titleIndex); // Heading not included
+                const abstractParNode = childrenFromAbstractHeading.find(child => child.t === Constants.NodeTypes.PARAGRAPH);
+                if (abstractParNode) {
+                    const content = (abstractParNode as AstParagraphComponentNode).v.v
+                        .map(x => x.v)
+                        .join("");
+                    docInfo.abstract = content;
+                }
+            }
+        }
+
+        return docInfo;
+    }
+
+    /** @inheritdoc */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return new DirectivesController(
+            dirname(this.srcPath),
+            new TexTufteImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
+        );
+    }
+
+    private generateTheoremEnviron(node: TheoremEnvironAstComponentNode): string {
+        return this.mathEnvironRenderer.writeTheorem(node.v.title, node.v.statement, node.v.proof);
+    }
+}
+
+class TexTufteImportedGenerator extends DirectFlowGenerator {
+    private mathEnvironRenderer: MathEnvironmentsRenderer;
+
+     constructor(
+        outputDir: string,
+        srcPath: string,
+        codeEvaluator?: CodeChunkEvaluator
+    ) {
+        super(
+            new TexTufteImportedRenderer({
+                outputPath: outputDir,
+                inputPath: srcPath,
+            }),
+            codeEvaluator
+        );
+
+        this.mathEnvironRenderer = new TexMathEnvironmentsRenderer();
+    }
+
+    /** @inheritdoc */
+    protected async handleAstComponentNodeRendering(componentNode: AstBaseNode): Promise<string> {
+        switch (componentNode.t) {
+            case Constants.ExtendedNodeTypes.THEOREM:
+                return this.generateTheoremEnviron(componentNode as TheoremEnvironAstComponentNode);
+        }
+        
+        // Fall back to normal handling
+        return super.handleAstComponentNodeRendering(componentNode);
     }
 
     private generateTheoremEnviron(node: TheoremEnvironAstComponentNode): string {

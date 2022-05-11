@@ -133,6 +133,11 @@ export class DirectFlowGenerator implements Generator {
         return ast;
     }
 
+    /**
+     * Extracts the semantic information from the AST.
+     * @param node The root node.
+     * @returns The semantic info.
+     */
     protected extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
         // Title
         // The title is considered to be the very first level 1 heading found in the AST root flow.
@@ -144,6 +149,11 @@ export class DirectFlowGenerator implements Generator {
         };
     }
 
+    /**
+     * Generates the start node.
+     * @param node The start node.
+     * @returns The generated output.
+     */
     protected async generateStart(node: { v: Array<AstBaseNode> }): Promise<string> {
         const docInfo = this.extractSemanticInfo(node);
         const flow: string = await this.generateFlow(node);
