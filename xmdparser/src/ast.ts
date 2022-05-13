@@ -3,6 +3,10 @@ export interface AstBaseNode {
     v: string | number | object;
 }
 
+export interface AstRootNode extends AstBaseNode {
+    v: Array<AstBaseNode>;
+}
+
 export interface AstExtensionClauseNode extends AstBaseNode {
     t: "extclause";
     v: {

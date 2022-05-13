@@ -59,7 +59,8 @@ export class TexTufteRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeHeading(text: string, level: number): string {
-        const levels = ["section", "subsection", "subsubsection", "paragraph"];
+        // The title is handled separately, hence '#' and '##' should both get '\section'
+        const levels = ["section", "section", "subsection", "subsubsection", "paragraph"];
         if (level <= 0 || level > levels.length) {
             throw new Error(`Invalid level '${level}'. Allowed is 1..${levels.length}`);
         }

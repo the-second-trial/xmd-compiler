@@ -1,6 +1,6 @@
 import { dirname } from "path";
 
-import { AstHeadingComponentNode, XmdAst } from "../../ast";
+import { AstHeadingComponentNode, AstRootNode, XmdAst } from "../../ast";
 import { CodeChunkEvaluator } from "../../code_srv";
 import { Constants } from "../../constants";
 import { DebugController } from "../../debugging";
@@ -49,12 +49,13 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
         return this.generateStart(transformedAst);
     }
 
-    protected extractSemanticInfo(node: HtmlSlidesTransformedAst): DocumentInfo {
+    /** @inheritdoc */
+    protected extractSemanticInfo(node: AstRootNode): DocumentInfo {
         // Title
         // The title is considered to be the very first level 1 heading found in the AST root flow.
         const searchTitle = (n: SlideAstNode) => n.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
 
-        const titleHeadingSlide = node.v.find(n => searchTitle(n) !== undefined);
+        const titleHeadingSlide = (node as HtmlSlidesTransformedAst).v.find(n => searchTitle(n) !== undefined);
         const titleHeading = searchTitle(titleHeadingSlide);
         const title = titleHeading?.v?.v || "Untitled";
 
@@ -63,9 +64,8 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
         };
     }
     
-    protected async generateStart(node: HtmlSlidesTransformedAst): Promise<string> {
-        const docInfo = this.extractSemanticInfo(node);
-
+    /** @inheritdoc */
+    protected async generateStart(node: AstRootNode): Promise<string> {
         // Cannot use Promise.all(.map) because the calls to each codeblock are order-dependant
         const flow: Array<string> = [];
         for (const componentNode of node.v) {
@@ -87,7 +87,7 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
 
         const reducedFlow = flow.reduce((a: any, b: any) => `${a}${b}`, "");
 
-        return this.renderer.writeRoot(reducedFlow, docInfo);
+        return this.renderer.writeRoot(reducedFlow, this.docInfo);
     }
 
     /** @inheritdoc */

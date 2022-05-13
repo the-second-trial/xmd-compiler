@@ -1,10 +1,11 @@
-import { AstBaseNode } from "../../ast";
+import { AstBaseNode, AstRootNode } from "../../ast";
 import { CodeChunkEvaluator } from "../../code_srv";
 import { AbstractHelper } from "../../helpers/abstract_helper";
 import { AuthorHelper } from "../../helpers/author_helper";
 import { DocumentInfo } from "../../semantics";
 import { DirectFlowGenerator } from "../direct_flow_generator";
 import { DirectFlowRenderer } from "../direct_flow_renderer";
+import { TufteAstTransformer } from "./ast_transformer_tufte";
 
 /** The generic generator for all Tufte generators. */
 export class TufteGenerator extends DirectFlowGenerator {
@@ -21,7 +22,15 @@ export class TufteGenerator extends DirectFlowGenerator {
     }
 
     /** @inheritdoc */
-    protected extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
+    protected transformAst(ast: AstRootNode): AstRootNode {
+        const initiallyTransformedAst = super.transformAst(ast);
+
+        const transformer = new TufteAstTransformer();
+        return transformer.transform(initiallyTransformedAst);
+    }
+
+    /** @inheritdoc */
+    protected extractSemanticInfo(node: AstRootNode): DocumentInfo {
         const docInfo = super.extractSemanticInfo(node);
 
         // Author

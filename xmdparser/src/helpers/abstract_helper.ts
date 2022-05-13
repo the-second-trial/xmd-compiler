@@ -21,7 +21,7 @@ export class AbstractHelper {
             return [];
         }
 
-        const childrenFromAbstractHeading = this.node.v.slice(titleIndex); // Heading not included
+        const childrenFromAbstractHeading = this.node.v.slice(abstractNodeIndex); // Heading not included
         const abstractParNode = childrenFromAbstractHeading.find(child => child.t === Constants.NodeTypes.PARAGRAPH);
         if (!abstractParNode) {
             return [];

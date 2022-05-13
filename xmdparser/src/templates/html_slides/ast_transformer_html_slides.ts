@@ -1,4 +1,4 @@
-import { XmdAst } from "../../ast";
+import { AstComponentNode, AstRootNode } from "../../ast";
 import { AstTransformer } from "../../ast_transformer";
 import { Constants } from "../../constants";
 import { HtmlSlidesTransformedAst, SlideAstNode } from "./ast_html_slides";
@@ -7,7 +7,7 @@ export const HTML_SLIDES_NODE_TYPE_SLIDE = "slide";
 
 export class HtmlSlidesAstTransformer implements AstTransformer<HtmlSlidesTransformedAst> {
     /** @inheritdoc */
-    public transform(ast: XmdAst): HtmlSlidesTransformedAst {
+    public transform(ast: AstRootNode): HtmlSlidesTransformedAst {
         const slides: Array<SlideAstNode> = [
             { t: HTML_SLIDES_NODE_TYPE_SLIDE, v: [] },
         ];
@@ -19,7 +19,7 @@ export class HtmlSlidesAstTransformer implements AstTransformer<HtmlSlidesTransf
             }
 
             const slide = slides[slides.length - 1];
-            slide.v.push(componentNode);
+            slide.v.push(componentNode as AstComponentNode);
         }
 
         return {

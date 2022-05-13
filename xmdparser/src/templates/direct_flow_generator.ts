@@ -1,4 +1,4 @@
-import { AstBaseNode, AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstRootDirectiveNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst, AstInlineDirectiveNode } from "../ast";
+import { AstBaseNode, AstCodeblockComponentNode, AstEquationblockComponentNode, AstHeadingComponentNode, AstRootDirectiveNode, AstHRuleNode, AstImageComponentNode, AstParagraphComponentBoldTextNode, AstParagraphComponentCodeInlineNode, AstParagraphComponentEquationInlineNode, AstParagraphComponentItalicTextNode, AstParagraphComponentNode, AstParagraphComponentTextNode, XmdAst, AstInlineDirectiveNode, AstRootNode } from "../ast";
 import { CodeChunkEvaluator, EvalResult } from "../code_srv";
 import { Constants } from "../constants";
 import { ExtensionsManager, ImageExtensionAttributes, stringifyExtensionCluasesArray } from "../extensions/extensions";
@@ -13,6 +13,7 @@ import { DirectivesController } from "../directives";
 export class DirectFlowGenerator implements Generator {
     private extMan: ExtensionsManager;
     private _directivesController: DirectivesController;
+    protected docInfo: DocumentInfo;
 
     /**
      * Initializes a new instance of this class.
@@ -36,6 +37,9 @@ export class DirectFlowGenerator implements Generator {
         if (!this.checkAst(ast)) {
             throw new Error("Malformed AST");
         }
+
+        // Extract semantic info before transforming as transforming might alter the tree
+        this.docInfo = this.extractSemanticInfo(ast);
     
         const transformedAst = this.transformAst(ast);
         DebugController.instance.transformedAst = JSON.stringify(transformedAst);
@@ -129,7 +133,7 @@ export class DirectFlowGenerator implements Generator {
      * @param ast The input AST.
      * @returns A new AST.
      */
-    protected transformAst(ast: XmdAst): { v: Array<AstBaseNode> } {
+    protected transformAst(ast: AstRootNode): AstRootNode {
         return ast;
     }
 
@@ -138,7 +142,7 @@ export class DirectFlowGenerator implements Generator {
      * @param node The root node.
      * @returns The semantic info.
      */
-    protected extractSemanticInfo(node: { v: Array<AstBaseNode> }): DocumentInfo {
+    protected extractSemanticInfo(node: AstRootNode): DocumentInfo {
         // Title
         // The title is considered to be the very first level 1 heading found in the AST root flow.
         const titleHeading = node.v.find(c => c.t === "heading" && (c as AstHeadingComponentNode).v.p.type === 1) as AstHeadingComponentNode;
@@ -154,15 +158,14 @@ export class DirectFlowGenerator implements Generator {
      * @param node The start node.
      * @returns The generated output.
      */
-    protected async generateStart(node: { v: Array<AstBaseNode> }): Promise<string> {
-        const docInfo = this.extractSemanticInfo(node);
+    protected async generateStart(node: AstRootNode): Promise<string> {
         const flow: string = await this.generateFlow(node);
 
         // Here, we have gone through the whole tree and certain
         // properties will be available at this point
-        docInfo.language = this.directivesController.lang;
+        this.docInfo.language = this.directivesController.lang;
         
-        return this.renderer.writeRoot(flow, docInfo);
+        return this.renderer.writeRoot(flow, this.docInfo);
     }
 
     private get directivesController(): DirectivesController {

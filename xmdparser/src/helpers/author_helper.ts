@@ -21,7 +21,7 @@ export class AuthorHelper {
             return "";
         }
 
-        const childrenFromAuthorHeading = this.node.v.slice(titleIndex); // Heading not included
+        const childrenFromAuthorHeading = this.node.v.slice(authorNodeIndex); // Heading not included
         const authorParNode = childrenFromAuthorHeading.find(child => child.t === Constants.NodeTypes.PARAGRAPH);
         if (!authorParNode) {
             return "";

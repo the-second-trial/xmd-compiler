@@ -1,6 +1,6 @@
 import { dirname } from "path";
 
-import { AstBaseNode, XmdAst } from "../../../ast";
+import { AstBaseNode, AstRootNode, XmdAst } from "../../../ast";
 import { CodeChunkEvaluator } from "../../../code_srv";
 import { Constants } from "../../../constants";
 import { DirectivesController } from "../../../directives";
@@ -50,9 +50,11 @@ export class TexTufteGenerator extends TufteGenerator {
     }
 
     /** @inheritdoc */
-    protected transformAst(ast: XmdAst): { v: Array<AstBaseNode> } {
+    protected transformAst(ast: AstRootNode): AstRootNode {
+        const initiallyTransformedAst = super.transformAst(ast);
+
         const transformer = new EnvironmentAstTransformer();
-        return transformer.transform(ast);
+        return transformer.transform(initiallyTransformedAst);
     }
 
     /** @inheritdoc */

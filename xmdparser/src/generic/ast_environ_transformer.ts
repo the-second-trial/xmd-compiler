@@ -1,4 +1,4 @@
-import { AstComponentNode, AstHeadingComponentNode, AstParagraphComponentNode, XmdAst } from "../ast";
+import { AstComponentNode, AstHeadingComponentNode, AstParagraphComponentNode, AstRootNode, XmdAst } from "../ast";
 import { AstTransformer } from "../ast_transformer";
 import { Constants } from "../constants";
 import { ExtensionsManager, stringifyExtensionCluasesArray } from "../extensions/extensions";
@@ -24,12 +24,12 @@ export class EnvironmentAstTransformer implements AstTransformer<WithEnvironsAst
     }
 
     /** @inheritdoc */
-    public transform(ast: XmdAst): WithEnvironsAst {
+    public transform(ast: AstRootNode): WithEnvironsAst {
         const newComponents: Array<WithEnvironsAstComponentNode> = [];
 
         for (let i = 0, l = ast.v.length; i < l;) {
-            const componentNode = ast.v[i];
-            const slice = ast.v.slice(i);
+            const componentNode = ast.v[i] as AstComponentNode;
+            const slice = ast.v.slice(i) as Array<AstComponentNode>;
 
             const environType = this.getEnvironmentNodeType(slice);
             if (environType) {
