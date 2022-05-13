@@ -1,6 +1,6 @@
 import { dirname } from "path";
 
-import { AstBaseNode, AstRootNode, XmdAst } from "../../../ast";
+import { AstBaseNode, AstRootNode } from "../../../ast";
 import { CodeChunkEvaluator } from "../../../code_srv";
 import { Constants } from "../../../constants";
 import { DirectivesController } from "../../../directives";

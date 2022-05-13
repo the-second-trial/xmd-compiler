@@ -3,6 +3,7 @@ export const Constants = {
     OutputTypes: {
         HTML_TUFTE: "html_tufte",
         TEX_TUFTE: "tex_tufte",
+        TEX_DOC: "tex_doc",
         HTML_SLIDES: "html_slides",
     },
     NodeTypes: {
