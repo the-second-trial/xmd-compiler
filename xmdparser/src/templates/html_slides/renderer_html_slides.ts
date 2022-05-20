@@ -2,20 +2,9 @@ import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
-import { idgen } from "../../utils";
+import { RenderingOptions } from "../renderer";
 
-export interface HtmlSlidesTemplateOptions {
-    /** The path to the output directory location. */
-    outputPath: string;
-    /**
-     * The path to the input file.
-     * This is necessary to correctly resolve the file
-     * references present in the input file.
-     * All references in the input source are assumed
-     * relative to that input source file.
-     */
-    inputPath: string;
-}
+export interface HtmlSlidesRenderingOptions extends RenderingOptions {}
 
 /**
  * Describes a template for rendering to HTML Reveal JS slides.
@@ -31,7 +20,7 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        private options: HtmlSlidesTemplateOptions
+        private options: HtmlSlidesRenderingOptions
     ) {
         this.resMan = new ResourceManager({
             outputLocDir: this.options.outputPath,
@@ -219,7 +208,7 @@ export class HtmlSlidesImportedRenderer extends HtmlSlidesRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        options: HtmlSlidesTemplateOptions
+        options: HtmlSlidesRenderingOptions
     ) {
         super(options);
     }

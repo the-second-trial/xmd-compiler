@@ -5,19 +5,10 @@ import { ImageExtensionAttributes } from "../../../extensions/extensions";
 import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
+import { TexRenderingOptions } from "../../tex/renderer_tex";
+import { PdfLatexRunner } from "../../../generic/pdflatex";
 
-export interface TexTufteTemplateOptions {
-    /** The path to the output directory location. */
-    outputPath: string;
-    /**
-     * The path to the input file.
-     * This is necessary to correctly resolve the file
-     * references present in the input file.
-     * All references in the input source are assumed
-     * relative to that input source file.
-     */
-    inputPath: string;
-}
+export interface TexTufteRenderingOptions extends TexRenderingOptions {}
 
 /** Describes a template for rendering to Tex Tufte. */
 export class TexTufteRenderer implements DirectFlowRenderer {
@@ -29,7 +20,7 @@ export class TexTufteRenderer implements DirectFlowRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        private options: TexTufteTemplateOptions
+        private options: TexTufteRenderingOptions
     ) {
         this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager({
@@ -47,7 +38,14 @@ export class TexTufteRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeToFile(output: string): string {
-        return this.resMan.writeToOutputFile(output);
+        const outputFilePath = this.resMan.writeToOutputFile(output);
+
+        // If possible, generate the PDF
+        if (this.options.pathToPdfLatex && this.options.pathToPdfLatex.length > 0) {
+            new PdfLatexRunner(this.options.pathToPdfLatex).run(outputFilePath);
+        }
+
+        return outputFilePath;
     }
 
     /** @inheritdoc */
@@ -204,7 +202,7 @@ export class TexTufteImportedRenderer extends TexTufteRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        options: TexTufteTemplateOptions
+        options: TexTufteRenderingOptions
     ) {
         super(options);
     }

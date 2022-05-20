@@ -5,19 +5,10 @@ import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
 import { idgen } from "../../utils";
+import { TexRenderingOptions } from "../tex/renderer_tex";
+import { PdfLatexRunner } from "../../generic/pdflatex";
 
-export interface TexDocTemplateOptions {
-    /** The path to the output directory location. */
-    outputPath: string;
-    /**
-     * The path to the input file.
-     * This is necessary to correctly resolve the file
-     * references present in the input file.
-     * All references in the input source are assumed
-     * relative to that input source file.
-     */
-    inputPath: string;
-}
+export interface TexDocRenderingOptions extends TexRenderingOptions {}
 
 /** Describes a template for rendering to Tex Doc. */
 export class TexDocRenderer implements DirectFlowRenderer {
@@ -29,7 +20,7 @@ export class TexDocRenderer implements DirectFlowRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        private options: TexDocTemplateOptions
+        private options: TexDocRenderingOptions
     ) {
         this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager({
@@ -47,7 +38,14 @@ export class TexDocRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeToFile(output: string): string {
-        return this.resMan.writeToOutputFile(output);
+        const outputFilePath = this.resMan.writeToOutputFile(output);
+
+        // If possible, generate the PDF
+        if (this.options.pathToPdfLatex && this.options.pathToPdfLatex.length > 0) {
+            new PdfLatexRunner(this.options.pathToPdfLatex).run(outputFilePath);
+        }
+
+        return outputFilePath;
     }
 
     /** @inheritdoc */
@@ -191,7 +189,7 @@ export class TexDocImportedRenderer extends TexDocRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        options: TexDocTemplateOptions
+        options: TexDocRenderingOptions
     ) {
         super(options);
     }

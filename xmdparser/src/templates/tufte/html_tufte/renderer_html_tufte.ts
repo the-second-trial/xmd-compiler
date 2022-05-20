@@ -3,19 +3,9 @@ import { ImageExtensionAttributes } from "../../../extensions/extensions";
 import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
+import { TexRenderingOptions } from "../../tex/renderer_tex";
 
-export interface HtmlTufteTemplateOptions {
-    /** The path to the output directory location. */
-    outputPath: string;
-    /**
-     * The path to the input file.
-     * This is necessary to correctly resolve the file
-     * references present in the input file.
-     * All references in the input source are assumed
-     * relative to that input source file.
-     */
-    inputPath: string;
-}
+export interface HtmlTufteRenderingOptions extends TexRenderingOptions {}
 
 // TODO: Handle sections.
 /** Describes a template for rendering to HTML Tufte. */
@@ -28,7 +18,7 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        private options: HtmlTufteTemplateOptions
+        private options: HtmlTufteRenderingOptions
     ) {
         this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager({
@@ -46,7 +36,9 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeToFile(output: string): string {
-        return this.resMan.writeToOutputFile(output);
+        const outputFilePath = this.resMan.writeToOutputFile(output);
+
+        return outputFilePath;
     }
 
     /** @inheritdoc */
@@ -232,7 +224,7 @@ export class HtmlTufteImportedRenderer extends HtmlTufteRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        options: HtmlTufteTemplateOptions
+        options: HtmlTufteRenderingOptions
     ) {
         super(options);
     }

@@ -16,16 +16,19 @@ export class TexDocGenerator extends DirectFlowGenerator {
      * @param outputDir The path to the location where the output directory will be created.
      * @param srcPath The path to the input source file.
      * @param codeEvaluator The Python code chunk evaluator.
+     * @param pathToPdfLatex The path to pdfLatex for generating the PDF.
      */
      constructor(
         private outputDir: string,
         private srcPath: string,
-        codeEvaluator?: CodeChunkEvaluator
+        codeEvaluator?: CodeChunkEvaluator,
+        pathToPdfLatex?: string
     ) {
         super(
             new TexDocRenderer({
                 outputPath: outputDir,
                 inputPath: srcPath,
+                pathToPdfLatex,
             }),
             codeEvaluator
         );
