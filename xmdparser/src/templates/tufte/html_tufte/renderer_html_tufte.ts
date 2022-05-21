@@ -3,7 +3,7 @@ import { ImageExtensionAttributes } from "../../../extensions/extensions";
 import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
-import { TexRenderingOptions } from "../../tex/renderer_tex";
+import { TexRenderingOptions } from "../../tex/renderer_options_tex";
 
 export interface HtmlTufteRenderingOptions extends TexRenderingOptions {}
 
