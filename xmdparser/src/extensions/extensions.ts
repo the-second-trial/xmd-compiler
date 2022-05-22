@@ -10,11 +10,18 @@ export type ExtensionAttributes =
      * Applies to: heading.
      * Environment "Theorem".
      */
-    | "theorem";
+    | "theorem"
+    /**
+     * Applies to: heading.
+     * Used to control conditional content.
+     */
+     | "if";
 
 export type ImageExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "fullwidth">;
 
 export type HeadingExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "theorem">;
+
+export type IfExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "if">;
 
 export type ExtensionValues = Record<ExtensionAttributes, string>;
 
@@ -45,6 +52,7 @@ export class ExtensionsManager {
             result: {
                 fullwidth: parsed_clauses["fullwidth"],
                 theorem: parsed_clauses["theorem"],
+                if: parsed_clauses["if"],
             },
             unknown: {},
         };

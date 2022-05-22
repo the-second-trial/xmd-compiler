@@ -8,6 +8,7 @@ import { DirectFlowRenderer } from "./direct_flow_renderer"
 import { ProgressController } from "../progress_controller";
 import { DebugController } from "../debugging";
 import { DirectivesController } from "../directives";
+import { ConditionalContentAstTransformer } from "../generic/ast_conditional_content_transformer";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
@@ -134,7 +135,8 @@ export class DirectFlowGenerator implements Generator {
      * @returns A new AST.
      */
     protected transformAst(ast: AstRootNode): AstRootNode {
-        return ast;
+        const transformer = new ConditionalContentAstTransformer();
+        return transformer.transform(ast);
     }
 
     /**
@@ -228,10 +230,6 @@ export class DirectFlowGenerator implements Generator {
                     break;
                 default:
                     throw new Error(`Unrecognized par type: '${par.t}'`);
-            }
-
-            if (!renderedComponent) {
-                throw new Error("Par component did not render");
             }
 
             flow.push(renderedComponent);

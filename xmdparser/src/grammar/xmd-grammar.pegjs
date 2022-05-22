@@ -68,7 +68,7 @@ codeinline_noeval
   = "`" content:text_char+ "`" { return { t: "codeinline", v: { run: false, src: arr2contstr(content) } }; }
 
 heading
-  = symb:"#"+ whitespace* content:[^#\n\r`{]+ ext:extension_string? { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length }, ext: ext }; }
+  = symb:"#"+ whitespace* content:[^#\n\r`{]+ whitespace* ext:extension_string? { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length }, ext: ext }; }
 
 codeblock
   = "```" whitespace* newline char:[^\n\r`] next_char:codeblock_cont { return { run: true, src: char + next_char }; }

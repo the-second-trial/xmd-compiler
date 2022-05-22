@@ -1,4 +1,4 @@
-import { AstComponentNode, AstHeadingComponentNode, AstParagraphComponentNode, AstRootNode, XmdAst } from "../ast";
+import { AstComponentNode, AstHeadingComponentNode, AstParagraphComponentNode, AstRootNode } from "../ast";
 import { AstTransformer } from "../ast_transformer";
 import { Constants } from "../constants";
 import { ExtensionsManager, stringifyExtensionCluasesArray } from "../extensions/extensions";

@@ -24,9 +24,10 @@ export const Constants = {
         INLINE_DIRECTIVE: "inlinedirect",
     },
     Directives: {
-        ABBREVATION: "a",
+        DEFINITION: "def",
         LANG: "lang",
         IMPORT: "import",
+        IF: "if",
     },
     ExtendedNodeTypes: {
         THEOREM: "theorem",
