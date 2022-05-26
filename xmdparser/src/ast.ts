@@ -86,6 +86,7 @@ export interface AstCodeblockComponentNode extends AstBaseNode {
     v: {
         run: boolean,
         src: string,
+        ext?: AstExtensionStringNode,
     };
 }
 

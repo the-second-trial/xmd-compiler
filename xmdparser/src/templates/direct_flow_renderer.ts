@@ -76,9 +76,10 @@ export interface DirectFlowRenderer {
      * Renders a codeblock.
      * @param text The text in the code.
      * @param evalResult The result of the evaluation.
+     * @param outputType The type of result.
      * @returns The rendered code block.
      */
-    writeCodeblock: (text: string, evalResult?: string) => string;
+    writeCodeblock: (text: string, evalResult?: string, outputType?: string) => string;
 
     /**
      * Renders an equation block.

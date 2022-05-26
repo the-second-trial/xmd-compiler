@@ -241,8 +241,12 @@ export class DirectFlowGenerator implements Generator {
     }
 
     private async generateCodeblock(node: AstCodeblockComponentNode): Promise<string> {
-        const [src, evalResult] = await this.generateCodeComponent(node);
-        return this.renderer.writeCodeblock(src, evalResult);
+        const [src, evalResult] = await this.generateAndEvalCodeComponent(node);
+        const ext = this.extMan.parse(stringifyExtensionCluasesArray(node.v.ext?.v));
+
+        return ext.result.hidden
+            ? ""
+            : this.renderer.writeCodeblock(src, evalResult, ext.result.output);
     }
 
     private generateEquationblock(node: AstEquationblockComponentNode): string {
@@ -259,16 +263,19 @@ export class DirectFlowGenerator implements Generator {
     }
 
     private async generateCodeinline(node: AstParagraphComponentCodeInlineNode): Promise<string> {
-        const [src, evalResult] = await this.generateCodeComponent(node);
+        const [src, evalResult] = await this.generateAndEvalCodeComponent(node);
         return this.renderer.writeParagraphCodeInline(src, evalResult);
     }
 
-    private async generateCodeComponent(node: AstCodeblockComponentNode | AstParagraphComponentCodeInlineNode): Promise<[string, string]> {
+    private async generateAndEvalCodeComponent(
+        node: AstCodeblockComponentNode | AstParagraphComponentCodeInlineNode
+    ): Promise<[string, string]> {
         const src = node.v.src;
         let evalResult: string = undefined;
 
         if (node.v.run) {
             // This code chunk should be run
+            // TODO: Refactor as the result will always be string from JSON
             const evaluation = await this.evaluateCodeChunk(src);
             switch (evaluation.type) {
                 case "str":

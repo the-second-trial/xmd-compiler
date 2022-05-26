@@ -1,5 +1,6 @@
 const { EOL } = require("os");
 
+import { TexCodeBlockStylist } from "../../generic/code_block_style";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
 import { idgen } from "../../utils";
@@ -34,6 +35,11 @@ export class TexDocRenderer extends TexRenderer {
         return this.getPageTemplate(content, docInfo);
     }
 
+    /** @inheritdoc */
+    public writeCodeblock(src: string, evalResult?: string, outputType?: string): string {
+        return new TexCodeBlockStylist(outputType).style(src, evalResult);
+    }
+
     protected getPageTemplate(
         content: string,
         docInfo: DocumentInfo
@@ -47,12 +53,27 @@ export class TexDocRenderer extends TexRenderer {
             "\\usepackage{amsmath} % extended mathematics",
             "\\usepackage{fancyvrb} % extended verbatim environments",
             "\\usepackage{amsthm} % theorems",
+            "\\usepackage{mdframed} % intelligent frames",
             "\\usepackage{graphicx} % allow embedded images",
             "\\usepackage{sidecap}",
             "\\usepackage{listings} % better code snippets",
+            "\\usepackage{xcolor} % for defining colors",
             "% defining custom envs for theorems",
             "\\newtheorem{prop}{Proposition}",
             "\\newtheorem{lemma}{Lemma}",
+            "\\definecolor{codebackcolor}{HTML}{EFEFEF}",
+            "\\lstdefinestyle{codestyle}{",
+            "basicstyle=\\ttfamily\\footnotesize,",
+            "breakatwhitespace=false,",
+            "breaklines=true,",
+            "captionpos=b,",
+            "keepspaces=true,",
+            "showspaces=false,",
+            "showstringspaces=false,",
+            "showtabs=false,",
+            "tabsize=2",
+            "}",
+            "\\lstset{style=codestyle}",
             `\\title{${docInfo.title || "Untitled"}}`,
             hasAuthor ? `\\author{${docInfo.author}}` : "",
             "\\date{\\today}",

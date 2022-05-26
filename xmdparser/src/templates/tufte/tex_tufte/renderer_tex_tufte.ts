@@ -36,6 +36,19 @@ export class TexTufteRenderer extends TexRenderer {
         return this.getPageTemplate(content, docInfo);
     }
 
+    /** @inheritdoc */
+    public writeCodeblock(src: string, evalResult?: string, outputType?: string): string {
+        return [
+            "\\begin{docspec}",
+            src,
+            `\\end{docspec}`,
+            evalResult ? "Result:" : "",
+            evalResult ? "\\begin{docspec}" : "",
+            evalResult ? evalResult : "",
+            evalResult ? `\\end{docspec}` : "",
+        ].join(EOL) + EOL;
+    }
+
     protected getPageTemplate(
         content: string,
         docInfo: DocumentInfo

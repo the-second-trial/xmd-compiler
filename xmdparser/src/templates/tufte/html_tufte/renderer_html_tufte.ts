@@ -111,7 +111,7 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
     }
 
     /** @inheritdoc */
-    public writeCodeblock(src: string, evalResult?: string): string {
+    public writeCodeblock(src: string, evalResult?: string, outputType?: string): string {
         return [
             "<pre>",
             "<code>",

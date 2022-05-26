@@ -71,7 +71,7 @@ heading
   = symb:"#"+ whitespace* content:[^#\n\r`{]+ whitespace* ext:extension_string? { return { t: "heading_text", v: arr2contstr(content), p: { type: symb.length }, ext: ext }; }
 
 codeblock
-  = "```" whitespace* newline char:[^\n\r`] next_char:codeblock_cont { return { run: true, src: char + next_char }; }
+  = "```" whitespace* ext:extension_string? whitespace* newline char:[^\n\r`] next_char:codeblock_cont { return { run: true, src: char + next_char, ext: ext }; }
 codeblock_cont
   = newline "```" { return ""; }
   / char:. next_char:codeblock_cont { return char + next_char; }

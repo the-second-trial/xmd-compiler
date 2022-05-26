@@ -89,15 +89,15 @@ export abstract class TexRenderer implements DirectFlowRenderer {
     }
 
     /** @inheritdoc */
-    public writeCodeblock(src: string, evalResult?: string): string {
+    public writeCodeblock(src: string, evalResult?: string, outputType?: string): string {
         return [
-            "\\begin{docspec}",
+            "\\begin{quote}",
             src,
-            `\\end{docspec}`,
+            `\\end{quote}`,
             evalResult ? "Result:" : "",
-            evalResult ? "\\begin{docspec}" : "",
+            evalResult ? "\\begin{quote}" : "",
             evalResult ? evalResult : "",
-            evalResult ? `\\end{docspec}` : "",
+            evalResult ? `\\end{quote}` : "",
         ].join(EOL) + EOL;
     }
 

@@ -12,16 +12,26 @@ export type ExtensionAttributes =
      */
     | "theorem"
     /**
+     * Applies to: codeblocks.
+     * Executes the code but does not display the source nor the output.
+     */
+    | "hidden"
+    /**
+     * Applies to: codeblocks.
+     * Specifies what type of output the evaluation will have and, consequently, how to format it.
+     */
+    | "output"
+    /**
      * Applies to: heading.
      * Used to control conditional content.
      */
      | "if";
 
 export type ImageExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "fullwidth">;
-
 export type HeadingExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "theorem">;
-
 export type IfExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "if">;
+export type HiddenExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "hidden">;
+export type OutputExtensionAttributes = Pick<Record<ExtensionAttributes, string>, "output">;
 
 export type ExtensionValues = Record<ExtensionAttributes, string>;
 
@@ -52,7 +62,9 @@ export class ExtensionsManager {
             result: {
                 fullwidth: parsed_clauses["fullwidth"],
                 theorem: parsed_clauses["theorem"],
+                hidden: parsed_clauses["hidden"],
                 if: parsed_clauses["if"],
+                output: parsed_clauses["output"],
             },
             unknown: {},
         };
