@@ -1,5 +1,6 @@
 const { EOL } = require("os");
 
+const CODEBLOCK_STYLE_OUTPUT_FORMAT_NONE_NAME = "none";
 const CODEBLOCK_STYLE_OUTPUT_FORMAT_LATEX_NAME = "latex";
 
 export interface CodeBlockStylist {
@@ -23,11 +24,23 @@ export class TexCodeBlockStylist implements CodeBlockStylist {
     /** @inheritdoc */
     public style(src: string, output?: string): string {
         switch (this.outputFormat) {
+            case CODEBLOCK_STYLE_OUTPUT_FORMAT_NONE_NAME:
+                return this.styleNone(src, output); 
             case CODEBLOCK_STYLE_OUTPUT_FORMAT_LATEX_NAME:
                 return this.styleLatex(src, output);
             default:
                 return this.styleDefault(src, output);
         }
+    }
+
+    private styleNone(src: string, output?: string): string {
+        return [
+            "\\begin{mdframed}[backgroundcolor=codebackcolor]",
+            "\\begin{lstlisting}",
+            src,
+            `\\end{lstlisting}`,
+            "\\end{mdframed}",
+        ].join(EOL) + EOL;
     }
 
     private styleLatex(src: string, output?: string): string {
