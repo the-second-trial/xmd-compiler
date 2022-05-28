@@ -6,3 +6,10 @@ To test an example:
 
 1. Run `npm run build`.
 2. Run `node .\lib\xmdparser.js --src .\examples\<example>.md --debug --template <template>`.
+
+## Run using containers
+Run:
+
+```
+docker run --name xmd --rm -it -v C:/mydata:/home/xmd/out xmd/v1:test --src /home/xmd/out/simple.md --debug --template tex_doc --pdfLatexPath /usr/local/texlive/2022/bin/x86_64-linux/pdflatex
+```
