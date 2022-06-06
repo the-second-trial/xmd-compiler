@@ -25,12 +25,7 @@ export abstract class TexRenderer implements DirectFlowRenderer {
     }
 
     /** @inheritdoc */
-    public get outputDirPath(): string {
-        return this.resMan.outputDir;
-    }
-
-    /** @inheritdoc */
-    public writeToFile(output: string): string {
+    public writeOutput(output: string): string {
         const outputFileName = "main.tex";
         const vpath = `/${outputFileName}`;
         this.outputImage.addString(output, vpath);

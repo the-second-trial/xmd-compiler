@@ -51,11 +51,6 @@ export class DirectFlowGenerator implements Generator {
         return this.generateStart(transformedAst);
     }
 
-    /** @inheritdoc */
-    public write(output: string): string {
-        return this.renderer.writeToFile(output);
-    }
-
     /**
      * Handles the root level and generates the flow.
      * @param node The input root node.

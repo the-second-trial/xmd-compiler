@@ -1,3 +1,5 @@
+import { basename } from "path";
+
 import { Constants } from "./constants";
 import { HtmlTufteGenerator } from "./templates/tufte/html_tufte/generator_html_tufte";
 import { PythonCodeServer } from "./py_srv";
@@ -82,11 +84,17 @@ export class GeneratorFactory {
         )
     }
 
-    private createOutputImage(name: string): OutputImage {
+    private createOutputImage(): OutputImage {
+        const name = this.imageName;
+
         if (this.platformTarget === "local") {
             return new FileSystemOutputImage(name, this.config.output);
         }
 
         return new JsonPayloadOutputImage(name);
+    }
+
+    private get imageName(): string {
+        return basename(this.config.src, ".md");
     }
 }

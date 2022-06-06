@@ -8,7 +8,7 @@ export interface DirectFlowRenderer {
      * @param output The output to save.
      * @returns The path to the location where the file has been saved.
      */
-    writeToFile: (output: string) => string;
+    writeOutput: (output: string) => string;
 
     /**
      * Renders the root of the document.

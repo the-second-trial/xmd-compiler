@@ -37,7 +37,7 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
     }
 
     /** @inheritdoc */
-    public writeToFile(output: string): string {
+    public writeOutput(output: string): string {
         const outputFileName = "index.html";
         const vpath = `/${outputFileName}`;
         this.outputImage.addString(output, vpath);
