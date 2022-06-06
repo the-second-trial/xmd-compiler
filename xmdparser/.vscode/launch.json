@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch XMD",
+            "program": "${workspaceFolder}/lib/xmdparser.js",
+            "args": [
+                "--src",
+                "../examples/simple.md",
+                "--debug",
+                "--template",
+                "tex_doc"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Unit Tests",

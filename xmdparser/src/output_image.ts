@@ -31,6 +31,8 @@ export abstract class OutputImage {
     constructor(
         protected imageName: string
     ) {
+        this.components = [];
+        this.postProcessOperations = [];
     }
 
     public addCompilePdfOperation(params: Array<string>): void {

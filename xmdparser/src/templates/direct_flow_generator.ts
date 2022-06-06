@@ -37,7 +37,7 @@ export class DirectFlowGenerator implements Generator {
     }
 
     /** @inheritdoc */
-    public generate(ast: XmdAst): Promise<string> {
+    public async generate(ast: XmdAst): Promise<string> {
         if (!this.checkAst(ast)) {
             throw new Error("Malformed AST");
         }
@@ -48,7 +48,11 @@ export class DirectFlowGenerator implements Generator {
         const transformedAst = this.transformAst(ast);
         DebugController.instance.transformedAst = JSON.stringify(transformedAst);
         
-        return this.generateStart(transformedAst);
+        const output = await this.generateStart(transformedAst);
+
+        this.outputImage.addString(output, "/index.tex"); // TODO: Create a virtual method
+
+        return output;
     }
 
     /**

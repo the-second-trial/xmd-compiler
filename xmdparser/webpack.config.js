@@ -18,5 +18,7 @@ module.exports = {
     output: {
         filename: "xmdparser.js",
         path: path.resolve(__dirname, "lib"),
-    }
+        devtoolModuleFilenameTemplate: "[absolute-resource-path]",
+    },
+    devtool: "cheap-source-map",
 };

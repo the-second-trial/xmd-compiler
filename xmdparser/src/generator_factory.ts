@@ -1,4 +1,4 @@
-import { basename } from "path";
+import { basename, join } from "path";
 
 import { Constants } from "./constants";
 import { HtmlTufteGenerator } from "./templates/tufte/html_tufte/generator_html_tufte";
@@ -88,7 +88,8 @@ export class GeneratorFactory {
         const name = this.imageName;
 
         if (this.platformTarget === "local") {
-            return new FileSystemOutputImage(name, this.config.output);
+            const outputFolder = join(this.config.output, `${name}_${this.config.template || "none"}`);
+            return new FileSystemOutputImage(name, outputFolder);
         }
 
         return new JsonPayloadOutputImage(name);
