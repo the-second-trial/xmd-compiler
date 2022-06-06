@@ -1,13 +1,11 @@
 const { EOL } = require("os");
 
 import { TexCodeBlockStylist } from "../../generic/code_block_style";
+import { OutputImage } from "../../output_image";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
 import { idgen } from "../../utils";
-import { TexRenderingOptions } from "../tex/renderer_options_tex";
 import { TexRenderer } from "../tex/renderer_tex";
-
-export interface TexDocRenderingOptions extends TexRenderingOptions {}
 
 /** Describes a template for rendering to Tex Doc. */
 export class TexDocRenderer extends TexRenderer {
@@ -16,17 +14,12 @@ export class TexDocRenderer extends TexRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        options: TexDocRenderingOptions
+        outputImage: OutputImage
     ) {
         super(
-            options,
+            outputImage,
             idgen("ref"),
-            new ResourceManager({
-                outputLocDir: options.outputPath,
-                srcPath: options.inputPath,
-                outputFileName: "main.tex",
-                outputName: "texdoc",
-            })
+            new ResourceManager(outputImage)
         );
     }
 
@@ -93,9 +86,9 @@ export class TexDocImportedRenderer extends TexDocRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        options: TexDocRenderingOptions
+        outputImage: OutputImage
     ) {
-        super(options);
+        super(outputImage);
     }
 
     protected getPageTemplate(

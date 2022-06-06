@@ -1,31 +1,24 @@
 const { EOL } = require("os");
 
+import { OutputImage } from "../../../output_image";
 import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
-import { TexRenderingOptions } from "../../tex/renderer_options_tex";
 import { TexRenderer } from "../../tex/renderer_tex";
-
-export interface TexTufteRenderingOptions extends TexRenderingOptions {}
 
 /** Describes a template for rendering to Tex Tufte. */
 export class TexTufteRenderer extends TexRenderer {
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image to use.
      */
     constructor(
-        options: TexTufteRenderingOptions
+        outputImage: OutputImage
     ) {
         super(
-            options,
+            outputImage,
             idgen("ref"),
-            new ResourceManager({
-                outputLocDir: options.outputPath,
-                srcPath: options.inputPath,
-                outputFileName: "main.tex",
-                outputName: "textufte",
-            })
+            new ResourceManager(outputImage)
         );
     }
 
@@ -95,12 +88,12 @@ export class TexTufteRenderer extends TexRenderer {
 export class TexTufteImportedRenderer extends TexTufteRenderer {
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image to use.
      */
     constructor(
-        options: TexTufteRenderingOptions
+        outputImage: OutputImage
     ) {
-        super(options);
+        super(outputImage);
     }
 
     protected getPageTemplate(

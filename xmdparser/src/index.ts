@@ -58,7 +58,7 @@ async function main(): Promise<void> {
     let outputPath = "";
     try {
         // Generate
-        const generator = new GeneratorFactory(config, pysrv).create();
+        const generator = new GeneratorFactory(config, pysrv, "local").create();
         outputPath = generator.outputDirPath;
 
         const out = await generator.generate(ast);

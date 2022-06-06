@@ -3,9 +3,6 @@ import { DocumentInfo } from "../semantics";
 
 /** Describes a template for generating an output code. */
 export interface DirectFlowRenderer {
-    /** Gets the output directory path. */
-    outputDirPath: string;
-
     /**
      * Writes the output to a file.
      * @param output The output to save.

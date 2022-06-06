@@ -9,6 +9,7 @@ import { ProgressController } from "../progress_controller";
 import { DebugController } from "../debugging";
 import { DirectivesController } from "../directives";
 import { ConditionalContentAstTransformer } from "../generic/ast_conditional_content_transformer";
+import { OutputImage } from "../output_image";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
@@ -19,18 +20,20 @@ export class DirectFlowGenerator implements Generator {
     /**
      * Initializes a new instance of this class.
      * @param renderer The renderer to use.
+     * @param outputImage The output image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
         protected renderer: DirectFlowRenderer,
+        protected outputImage: OutputImage,
         protected codeEvaluator?: CodeChunkEvaluator
     ) {
         this.extMan = new ExtensionsManager();
     }
 
     /** @inheritdoc */
-    public get outputDirPath(): string {
-        return this.renderer.outputDirPath;
+    public get output(): OutputImage {
+        return this.outputImage;
     }
 
     /** @inheritdoc */

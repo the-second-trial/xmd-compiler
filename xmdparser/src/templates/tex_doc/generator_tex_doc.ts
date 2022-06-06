@@ -4,6 +4,7 @@ import { AstRootNode } from "../../ast";
 import { CodeChunkEvaluator } from "../../code_srv";
 import { DirectivesController } from "../../directives";
 import { AuthorHelper } from "../../helpers/author_helper";
+import { OutputImage } from "../../output_image";
 import { DocumentInfo } from "../../semantics";
 import { DirectFlowGenerator } from "../direct_flow_generator";
 import { TexDocAstTransformer } from "./ast_transformer_tex_doc";
@@ -13,23 +14,20 @@ import { TexDocImportedRenderer, TexDocRenderer } from "./renderer_tex_doc";
 export class TexDocGenerator extends DirectFlowGenerator {
     /**
      * Initializes a new instance of this class.
-     * @param outputDir The path to the location where the output directory will be created.
      * @param srcPath The path to the input source file.
+     * @param outputImage The output image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      * @param pathToPdfLatex The path to pdfLatex for generating the PDF.
      */
      constructor(
-        private outputDir: string,
         private srcPath: string,
+        outputImage: OutputImage,
         codeEvaluator?: CodeChunkEvaluator,
         pathToPdfLatex?: string
     ) {
         super(
-            new TexDocRenderer({
-                outputPath: outputDir,
-                inputPath: srcPath,
-                pathToPdfLatex,
-            }),
+            new TexDocRenderer(outputImage),
+            outputImage,
             codeEvaluator
         );
     }
@@ -46,7 +44,7 @@ export class TexDocGenerator extends DirectFlowGenerator {
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
             dirname(this.srcPath),
-            new TexDocImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
+            new TexDocImportedGenerator(this.outputImage, this.codeEvaluator)
         );
     }
 
@@ -66,15 +64,12 @@ export class TexDocGenerator extends DirectFlowGenerator {
 
 class TexDocImportedGenerator extends DirectFlowGenerator {
      constructor(
-        outputDir: string,
-        srcPath: string,
+        outputImage: OutputImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
-            new TexDocImportedRenderer({
-                outputPath: outputDir,
-                inputPath: srcPath,
-            }),
+            new TexDocImportedRenderer(outputImage),
+            outputImage,
             codeEvaluator
         );
     }

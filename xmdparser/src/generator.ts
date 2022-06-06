@@ -1,4 +1,5 @@
 import { XmdAst } from "./ast";
+import { OutputImage } from "./output_image";
 
 /** Describes a generator. */
 export interface Generator {
@@ -15,6 +16,6 @@ export interface Generator {
      */
     write(output: string): string;
 
-    /** Gets the output directory path. */
-    outputDirPath: string;
+    /** Gets the output image. */
+    output: OutputImage;
 }

@@ -6,6 +6,9 @@ import { Generator } from "./generator";
 import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 import { TexDocGenerator } from "./templates/tex_doc/generator_tex_doc";
 import { Config } from "./config";
+import { FileSystemOutputImage, JsonPayloadOutputImage, OutputImage } from "./output_image";
+
+export type PlatformTarget = "local" | "remote";
 
 /** Creates a properly configured generator. */
 export class GeneratorFactory {
@@ -16,7 +19,8 @@ export class GeneratorFactory {
      */
     constructor(
         private config: Config,
-        private pysrv: PythonCodeServer
+        private pysrv: PythonCodeServer,
+        private platformTarget: PlatformTarget
     ) {
     }
 
@@ -46,16 +50,16 @@ export class GeneratorFactory {
 
     private createForHtmlTufte(): HtmlTufteGenerator {
         return new HtmlTufteGenerator(
-            this.config.output,
             this.config.src,
+            this.createOutputImage(),
             this.pysrv
         )
     }
 
     private createForTexTufte(): TexTufteGenerator {
         return new TexTufteGenerator(
-            this.config.output,
             this.config.src,
+            this.createOutputImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
@@ -63,18 +67,26 @@ export class GeneratorFactory {
 
     private createForHtmlSlides(): HtmlSlidesGenerator {
         return new HtmlSlidesGenerator(
-            this.config.output,
             this.config.src,
+            this.createOutputImage(),
             this.pysrv
         )
     }
 
     private createForTexDoc(): TexDocGenerator {
         return new TexDocGenerator(
-            this.config.output,
             this.config.src,
+            this.createOutputImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
+    }
+
+    private createOutputImage(name: string): OutputImage {
+        if (this.platformTarget === "local") {
+            return new FileSystemOutputImage(name, this.config.output);
+        }
+
+        return new JsonPayloadOutputImage(name);
     }
 }
