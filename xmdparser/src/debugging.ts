@@ -1,6 +1,5 @@
 const { EOL } = require("os");
-import { resolve, join } from "path";
-import { existsSync, statSync, mkdirSync, writeFileSync } from "fs";
+import { OutputImage } from "./output_image";
 
 /**
  * Singleton class for handling debug info on a compile session.
@@ -45,31 +44,22 @@ export class DebugController {
 
     /**
      * Saves all the collected debug info so far into a specified location.
-     * @param dirPath The directory where to dump the info.
+     * @param outputImage The output image into which placing the debugging resources.
      */
-    public save(dirPath: string): void {
-        if (!statSync(resolve(dirPath)).isDirectory) {
-            throw new Error(`Path '${dirPath}' must be a directory, cannot save debug info`);
-        }
-
-        const dst = resolve(dirPath, "__debug");
-        if (existsSync(dst)) {
-            throw new Error(`Path '${dst}' already exists, cannot save debug info`);
-        }
+    public save(outputImage: OutputImage): void {
+        const dst = "/__debug";
 
         if (!this._ast && !this._transformedAst && this._log.length === 0) {
             return;
         }
 
-        mkdirSync(dst);
-
-        writeFileSync(join(dst, "ast.json"), this._ast || "");
-        writeFileSync(join(dst, "t-ast.json"), this._transformedAst || "");
-        writeFileSync(
-            join(dst, "debug.txt"),
+        outputImage.addString(this._ast || "", dst + "/ast.json");
+        outputImage.addString(this._transformedAst || "", dst + "/t-ast.json");
+        outputImage.addString(
             this._log
                 .map(x => `${x.timestamp} - ${x.value}`)
-                .join(EOL)
+                .join(EOL),
+            dst + "/debug.txt"
         );
     }
 

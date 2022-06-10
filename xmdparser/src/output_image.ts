@@ -1,17 +1,10 @@
-import { resolve, join } from "path";
-import { existsSync, readFileSync, statSync, writeFileSync, readdirSync } from "fs";
+import { resolve, join, dirname } from "path";
+import { existsSync, readFileSync, statSync, writeFileSync, readdirSync, rmSync } from "fs";
+import { ensurePathToDirExists } from "./utils";
 
 interface OutputComponent {
     vpath: string;
     stream: string;
-}
-
-type OutputImageOperationType =
-    | "compilePdf";
-
-interface OutputImageOperation {
-    type: OutputImageOperationType;
-    params: Array<string>;
 }
 
 /**
@@ -21,7 +14,6 @@ interface OutputImageOperation {
  */
 export abstract class OutputImage {
     protected components: Array<OutputComponent>;
-    protected postProcessOperations: Array<OutputImageOperation>;
 
     /**
      * Initializes a new instance of this class.
@@ -32,7 +24,6 @@ export abstract class OutputImage {
         protected imageName: string
     ) {
         this.components = [];
-        this.postProcessOperations = [];
     }
 
     public addCompilePdfOperation(params: Array<string>): void {
@@ -150,31 +141,61 @@ export class JsonPayloadOutputImage extends OutputImage {
 export class FileSystemOutputImage extends OutputImage {
     /**
      * Initializes a new instance of this class.
-     * @param imageName 
-     * @param dirPath 
+     * @param imageName The name of the image.
+     * @param dirPath The path to the directory where to emit the output.
+     * @param overwrite A value indicating whether deleting a previously existing output.
      */
     constructor(
         imageName: string,
-        private dirPath: string
+        private dirPath: string,
+        private overwrite = true
     ) {
         super(imageName);
     }
 
     /** @inheritdoc */
     public serialize(): void {
+        const exists = existsSync(this.dirPath);
+        if (!this.overwrite && exists) {
+            throw new Error(`Cannot serialize, non-overridable host directory '${this.dirPath}' already exists`);
+        }
+        if (this.overwrite && exists) {
+            rmSync(this.dirPath, { recursive: true, force: true });
+        }
+
         for (const component of this.components) {
             const content = Buffer.from(component.stream, "base64").toString("utf-8");
             if (!content || content.length === 0) {
                 continue;
             }
 
-            const dstFilePath = join(resolve(this.dirPath), this.imageName);
+            const dstDirPath = resolve(this.dirPath);
+
+            if (!this.checkVPath(component.vpath)) {
+                throw new Error(`Cannot serialize, component's vpath '${component.vpath}' illegal`);
+            }
+
+            const dstFilePath = join(dstDirPath, component.vpath);
             if (existsSync(dstFilePath)) {
                 throw new Error(`Cannot serialize '${dstFilePath}', already exists`);
             }
+            ensurePathToDirExists(dirname(dstFilePath));
 
             writeFileSync(dstFilePath, content);
         }
+    }
+
+    private checkVPath(vpath: string): boolean {
+        if (vpath.length < 2) {
+            return false;
+        }
+        if (vpath[0] !== "/") {
+            return false;
+        }
+        if (vpath[1] === "/") {
+            return false;
+        }
+        return true;
     }
 }
 

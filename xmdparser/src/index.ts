@@ -55,25 +55,32 @@ async function main(): Promise<void> {
         await pysrv.startServer();
     }
 
+    const generator = new GeneratorFactory(config, pysrv, "local").create();
+
     try {
         // Generate
-        const generator = new GeneratorFactory(config, pysrv, "local").create();
-
         const out = await generator.generate(ast);
-
-        generator.output.serialize();
 
         logDebug(`Output saved into: '${config.output}'`);
     } catch (error) {
         console.error("An error occurred while generating the output code.", error);
     } finally {
+        // Here so we have the output image filled
+        const outputImage = generator.output;
+
+        // Add debugging info
+        if (config.debug) {
+            DebugController.instance.save(outputImage);
+        }
+
+        // Serialize the image
+        generator.output.serialize();
+
         // Kill server
         const srvLog = await pysrv.stopServer();
-
         logDebug(`Code server logs: '${srvLog}'`);
 
         ProgressController.instance.complete();
-        DebugController.instance.save(config.output);
 
         console.log("Done and saved:", config.output);
     }
