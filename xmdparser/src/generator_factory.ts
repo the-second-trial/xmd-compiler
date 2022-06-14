@@ -9,6 +9,7 @@ import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slid
 import { TexDocGenerator } from "./templates/tex_doc/generator_tex_doc";
 import { Config } from "./config";
 import { FileSystemOutputImage, JsonPayloadOutputImage, OutputImage } from "./output_image";
+import { PdfOutputImage } from "./templates/tex/pdf_output_image";
 
 export type PlatformTarget = "local" | "remote";
 
@@ -61,7 +62,7 @@ export class GeneratorFactory {
     private createForTexTufte(): TexTufteGenerator {
         return new TexTufteGenerator(
             this.config.src,
-            this.createOutputImage(),
+            this.createOutputImageForPDF(),
             this.pysrv,
             this.config.pdfLatexPath
         )
@@ -78,7 +79,7 @@ export class GeneratorFactory {
     private createForTexDoc(): TexDocGenerator {
         return new TexDocGenerator(
             this.config.src,
-            this.createOutputImage(),
+            this.createOutputImageForPDF(),
             this.pysrv,
             this.config.pdfLatexPath
         )
@@ -88,11 +89,26 @@ export class GeneratorFactory {
         const name = this.imageName;
 
         if (this.platformTarget === "local") {
-            const outputFolder = join(this.config.output, `${name}_${this.config.template || "none"}`);
-            return new FileSystemOutputImage(name, outputFolder);
+            return new FileSystemOutputImage(name, this.outputFolder);
         }
 
         return new JsonPayloadOutputImage(name);
+    }
+
+    private createOutputImageForPDF(): OutputImage {
+        const name = this.imageName;
+
+        if (this.platformTarget === "local") {
+            return this.config.pdfLatexPath
+                ? new PdfOutputImage(this.config.pdfLatexPath, name, this.outputFolder)
+                : new FileSystemOutputImage(name, this.outputFolder);
+        }
+
+        return new JsonPayloadOutputImage(name);
+    }
+
+    private get outputFolder(): string {
+        return join(this.config.output, `${name}_${this.config.template || "none"}`);
     }
 
     private get imageName(): string {

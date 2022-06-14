@@ -4,7 +4,6 @@ import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
-import { PdfLatexRunner } from "../../generic/pdflatex";
 import { OutputImage } from "../../output_image";
 
 /** Describes a template for rendering to Tex. */
@@ -14,13 +13,11 @@ export abstract class TexRenderer implements DirectFlowRenderer {
      * @param outputImage The output image to use.
      * @param refIdGen The reference id generator.
      * @param resMan The resource manager.
-     * @param pathToPdfLatex The path to the pdfLatex executable.
      */
     constructor(
         protected outputImage: OutputImage,
         protected refIdGen: Generator<string>,
-        protected resMan: ResourceManager,
-        private pathToPdfLatex?: string
+        protected resMan: ResourceManager
     ) {
     }
 
@@ -29,11 +26,6 @@ export abstract class TexRenderer implements DirectFlowRenderer {
         const outputFileName = "main.tex";
         const vpath = `/${outputFileName}`;
         this.outputImage.addString(output, vpath);
-
-        // If possible, generate the PDF TODO
-        // if (this.pathToPdfLatex && this.pathToPdfLatex.length > 0) {
-        //     new PdfLatexRunner(this.pathToPdfLatex).run(outputFilePath);
-        // }
 
         return vpath;
     }

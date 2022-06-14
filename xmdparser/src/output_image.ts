@@ -7,12 +7,18 @@ interface OutputComponent {
     stream: string;
 }
 
+/** Describes a component which can perform serialization. */
+export interface Serializer {
+    /** Executes the serialization. */
+    serialize(): void;
+}
+
 /**
  * Represents the output of a compile session.
  * This resource encapsulates all the necessary components of
  * the output and instructions on how to serialize it.
  */
-export abstract class OutputImage {
+export abstract class OutputImage implements Serializer {
     protected components: Array<OutputComponent>;
 
     /**
@@ -24,10 +30,6 @@ export abstract class OutputImage {
         protected imageName: string
     ) {
         this.components = [];
-    }
-
-    public addCompilePdfOperation(params: Array<string>): void {
-        
     }
 
     /**
@@ -155,12 +157,12 @@ export class FileSystemOutputImage extends OutputImage {
 
     /** @inheritdoc */
     public serialize(): void {
-        const exists = existsSync(this.dirPath);
+        const exists = existsSync(this.dstDirPath);
         if (!this.overwrite && exists) {
-            throw new Error(`Cannot serialize, non-overridable host directory '${this.dirPath}' already exists`);
+            throw new Error(`Cannot serialize, non-overridable host directory '${this.dstDirPath}' already exists`);
         }
         if (this.overwrite && exists) {
-            rmSync(this.dirPath, { recursive: true, force: true });
+            rmSync(this.dstDirPath, { recursive: true, force: true });
         }
 
         for (const component of this.components) {
@@ -169,13 +171,11 @@ export class FileSystemOutputImage extends OutputImage {
                 continue;
             }
 
-            const dstDirPath = resolve(this.dirPath);
-
             if (!this.checkVPath(component.vpath)) {
                 throw new Error(`Cannot serialize, component's vpath '${component.vpath}' illegal`);
             }
 
-            const dstFilePath = join(dstDirPath, component.vpath);
+            const dstFilePath = join(this.dstDirPath, component.vpath);
             if (existsSync(dstFilePath)) {
                 throw new Error(`Cannot serialize '${dstFilePath}', already exists`);
             }
@@ -183,6 +183,11 @@ export class FileSystemOutputImage extends OutputImage {
 
             writeFileSync(dstFilePath, content);
         }
+    }
+
+    /** Gets the path to the directory hosting the serialized content. */
+    public get dstDirPath(): string {
+        return resolve(this.dirPath);
     }
 
     private checkVPath(vpath: string): boolean {
