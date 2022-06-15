@@ -10,25 +10,24 @@ import { DocumentInfo } from "../../semantics";
 import { HtmlSlidesTransformedAst, SlideAstNode } from "./ast_html_slides";
 import { HtmlSlidesAstTransformer, HTML_SLIDES_NODE_TYPE_SLIDE } from "./ast_transformer_html_slides";
 import { HtmlSlidesImportedRenderer, HtmlSlidesRenderer } from "./renderer_html_slides";
+import { OutputImage } from "../../output_image";
 
 /** A component capable of rendering the final code. */
 export class HtmlSlidesGenerator extends DirectFlowGenerator {
     /**
      * Initializes a new instance of this class.
-     * @param outputDir The path to the location where the output directory will be created.
      * @param srcPath The path to the input source file.
+     * @param outputImage The output image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
-        private outputDir: string,
         private srcPath: string,
+        outputImage: OutputImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
-            new HtmlSlidesRenderer({
-                outputPath: outputDir,
-                inputPath: srcPath,
-            }),
+            new HtmlSlidesRenderer(outputImage),
+            outputImage,
             codeEvaluator
         );
     }
@@ -94,7 +93,7 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
             dirname(this.srcPath),
-            new HtmlSlidesImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
+            new HtmlSlidesImportedGenerator(this.srcPath, this.outputImage, this.codeEvaluator)
         );
     }
 
@@ -119,15 +118,13 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
 
 class HtmlSlidesImportedGenerator extends DirectFlowGenerator {
     constructor(
-        private outputDir: string,
         private srcPath: string,
+        outputImage: OutputImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
-            new HtmlSlidesImportedRenderer({
-                outputPath: outputDir,
-                inputPath: srcPath,
-            }),
+            new HtmlSlidesImportedRenderer(outputImage),
+            outputImage,
             codeEvaluator
         );
     }
@@ -136,7 +133,7 @@ class HtmlSlidesImportedGenerator extends DirectFlowGenerator {
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
             dirname(this.srcPath),
-            new HtmlSlidesImportedGenerator(this.outputDir, this.srcPath, this.codeEvaluator)
+            new HtmlSlidesImportedGenerator(this.srcPath, this.outputImage)
         );
     }
 }

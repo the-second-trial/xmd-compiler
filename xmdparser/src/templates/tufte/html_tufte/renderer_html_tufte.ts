@@ -3,9 +3,7 @@ import { ImageExtensionAttributes } from "../../../extensions/extensions";
 import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
-import { TexRenderingOptions } from "../../tex/renderer_options_tex";
-
-export interface HtmlTufteRenderingOptions extends TexRenderingOptions {}
+import { OutputImage } from "../../../output_image";
 
 // TODO: Handle sections.
 /** Describes a template for rendering to HTML Tufte. */
@@ -15,30 +13,22 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
 
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image to use.
      */
     constructor(
-        private options: HtmlTufteRenderingOptions
+        private outputImage: OutputImage
     ) {
         this.refIdGen = idgen("ref");
-        this.resMan = new ResourceManager({
-            outputLocDir: this.options.outputPath,
-            srcPath: this.options.inputPath,
-            outputFileName: "index.html",
-            outputName: "htmltufte",
-        });
+        this.resMan = new ResourceManager(outputImage);
     }
 
     /** @inheritdoc */
-    public get outputDirPath(): string {
-        return this.resMan.outputDir;
-    }
+    public writeOutput(output: string): string {
+        const outputFileName = "index.html";
+        const vpath = `/${outputFileName}`;
+        this.outputImage.addString(output, vpath);
 
-    /** @inheritdoc */
-    public writeToFile(output: string): string {
-        const outputFilePath = this.resMan.writeToOutputFile(output);
-
-        return outputFilePath;
+        return vpath;
     }
 
     /** @inheritdoc */
@@ -138,7 +128,12 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
     }
 
     /** @inheritdoc */
-    public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
+    public writeImage(
+        alt: string,
+        path: string,
+        title?: string,
+        ext?: ImageExtensionAttributes
+    ): string {
         const immPath = this.resMan.serveImage(path); // Auto name
         
         if (ext.fullwidth === "true") {
@@ -221,12 +216,12 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
 export class HtmlTufteImportedRenderer extends HtmlTufteRenderer {
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image to use.
      */
     constructor(
-        options: HtmlTufteRenderingOptions
+        outputImage: OutputImage
     ) {
-        super(options);
+        super(outputImage);
     }
 
     /** @inheritdoc */

@@ -9,6 +9,7 @@ import { ProgressController } from "../progress_controller";
 import { DebugController } from "../debugging";
 import { DirectivesController } from "../directives";
 import { ConditionalContentAstTransformer } from "../generic/ast_conditional_content_transformer";
+import { OutputImage } from "../output_image";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
@@ -19,22 +20,24 @@ export class DirectFlowGenerator implements Generator {
     /**
      * Initializes a new instance of this class.
      * @param renderer The renderer to use.
+     * @param outputImage The output image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
         protected renderer: DirectFlowRenderer,
+        protected outputImage: OutputImage,
         protected codeEvaluator?: CodeChunkEvaluator
     ) {
         this.extMan = new ExtensionsManager();
     }
 
     /** @inheritdoc */
-    public get outputDirPath(): string {
-        return this.renderer.outputDirPath;
+    public get output(): OutputImage {
+        return this.outputImage;
     }
 
     /** @inheritdoc */
-    public generate(ast: XmdAst): Promise<string> {
+    public async generate(ast: XmdAst): Promise<string> {
         if (!this.checkAst(ast)) {
             throw new Error("Malformed AST");
         }
@@ -45,12 +48,10 @@ export class DirectFlowGenerator implements Generator {
         const transformedAst = this.transformAst(ast);
         DebugController.instance.transformedAst = JSON.stringify(transformedAst);
         
-        return this.generateStart(transformedAst);
-    }
+        const output = await this.generateStart(transformedAst);
+        this.renderer.writeOutput(output);
 
-    /** @inheritdoc */
-    public write(output: string): string {
-        return this.renderer.writeToFile(output);
+        return output;
     }
 
     /**

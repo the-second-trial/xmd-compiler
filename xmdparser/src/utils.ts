@@ -1,3 +1,6 @@
+import { dirname } from "path";
+import { existsSync, mkdirSync } from "fs";
+
 /**
  * Waits for the specified amount of milliseconds.
  * @param ms The time to wait in milliseconds.
@@ -32,4 +35,17 @@ export function truncate(input: string, limit = 50): string {
     return input.length > limit
         ? `${input.substring(0, Math.floor(limit/2))}...${input.substring(input.length - Math.floor(limit/2))}`
         : input;
+}
+
+/**
+ * Ensurea a path to folder exists.
+ * @param path The path to a folder.
+ */
+export function ensurePathToDirExists(path: string): void {
+    if (existsSync(path)) {
+        return;
+    }
+    
+    ensurePathToDirExists(dirname(path));
+    mkdirSync(path);
 }

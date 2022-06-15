@@ -3,15 +3,12 @@ import { DocumentInfo } from "../semantics";
 
 /** Describes a template for generating an output code. */
 export interface DirectFlowRenderer {
-    /** Gets the output directory path. */
-    outputDirPath: string;
-
     /**
      * Writes the output to a file.
      * @param output The output to save.
      * @returns The path to the location where the file has been saved.
      */
-    writeToFile: (output: string) => string;
+    writeOutput: (output: string) => string;
 
     /**
      * Renders the root of the document.

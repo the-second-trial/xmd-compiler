@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-    entry: "./src/index.ts",
+    entry: "./index.ts",
     target: "node",
     module: {
         rules: [
@@ -16,9 +16,7 @@ module.exports = {
         extensions: [".ts", ".js"],
     },
     output: {
-        filename: "xmdparser.js",
+        filename: "xmdsrv.js",
         path: path.resolve(__dirname, "lib"),
-        devtoolModuleFilenameTemplate: "[absolute-resource-path]",
-    },
-    devtool: "cheap-source-map",
+    }
 };

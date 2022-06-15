@@ -4,39 +4,30 @@ import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
-import { TexRenderingOptions } from "../tex/renderer_options_tex";
-import { PdfLatexRunner } from "../../generic/pdflatex";
+import { OutputImage } from "../../output_image";
 
 /** Describes a template for rendering to Tex. */
 export abstract class TexRenderer implements DirectFlowRenderer {
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image to use.
      * @param refIdGen The reference id generator.
      * @param resMan The resource manager.
      */
     constructor(
-        protected options: TexRenderingOptions,
+        protected outputImage: OutputImage,
         protected refIdGen: Generator<string>,
         protected resMan: ResourceManager
     ) {
     }
 
     /** @inheritdoc */
-    public get outputDirPath(): string {
-        return this.resMan.outputDir;
-    }
+    public writeOutput(output: string): string {
+        const outputFileName = "main.tex";
+        const vpath = `/${outputFileName}`;
+        this.outputImage.addString(output, vpath);
 
-    /** @inheritdoc */
-    public writeToFile(output: string): string {
-        const outputFilePath = this.resMan.writeToOutputFile(output);
-
-        // If possible, generate the PDF
-        if (this.options.pathToPdfLatex && this.options.pathToPdfLatex.length > 0) {
-            new PdfLatexRunner(this.options.pathToPdfLatex).run(outputFilePath);
-        }
-
-        return outputFilePath;
+        return vpath;
     }
 
     /** @inheritdoc */

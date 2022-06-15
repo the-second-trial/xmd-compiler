@@ -2,9 +2,7 @@ import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
-import { RenderingOptions } from "../renderer";
-
-export interface HtmlSlidesRenderingOptions extends RenderingOptions {}
+import { OutputImage } from "../../output_image";
 
 /**
  * Describes a template for rendering to HTML Reveal JS slides.
@@ -17,22 +15,12 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
 
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image to use.
      */
     constructor(
-        private options: HtmlSlidesRenderingOptions
+        private outputImage: OutputImage
     ) {
-        this.resMan = new ResourceManager({
-            outputLocDir: this.options.outputPath,
-            srcPath: this.options.inputPath,
-            outputFileName: "index.html",
-            outputName: "htmlslides",
-        });
-    }
-
-    /** @inheritdoc */
-    public get outputDirPath(): string {
-        return this.resMan.outputDir;
+        this.resMan = new ResourceManager(outputImage);
     }
 
     /**
@@ -49,8 +37,12 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
     }
 
     /** @inheritdoc */
-    public writeToFile(output: string): string {
-        return this.resMan.writeToOutputFile(output);
+    public writeOutput(output: string): string {
+        const outputFileName = "index.html";
+        const vpath = `/${outputFileName}`;
+        this.outputImage.addString(output, vpath);
+
+        return vpath;
     }
 
     /** @inheritdoc */
@@ -205,12 +197,12 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
 export class HtmlSlidesImportedRenderer extends HtmlSlidesRenderer {
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image to use.
      */
     constructor(
-        options: HtmlSlidesRenderingOptions
+        outputImage: OutputImage
     ) {
-        super(options);
+        super(outputImage);
     }
 
     /** @inheritdoc */
