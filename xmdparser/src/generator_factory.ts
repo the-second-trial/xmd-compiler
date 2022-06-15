@@ -86,29 +86,25 @@ export class GeneratorFactory {
     }
 
     private createOutputImage(): OutputImage {
-        const name = this.imageName;
-
         if (this.platformTarget === "local") {
-            return new FileSystemOutputImage(name, this.outputFolder);
+            return new FileSystemOutputImage(this.imageName, this.outputFolder);
         }
 
-        return new JsonPayloadOutputImage(name);
+        return new JsonPayloadOutputImage(this.imageName);
     }
 
     private createOutputImageForPDF(): OutputImage {
-        const name = this.imageName;
-
         if (this.platformTarget === "local") {
             return this.config.pdfLatexPath
-                ? new PdfOutputImage(this.config.pdfLatexPath, name, this.outputFolder)
-                : new FileSystemOutputImage(name, this.outputFolder);
+                ? new PdfOutputImage(this.config.pdfLatexPath, this.imageName, this.outputFolder)
+                : new FileSystemOutputImage(this.imageName, this.outputFolder);
         }
 
-        return new JsonPayloadOutputImage(name);
+        return new JsonPayloadOutputImage(this.imageName);
     }
 
     private get outputFolder(): string {
-        return join(this.config.output, `${name}_${this.config.template || "none"}`);
+        return join(this.config.output, `${this.imageName}_${this.config.template || "none"}`);
     }
 
     private get imageName(): string {

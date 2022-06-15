@@ -49,8 +49,7 @@ export class DirectFlowGenerator implements Generator {
         DebugController.instance.transformedAst = JSON.stringify(transformedAst);
         
         const output = await this.generateStart(transformedAst);
-
-        this.outputImage.addString(output, "/index.tex"); // TODO: Create a virtual method
+        this.renderer.writeOutput(output);
 
         return output;
     }
