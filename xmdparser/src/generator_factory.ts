@@ -7,7 +7,7 @@ import { Generator } from "./generator";
 import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 import { TexDocGenerator } from "./templates/tex_doc/generator_tex_doc";
 import { Config, PlatformTarget } from "./config";
-import { FileSystemOutputImage, JsonPayloadOutputImage, ResourceImage } from "./output_image";
+import { FileSystemOutputImage, JsonPayloadOutputImage, ResourceImage } from "./resource_image";
 import { PdfOutputImage } from "./templates/tex/pdf_output_image";
 import { CodeServer } from "./code_srv";
 
