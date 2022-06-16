@@ -4,7 +4,7 @@ import { AstRootNode } from "../../ast";
 import { CodeChunkEvaluator } from "../../code_srv";
 import { DirectivesController } from "../../directives";
 import { AuthorHelper } from "../../helpers/author_helper";
-import { OutputImage } from "../../output_image";
+import { ResourceImage } from "../../resource_image";
 import { DocumentInfo } from "../../semantics";
 import { DirectFlowGenerator } from "../direct_flow_generator";
 import { TexDocAstTransformer } from "./ast_transformer_tex_doc";
@@ -21,7 +21,7 @@ export class TexDocGenerator extends DirectFlowGenerator {
      */
      constructor(
         private srcPath: string,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator,
         pathToPdfLatex?: string
     ) {
@@ -64,7 +64,7 @@ export class TexDocGenerator extends DirectFlowGenerator {
 
 class TexDocImportedGenerator extends DirectFlowGenerator {
      constructor(
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(

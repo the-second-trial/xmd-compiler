@@ -1,6 +1,6 @@
 const { EOL } = require("os");
 
-import { OutputImage } from "../../../output_image";
+import { ResourceImage } from "../../../resource_image";
 import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
@@ -13,7 +13,7 @@ export class TexTufteRenderer extends TexRenderer {
      * @param outputImage The output image to use.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage
     ) {
         super(
             outputImage,
@@ -91,7 +91,7 @@ export class TexTufteImportedRenderer extends TexTufteRenderer {
      * @param outputImage The output image to use.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage
     ) {
         super(outputImage);
     }

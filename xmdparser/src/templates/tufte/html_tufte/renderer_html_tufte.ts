@@ -3,7 +3,7 @@ import { ImageExtensionAttributes } from "../../../extensions/extensions";
 import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
-import { OutputImage } from "../../../output_image";
+import { ResourceImage } from "../../../resource_image";
 
 // TODO: Handle sections.
 /** Describes a template for rendering to HTML Tufte. */
@@ -16,7 +16,7 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
      * @param outputImage The output image to use.
      */
     constructor(
-        private outputImage: OutputImage
+        private outputImage: ResourceImage
     ) {
         this.refIdGen = idgen("ref");
         this.resMan = new ResourceManager(outputImage);
@@ -219,7 +219,7 @@ export class HtmlTufteImportedRenderer extends HtmlTufteRenderer {
      * @param outputImage The output image to use.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage
     ) {
         super(outputImage);
     }

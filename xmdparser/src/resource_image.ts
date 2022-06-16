@@ -18,7 +18,7 @@ export interface Serializer {
  * This resource encapsulates all the necessary components of
  * the output and instructions on how to serialize it.
  */
-export abstract class OutputImage implements Serializer {
+export abstract class ResourceImage implements Serializer {
     protected components: Array<OutputComponent>;
 
     /**
@@ -39,7 +39,7 @@ export abstract class OutputImage implements Serializer {
      */
     public addFromFileSystem(path: string, vpath: string): void {
         if (this.checkVPathAlreadyExists(vpath)) {
-            throw new Error(`Virtual path '${vpath}' already exists, cannot addd to output image`);
+            throw new Error(`Virtual path '${vpath}' already exists, cannot add to output image`);
         }
 
         if (!existsSync(path)) {
@@ -104,7 +104,7 @@ export interface JsonPayload {
 /**
  * Describes an output image based on JSON.
  */
-export class JsonPayloadOutputImage extends OutputImage {
+export class JsonPayloadOutputImage extends ResourceImage {
     private _data: JsonPayload;
 
     /**
@@ -140,7 +140,7 @@ export class JsonPayloadOutputImage extends OutputImage {
 /**
  * Describes an output image based on the file system.
  */
-export class FileSystemOutputImage extends OutputImage {
+export class FileSystemOutputImage extends ResourceImage {
     /**
      * Initializes a new instance of this class.
      * @param imageName The name of the image.
@@ -206,6 +206,6 @@ export class FileSystemOutputImage extends OutputImage {
 
 export function convertJsonPayloadToFileSystemOutputImage(
     payload: JsonPayload
-): OutputImage {
+): ResourceImage {
     throw new Error();
 }

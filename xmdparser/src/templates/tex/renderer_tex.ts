@@ -4,7 +4,7 @@ import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
-import { OutputImage } from "../../output_image";
+import { ResourceImage } from "../../resource_image";
 
 /** Describes a template for rendering to Tex. */
 export abstract class TexRenderer implements DirectFlowRenderer {
@@ -15,7 +15,7 @@ export abstract class TexRenderer implements DirectFlowRenderer {
      * @param resMan The resource manager.
      */
     constructor(
-        protected outputImage: OutputImage,
+        protected outputImage: ResourceImage,
         protected refIdGen: Generator<string>,
         protected resMan: ResourceManager
     ) {

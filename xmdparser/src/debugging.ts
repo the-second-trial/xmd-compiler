@@ -1,5 +1,5 @@
 const { EOL } = require("os");
-import { OutputImage } from "./output_image";
+import { ResourceImage } from "./resource_image";
 
 /**
  * Singleton class for handling debug info on a compile session.
@@ -46,7 +46,7 @@ export class DebugController {
      * Saves all the collected debug info so far into a specified location.
      * @param outputImage The output image into which placing the debugging resources.
      */
-    public save(outputImage: OutputImage): void {
+    public save(outputImage: ResourceImage): void {
         const dst = "/__debug";
 
         if (!this._ast && !this._transformedAst && this._log.length === 0) {

@@ -1,7 +1,7 @@
 const { EOL } = require("os");
 
 import { TexCodeBlockStylist } from "../../generic/code_block_style";
-import { OutputImage } from "../../output_image";
+import { ResourceImage } from "../../resource_image";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
 import { idgen } from "../../utils";
@@ -14,7 +14,7 @@ export class TexDocRenderer extends TexRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage
     ) {
         super(
             outputImage,
@@ -86,7 +86,7 @@ export class TexDocImportedRenderer extends TexDocRenderer {
      * @param options The options for customizing the template.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage
     ) {
         super(outputImage);
     }

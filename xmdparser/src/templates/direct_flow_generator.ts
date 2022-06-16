@@ -9,7 +9,7 @@ import { ProgressController } from "../progress_controller";
 import { DebugController } from "../debugging";
 import { DirectivesController } from "../directives";
 import { ConditionalContentAstTransformer } from "../generic/ast_conditional_content_transformer";
-import { OutputImage } from "../output_image";
+import { ResourceImage } from "../resource_image";
 
 /** A component capable of rendering the final code. */
 export class DirectFlowGenerator implements Generator {
@@ -25,14 +25,14 @@ export class DirectFlowGenerator implements Generator {
      */
     constructor(
         protected renderer: DirectFlowRenderer,
-        protected outputImage: OutputImage,
+        protected outputImage: ResourceImage,
         protected codeEvaluator?: CodeChunkEvaluator
     ) {
         this.extMan = new ExtensionsManager();
     }
 
     /** @inheritdoc */
-    public get output(): OutputImage {
+    public get output(): ResourceImage {
         return this.outputImage;
     }
 

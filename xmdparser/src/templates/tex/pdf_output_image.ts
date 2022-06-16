@@ -1,7 +1,7 @@
 import { join } from "path";
 
 import { PdfLatexRunner } from "../../generic/pdflatex";
-import { FileSystemOutputImage } from "../../output_image";
+import { FileSystemOutputImage } from "../../resource_image";
 
 export class PdfOutputImage extends FileSystemOutputImage {
     constructor(

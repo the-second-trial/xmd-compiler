@@ -2,7 +2,7 @@ import { AstRootNode } from "../../ast";
 import { CodeChunkEvaluator } from "../../code_srv";
 import { AbstractHelper } from "../../helpers/abstract_helper";
 import { AuthorHelper } from "../../helpers/author_helper";
-import { OutputImage } from "../../output_image";
+import { ResourceImage } from "../../resource_image";
 import { DocumentInfo } from "../../semantics";
 import { DirectFlowGenerator } from "../direct_flow_generator";
 import { DirectFlowRenderer } from "../direct_flow_renderer";
@@ -18,7 +18,7 @@ export class TufteGenerator extends DirectFlowGenerator {
      */
     constructor(
         renderer: DirectFlowRenderer,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(renderer, outputImage, codeEvaluator);

@@ -2,7 +2,7 @@ import { dirname } from "path";
 
 import { CodeChunkEvaluator } from "../../../code_srv";
 import { DirectivesController } from "../../../directives";
-import { OutputImage } from "../../../output_image";
+import { ResourceImage } from "../../../resource_image";
 import { DirectFlowGenerator } from "../../direct_flow_generator";
 import { TufteGenerator } from "../generator_tufte";
 import { HtmlTufteImportedRenderer, HtmlTufteRenderer } from "./renderer_html_tufte";
@@ -17,7 +17,7 @@ export class HtmlTufteGenerator extends TufteGenerator {
      */
     constructor(
         private srcPath: string,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
@@ -39,7 +39,7 @@ export class HtmlTufteGenerator extends TufteGenerator {
 class HtmlTufteImportedGenerator extends DirectFlowGenerator {
     constructor(
         private srcPath: string,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(

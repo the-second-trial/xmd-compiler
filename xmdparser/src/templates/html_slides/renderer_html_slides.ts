@@ -2,7 +2,7 @@ import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { ResourceManager } from "../../res_manager";
 import { DocumentInfo } from "../../semantics";
-import { OutputImage } from "../../output_image";
+import { ResourceImage } from "../../resource_image";
 
 /**
  * Describes a template for rendering to HTML Reveal JS slides.
@@ -18,7 +18,7 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
      * @param outputImage The output image to use.
      */
     constructor(
-        private outputImage: OutputImage
+        private outputImage: ResourceImage
     ) {
         this.resMan = new ResourceManager(outputImage);
     }
@@ -200,7 +200,7 @@ export class HtmlSlidesImportedRenderer extends HtmlSlidesRenderer {
      * @param outputImage The output image to use.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage
     ) {
         super(outputImage);
     }

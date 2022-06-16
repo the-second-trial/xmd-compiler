@@ -10,7 +10,7 @@ import { DocumentInfo } from "../../semantics";
 import { HtmlSlidesTransformedAst, SlideAstNode } from "./ast_html_slides";
 import { HtmlSlidesAstTransformer, HTML_SLIDES_NODE_TYPE_SLIDE } from "./ast_transformer_html_slides";
 import { HtmlSlidesImportedRenderer, HtmlSlidesRenderer } from "./renderer_html_slides";
-import { OutputImage } from "../../output_image";
+import { ResourceImage } from "../../resource_image";
 
 /** A component capable of rendering the final code. */
 export class HtmlSlidesGenerator extends DirectFlowGenerator {
@@ -22,7 +22,7 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
      */
     constructor(
         private srcPath: string,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
@@ -119,7 +119,7 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
 class HtmlSlidesImportedGenerator extends DirectFlowGenerator {
     constructor(
         private srcPath: string,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(

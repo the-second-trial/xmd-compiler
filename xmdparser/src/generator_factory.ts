@@ -7,7 +7,7 @@ import { Generator } from "./generator";
 import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 import { TexDocGenerator } from "./templates/tex_doc/generator_tex_doc";
 import { Config, PlatformTarget } from "./config";
-import { FileSystemOutputImage, JsonPayloadOutputImage, OutputImage } from "./output_image";
+import { FileSystemOutputImage, JsonPayloadOutputImage, ResourceImage } from "./output_image";
 import { PdfOutputImage } from "./templates/tex/pdf_output_image";
 import { CodeServer } from "./code_srv";
 
@@ -84,7 +84,7 @@ export class GeneratorFactory {
         )
     }
 
-    private createOutputImage(): OutputImage {
+    private createOutputImage(): ResourceImage {
         if (this.platformTarget === "local") {
             return new FileSystemOutputImage(this.imageName, this.outputFolder);
         }
@@ -92,7 +92,7 @@ export class GeneratorFactory {
         return new JsonPayloadOutputImage(this.imageName);
     }
 
-    private createOutputImageForPDF(): OutputImage {
+    private createOutputImageForPDF(): ResourceImage {
         if (this.platformTarget === "local") {
             return this.config.pdfLatexPath
                 ? new PdfOutputImage(this.config.pdfLatexPath, this.imageName, this.outputFolder)

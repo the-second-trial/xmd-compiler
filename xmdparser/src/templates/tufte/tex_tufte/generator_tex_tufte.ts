@@ -11,7 +11,7 @@ import { EnvironmentAstTransformer } from "../../../generic/ast_environ_transfor
 import { TexMathEnvironmentsRenderer } from "./renderer_math_environ_tex";
 import { TexTufteImportedRenderer, TexTufteRenderer } from "./renderer_tex_tufte";
 import { TufteGenerator } from "../generator_tufte";
-import { OutputImage } from "../../../output_image";
+import { ResourceImage } from "../../../resource_image";
 
 /** A component capable of rendering the final code. */
 export class TexTufteGenerator extends TufteGenerator {
@@ -26,7 +26,7 @@ export class TexTufteGenerator extends TufteGenerator {
      */
     constructor(
         private srcPath: string,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator,
         pathToPdfLatex?: string
     ) {
@@ -75,7 +75,7 @@ class TexTufteImportedGenerator extends DirectFlowGenerator {
     private mathEnvironRenderer: MathEnvironmentsRenderer;
 
      constructor(
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(

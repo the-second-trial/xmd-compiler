@@ -2,7 +2,7 @@ import { dirname, extname, resolve, join } from "path";
 import { existsSync, statSync } from "fs";
 
 import { idgen } from "./utils";
-import { OutputImage } from "./output_image";
+import { ResourceImage } from "./resource_image";
 
 /** Handles resources for the different output types. */
 export class ResourceManager {
@@ -13,7 +13,7 @@ export class ResourceManager {
      * @param outputImage The output image to use.
      */
     constructor(
-        private outputImage: OutputImage
+        private outputImage: ResourceImage
     ) {
         if (!outputImage) {
             throw new Error("Output image cannot be null or undefined");
