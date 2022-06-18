@@ -1,4 +1,5 @@
 const { EOL } = require("os");
+
 import { ResourceImage } from "./resource_image";
 
 /**

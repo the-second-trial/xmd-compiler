@@ -1,5 +1,8 @@
+import { join, basename } from "path";
+
 import { XmdParser } from "../xmdparser/src/parser";
 import { GeneratorFactory } from "../xmdparser/src/generator_factory";
+import { serializeResourceImageToPdfFileSystem } from "../xmdparser/src/templates/tex/pdf_resource_image";
 import { ProgressController, VoidProgressController } from "../xmdparser/src/progress_controller";
 import { DebugController, logDebug } from "../xmdparser/src/debugging";
 import { PythonCodeServerFactory } from "../xmdparser/src/py_srv_factory";
@@ -49,7 +52,9 @@ export class ParserController {
             }
     
             // Serialize the image
-            generator.output.serialize();
+            const imageName = basename(config.src, ".md");
+            const outputFolder = join(config.output, `${imageName}_${config.template || "none"}`);
+            serializeResourceImageToPdfFileSystem(generator.output, config.pdfLatexPath, outputFolder);
         }
     }
 }

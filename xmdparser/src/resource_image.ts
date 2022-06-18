@@ -2,24 +2,18 @@ import { resolve, join, dirname } from "path";
 import { existsSync, readFileSync, statSync, writeFileSync, readdirSync, rmSync } from "fs";
 import { ensurePathToDirExists } from "./utils";
 
-interface OutputComponent {
+export interface ResourceComponent {
     vpath: string;
     stream: string;
 }
 
-/** Describes a component which can perform serialization. */
-export interface Serializer {
-    /** Executes the serialization. */
-    serialize(): void;
-}
-
 /**
- * Represents the output of a compile session.
- * This resource encapsulates all the necessary components of
- * the output and instructions on how to serialize it.
+ * Represents the resource image of a compile session.
+ * This artifact encapsulates all the necessary components of
+ * the resource and instructions on how to serialize it.
  */
-export abstract class ResourceImage implements Serializer {
-    protected components: Array<OutputComponent>;
+export class ResourceImage {
+    private _components: Array<ResourceComponent>;
 
     /**
      * Initializes a new instance of this class.
@@ -27,9 +21,9 @@ export abstract class ResourceImage implements Serializer {
      *     the name of the collection where all files will be serialized.
      */
     constructor(
-        protected imageName: string
+        private imageName: string
     ) {
-        this.components = [];
+        this._components = [];
     }
 
     /**
@@ -63,16 +57,21 @@ export abstract class ResourceImage implements Serializer {
      * @param vpath The virtual path under which the value will be rendered.
      */
     public addString(value: string, vpath: string): void {
-        this.components.push({
+        this._components.push({
             vpath,
             stream: Buffer.from(value).toString("base64"),
         });
     }
 
-    /**
-     * Serializes the image.
-     */
-    public abstract serialize(): void;
+    /** Gets the name of  the image. */
+    public get name(): string {
+        return this.imageName;
+    }
+
+    /** Gets the components of the image. */
+    public get components(): Array<ResourceComponent> {
+        return this._components;
+    }
 
     private addDir(path: string, vpath: string): void {
         if (existsSync(path) && statSync(path)?.isDirectory()) {
@@ -85,112 +84,37 @@ export abstract class ResourceImage implements Serializer {
     }
 
     private addFile(path: string, vpath: string): void {
-        this.components.push({
+        this._components.push({
             vpath,
             stream: readFileSync(path, { encoding: "base64" }),
         });
     }
 
     private checkVPathAlreadyExists(vpath: string): boolean {
-        return this.components.findIndex(c => c.vpath.toLowerCase() === vpath.toLowerCase()) >= 0;
+        return this._components.findIndex(c => c.vpath.toLowerCase() === vpath.toLowerCase()) >= 0;
     }
 }
 
 export interface JsonPayload {
     name: string;
-    files: Array<OutputComponent>;
+    files: Array<ResourceComponent>;
 }
 
-/**
- * Describes an output image based on JSON.
- */
-export class JsonPayloadOutputImage extends ResourceImage {
-    private _data: JsonPayload;
+export function serializeResourceImageToJsonPayload(image: ResourceImage): JsonPayload {
+    const payload: JsonPayload = {
+        name: image.name,
+        files: [],
+    };
 
-    /**
-     * Initializes a new instance of this class.
-     * @param imageName 
-     */
-    constructor(imageName: string) {
-        super(imageName);
+    for (const component of this.components) {
+        payload.files.push(component);
     }
 
-    /** @inheritdoc */
-    public serialize(): void {
-        const payload: JsonPayload = {
-            name: this.imageName,
-            files: [],
-        };
-
-        for (const component of this.components) {
-            payload.files.push(component);
-        }
-
-        this._data = { ...payload };
-    }
-
-    /**
-     * After calling @see serialize, this call provides the serialized data.
-     */
-    public get data(): JsonPayload {
-        return this._data;
-    }
+    return payload;
 }
 
-/**
- * Describes an output image based on the file system.
- */
-export class FileSystemOutputImage extends ResourceImage {
-    /**
-     * Initializes a new instance of this class.
-     * @param imageName The name of the image.
-     * @param dirPath The path to the directory where to emit the output.
-     * @param overwrite A value indicating whether deleting a previously existing output.
-     */
-    constructor(
-        imageName: string,
-        private dirPath: string,
-        private overwrite = true
-    ) {
-        super(imageName);
-    }
-
-    /** @inheritdoc */
-    public serialize(): void {
-        const exists = existsSync(this.dstDirPath);
-        if (!this.overwrite && exists) {
-            throw new Error(`Cannot serialize, non-overridable host directory '${this.dstDirPath}' already exists`);
-        }
-        if (this.overwrite && exists) {
-            rmSync(this.dstDirPath, { recursive: true, force: true });
-        }
-
-        for (const component of this.components) {
-            const content = Buffer.from(component.stream, "base64").toString("utf-8");
-            if (!content || content.length === 0) {
-                continue;
-            }
-
-            if (!this.checkVPath(component.vpath)) {
-                throw new Error(`Cannot serialize, component's vpath '${component.vpath}' illegal`);
-            }
-
-            const dstFilePath = join(this.dstDirPath, component.vpath);
-            if (existsSync(dstFilePath)) {
-                throw new Error(`Cannot serialize '${dstFilePath}', already exists`);
-            }
-            ensurePathToDirExists(dirname(dstFilePath));
-
-            writeFileSync(dstFilePath, content);
-        }
-    }
-
-    /** Gets the path to the directory hosting the serialized content. */
-    public get dstDirPath(): string {
-        return resolve(this.dirPath);
-    }
-
-    private checkVPath(vpath: string): boolean {
+export function serializeResourceImageToFileSystem(image: ResourceImage, dirPath: string, overwrite = true): void {
+    const checkVPath = (vpath: string): boolean => {
         if (vpath.length < 2) {
             return false;
         }
@@ -201,11 +125,40 @@ export class FileSystemOutputImage extends ResourceImage {
             return false;
         }
         return true;
+    };
+
+    const dstDirPath = resolve(dirPath);
+
+    const exists = existsSync(dstDirPath);
+    if (!overwrite && exists) {
+        throw new Error(`Cannot serialize, non-overridable host directory '${dstDirPath}' already exists`);
+    }
+    if (overwrite && exists) {
+        rmSync(dstDirPath, { recursive: true, force: true });
+    }
+
+    for (const component of image.components) {
+        const content = Buffer.from(component.stream, "base64").toString("utf-8");
+        if (!content || content.length === 0) {
+            continue;
+        }
+
+        if (!checkVPath(component.vpath)) {
+            throw new Error(`Cannot serialize, component's vpath '${component.vpath}' illegal`);
+        }
+
+        const dstFilePath = join(dstDirPath, component.vpath);
+        if (existsSync(dstFilePath)) {
+            throw new Error(`Cannot serialize '${dstFilePath}', already exists`);
+        }
+        ensurePathToDirExists(dirname(dstFilePath));
+
+        writeFileSync(dstFilePath, content);
     }
 }
 
 export function convertJsonPayloadToFileSystemOutputImage(
     payload: JsonPayload
 ): ResourceImage {
-    throw new Error();
+    throw new Error("Not implemented");
 }

@@ -1,4 +1,4 @@
-import { basename, join } from "path";
+import { basename } from "path";
 
 import { Constants } from "./constants";
 import { HtmlTufteGenerator } from "./templates/tufte/html_tufte/generator_html_tufte";
@@ -7,8 +7,7 @@ import { Generator } from "./generator";
 import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 import { TexDocGenerator } from "./templates/tex_doc/generator_tex_doc";
 import { Config, PlatformTarget } from "./config";
-import { FileSystemOutputImage, JsonPayloadOutputImage, ResourceImage } from "./resource_image";
-import { PdfOutputImage } from "./templates/tex/pdf_output_image";
+import { ResourceImage } from "./resource_image";
 import { CodeServer } from "./code_srv";
 
 /** Creates a properly configured generator. */
@@ -53,7 +52,7 @@ export class GeneratorFactory {
     private createForHtmlTufte(): HtmlTufteGenerator {
         return new HtmlTufteGenerator(
             this.config.src,
-            this.createOutputImage(),
+            this.createResourceImage(),
             this.pysrv
         )
     }
@@ -61,7 +60,7 @@ export class GeneratorFactory {
     private createForTexTufte(): TexTufteGenerator {
         return new TexTufteGenerator(
             this.config.src,
-            this.createOutputImageForPDF(),
+            this.createResourceImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
@@ -70,7 +69,7 @@ export class GeneratorFactory {
     private createForHtmlSlides(): HtmlSlidesGenerator {
         return new HtmlSlidesGenerator(
             this.config.src,
-            this.createOutputImage(),
+            this.createResourceImage(),
             this.pysrv
         )
     }
@@ -78,32 +77,14 @@ export class GeneratorFactory {
     private createForTexDoc(): TexDocGenerator {
         return new TexDocGenerator(
             this.config.src,
-            this.createOutputImageForPDF(),
+            this.createResourceImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
     }
 
-    private createOutputImage(): ResourceImage {
-        if (this.platformTarget === "local") {
-            return new FileSystemOutputImage(this.imageName, this.outputFolder);
-        }
-
-        return new JsonPayloadOutputImage(this.imageName);
-    }
-
-    private createOutputImageForPDF(): ResourceImage {
-        if (this.platformTarget === "local") {
-            return this.config.pdfLatexPath
-                ? new PdfOutputImage(this.config.pdfLatexPath, this.imageName, this.outputFolder)
-                : new FileSystemOutputImage(this.imageName, this.outputFolder);
-        }
-
-        return new JsonPayloadOutputImage(this.imageName);
-    }
-
-    private get outputFolder(): string {
-        return join(this.config.output, `${this.imageName}_${this.config.template || "none"}`);
+    private createResourceImage(): ResourceImage {
+        return new ResourceImage(this.imageName);
     }
 
     private get imageName(): string {
