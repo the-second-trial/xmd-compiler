@@ -1,8 +1,9 @@
 import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
-import { ResourceManager } from "../../res_manager";
+import { TemplateResourceManager } from "../template_res_manager";
 import { DocumentInfo } from "../../semantics";
 import { ResourceImage } from "../../resource_image";
+import { ExternalResourceManager } from "../external_res_manager";
 
 /**
  * Describes a template for rendering to HTML Reveal JS slides.
@@ -11,16 +12,20 @@ import { ResourceImage } from "../../resource_image";
  * - Every level-2 heading defines a slide.
  */
 export class HtmlSlidesRenderer implements DirectFlowRenderer {
-    private resMan: ResourceManager;
+    private resMan: TemplateResourceManager;
+    private extResMan: ExternalResourceManager;
 
     /**
      * Initializes a new instance of this class.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      */
     constructor(
-        private outputImage: ResourceImage
+        private outputImage: ResourceImage,
+        private inputImage: ResourceImage
     ) {
-        this.resMan = new ResourceManager(outputImage);
+        this.resMan = new TemplateResourceManager(outputImage);
+        this.extResMan = new ExternalResourceManager(outputImage, inputImage);
     }
 
     /**
@@ -141,7 +146,7 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
-        const immPath = this.resMan.serveImage(path); // Auto name
+        const immPath = this.extResMan.serveImage(path);
         
         return `<img src="${immPath}" alt="${alt}" />`;
     }
@@ -198,11 +203,13 @@ export class HtmlSlidesImportedRenderer extends HtmlSlidesRenderer {
     /**
      * Initializes a new instance of this class.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      */
     constructor(
-        outputImage: ResourceImage
+        outputImage: ResourceImage,
+        inputImage: ResourceImage
     ) {
-        super(outputImage);
+        super(outputImage, inputImage);
     }
 
     /** @inheritdoc */

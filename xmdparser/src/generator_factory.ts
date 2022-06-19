@@ -6,9 +6,10 @@ import { TexTufteGenerator } from "./templates/tufte/tex_tufte/generator_tex_tuf
 import { Generator } from "./generator";
 import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 import { TexDocGenerator } from "./templates/tex_doc/generator_tex_doc";
-import { Config, PlatformTarget } from "./config";
+import { Config } from "./config";
 import { ResourceImage } from "./resource_image";
 import { CodeServer } from "./code_srv";
+import { InputImageFactory } from "./input_image_factory";
 
 /** Creates a properly configured generator. */
 export class GeneratorFactory {
@@ -16,12 +17,10 @@ export class GeneratorFactory {
      * Initializes a new instance of this class.
      * @param config The configuration object.
      * @param pysrv The Python server.
-     * @param platformTarget The targeted platform.
      */
     constructor(
         private config: Config,
-        private pysrv: CodeServer,
-        private platformTarget: PlatformTarget
+        private pysrv: CodeServer
     ) {
     }
 
@@ -52,7 +51,8 @@ export class GeneratorFactory {
     private createForHtmlTufte(): HtmlTufteGenerator {
         return new HtmlTufteGenerator(
             this.config.src,
-            this.createResourceImage(),
+            this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv
         )
     }
@@ -60,7 +60,8 @@ export class GeneratorFactory {
     private createForTexTufte(): TexTufteGenerator {
         return new TexTufteGenerator(
             this.config.src,
-            this.createResourceImage(),
+            this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
@@ -69,7 +70,8 @@ export class GeneratorFactory {
     private createForHtmlSlides(): HtmlSlidesGenerator {
         return new HtmlSlidesGenerator(
             this.config.src,
-            this.createResourceImage(),
+            this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv
         )
     }
@@ -77,14 +79,19 @@ export class GeneratorFactory {
     private createForTexDoc(): TexDocGenerator {
         return new TexDocGenerator(
             this.config.src,
-            this.createResourceImage(),
+            this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
     }
 
-    private createResourceImage(): ResourceImage {
+    private createOutputImage(): ResourceImage {
         return new ResourceImage(this.imageName);
+    }
+
+    private createInputImage(): ResourceImage {
+        return new InputImageFactory(this.config.src).create();
     }
 
     private get imageName(): string {

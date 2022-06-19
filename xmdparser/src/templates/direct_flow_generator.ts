@@ -21,11 +21,13 @@ export class DirectFlowGenerator implements Generator {
      * Initializes a new instance of this class.
      * @param renderer The renderer to use.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
         protected renderer: DirectFlowRenderer,
         protected outputImage: ResourceImage,
+        protected inputImage: ResourceImage,
         protected codeEvaluator?: CodeChunkEvaluator
     ) {
         this.extMan = new ExtensionsManager();

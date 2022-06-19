@@ -1,5 +1,8 @@
-import { dirname, resolve } from "path";
+import { dirname, resolve, join } from "path";
 import { existsSync, readFileSync } from "fs";
+
+import { ResourceImage } from "./resource_image";
+import { ReferenceScanner } from "./reference_scanner";
 
 /** Creates an input image from a file. */
 export class InputImageFactory {
@@ -10,8 +13,19 @@ export class InputImageFactory {
         this.loadSrc(srcPath);
     }
 
-    public create() {
-        const inputImage = "";
+    /**
+     * Creates the input image.
+     * @returns A @see ResourceImage.
+     */
+    public create(): ResourceImage {
+        const references = new ReferenceScanner().scan(this.src);
+        const inputImage = new ResourceImage("input");
+
+        for (const reference of references) {
+            inputImage.addFromFileSystem(join(this.dirPath, reference.vpath), reference.vpath);
+        }
+
+        return inputImage;
     }
 
     private loadSrc(path: string) {

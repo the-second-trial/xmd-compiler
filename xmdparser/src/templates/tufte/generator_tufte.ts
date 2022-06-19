@@ -14,14 +14,16 @@ export class TufteGenerator extends DirectFlowGenerator {
      * Initializes a new instance of this class.
      * @param renderer The renderer to use.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
         renderer: DirectFlowRenderer,
         outputImage: ResourceImage,
+        inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
-        super(renderer, outputImage, codeEvaluator);
+        super(renderer, outputImage, inputImage, codeEvaluator);
     }
 
     /** @inheritdoc */

@@ -33,7 +33,7 @@ export class ParserController {
     
         const pysrv = new PythonCodeServerFactory("remote").create();
     
-        const generator = new GeneratorFactory(config, pysrv, "remote").create();
+        const generator = new GeneratorFactory(config, pysrv).create();
     
         try {
             // Generate

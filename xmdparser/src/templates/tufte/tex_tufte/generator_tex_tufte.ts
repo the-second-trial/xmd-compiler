@@ -21,18 +21,21 @@ export class TexTufteGenerator extends TufteGenerator {
      * Initializes a new instance of this class.
      * @param srcPath The path to the input source file.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      * @param pathToPdfLatex The path to pdfLatex for generating the PDF.
      */
     constructor(
         private srcPath: string,
         outputImage: ResourceImage,
+        inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator,
         pathToPdfLatex?: string
     ) {
         super(
-            new TexTufteRenderer(outputImage),
+            new TexTufteRenderer(outputImage, inputImage),
             outputImage,
+            inputImage,
             codeEvaluator
         );
 
@@ -62,7 +65,7 @@ export class TexTufteGenerator extends TufteGenerator {
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
             dirname(this.srcPath),
-            new TexTufteImportedGenerator(this.outputImage, this.codeEvaluator)
+            new TexTufteImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }
 
@@ -76,11 +79,13 @@ class TexTufteImportedGenerator extends DirectFlowGenerator {
 
      constructor(
         outputImage: ResourceImage,
+        inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
-            new TexTufteImportedRenderer(outputImage),
+            new TexTufteImportedRenderer(outputImage, inputImage),
             outputImage,
+            inputImage,
             codeEvaluator
         );
 

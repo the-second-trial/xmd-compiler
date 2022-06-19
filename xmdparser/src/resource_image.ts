@@ -1,5 +1,6 @@
 import { resolve, join, dirname } from "path";
 import { existsSync, readFileSync, statSync, writeFileSync, readdirSync, rmSync } from "fs";
+
 import { ensurePathToDirExists } from "./utils";
 
 export interface ResourceComponent {
@@ -13,7 +14,7 @@ export interface ResourceComponent {
  * the resource and instructions on how to serialize it.
  */
 export class ResourceImage {
-    private _components: Array<ResourceComponent>;
+    private _components: Array<ResourceComponent>; // TODO: Use a dict
 
     /**
      * Initializes a new instance of this class.
@@ -63,6 +64,22 @@ export class ResourceImage {
         });
     }
 
+    /**
+     * Adds a component from another image.
+     * @param image The source image.
+     * @param vpath The vpath.
+     */
+    public addFromImage(image: ResourceImage, vpath: string): void {
+        if (!image.getComponentByVPath(vpath)) {
+            throw new Error(`Cannot find component '${vpath}' in provided image`);
+        }
+        if (this.getComponentByVPath(vpath)) {
+            throw new Error(`Found component '${vpath}' in this image, cannot add duplicate`);
+        }
+
+        this._components.push({ ...image.getComponentByVPath(vpath) });
+    }
+
     /** Gets the name of  the image. */
     public get name(): string {
         return this.imageName;
@@ -71,6 +88,15 @@ export class ResourceImage {
     /** Gets the components of the image. */
     public get components(): Array<ResourceComponent> {
         return this._components;
+    }
+
+    /**
+     * Finds a component from its vpath.
+     * @param vpath The input vpath.
+     * @returns The found component or undefined.
+     */
+    public getComponentByVPath(vpath: string): ResourceComponent | undefined {
+        return this._components.find(component => component.vpath === vpath);
     }
 
     private addDir(path: string, vpath: string): void {

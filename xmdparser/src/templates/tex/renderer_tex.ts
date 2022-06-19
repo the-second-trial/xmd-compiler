@@ -2,23 +2,29 @@ const { EOL } = require("os");
 
 import { DirectFlowRenderer } from "../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../extensions/extensions";
-import { ResourceManager } from "../../res_manager";
+import { TemplateResourceManager } from "../template_res_manager";
 import { DocumentInfo } from "../../semantics";
 import { ResourceImage } from "../../resource_image";
+import { ExternalResourceManager } from "../external_res_manager";
 
 /** Describes a template for rendering to Tex. */
 export abstract class TexRenderer implements DirectFlowRenderer {
+    protected resMan: TemplateResourceManager;
+    protected extResMan: ExternalResourceManager;
+
     /**
      * Initializes a new instance of this class.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      * @param refIdGen The reference id generator.
-     * @param resMan The resource manager.
      */
     constructor(
         protected outputImage: ResourceImage,
-        protected refIdGen: Generator<string>,
-        protected resMan: ResourceManager
+        protected inputImage: ResourceImage,
+        protected refIdGen: Generator<string>
     ) {
+        this.resMan = new TemplateResourceManager(outputImage);
+        this.extResMan = new ExternalResourceManager(inputImage, outputImage);
     }
 
     /** @inheritdoc */
@@ -103,7 +109,7 @@ export abstract class TexRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
-        const immPath = this.resMan.serveImage(path); // Auto name
+        const immPath = this.extResMan.serveImage(path);
         const ref = this.refIdGen.next().value as string;
         
         if (ext.fullwidth === "true") {

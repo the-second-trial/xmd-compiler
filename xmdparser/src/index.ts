@@ -54,7 +54,7 @@ async function main(): Promise<void> {
     const pysrv = new PythonCodeServerFactory(config.noserver ? "remote" : "local", path2srv).create();
     await pysrv.startServer();
 
-    const generator = new GeneratorFactory(config, pysrv, "local").create();
+    const generator = new GeneratorFactory(config, pysrv).create();
 
     try {
         // Generate

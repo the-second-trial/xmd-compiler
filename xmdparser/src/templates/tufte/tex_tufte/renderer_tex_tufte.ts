@@ -1,7 +1,6 @@
 const { EOL } = require("os");
 
 import { ResourceImage } from "../../../resource_image";
-import { ResourceManager } from "../../../res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
 import { TexRenderer } from "../../tex/renderer_tex";
@@ -11,14 +10,16 @@ export class TexTufteRenderer extends TexRenderer {
     /**
      * Initializes a new instance of this class.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      */
     constructor(
-        outputImage: ResourceImage
+        outputImage: ResourceImage,
+        inputImage: ResourceImage
     ) {
         super(
             outputImage,
-            idgen("ref"),
-            new ResourceManager(outputImage)
+            inputImage,
+            idgen("ref")
         );
     }
 
@@ -89,11 +90,13 @@ export class TexTufteImportedRenderer extends TexTufteRenderer {
     /**
      * Initializes a new instance of this class.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      */
     constructor(
-        outputImage: ResourceImage
+        outputImage: ResourceImage,
+        inputImage: ResourceImage
     ) {
-        super(outputImage);
+        super(outputImage, inputImage);
     }
 
     protected getPageTemplate(

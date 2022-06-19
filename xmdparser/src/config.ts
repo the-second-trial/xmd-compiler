@@ -1,7 +1,5 @@
 import * as args from "command-line-args";
 
-export type PlatformTarget = "local" | "remote";
-
 export interface Config {
     debug?: boolean;
     noserver?: boolean;

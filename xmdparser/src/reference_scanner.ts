@@ -19,6 +19,7 @@ export class ReferenceScanner {
         const ast = new XmdParser().parse(source);
         const components = ast.v;
 
+        // TODO: Scan for recursive references: references in referenced files
         return []
             .concat(this.scanMdReferences(components))
             .concat(this.scanImageReferences(components));
@@ -29,7 +30,7 @@ export class ReferenceScanner {
             .filter((node: AstComponentNode) => node.t === "rootdirect" && node.v.v[0].v.name === Constants.Directives.IMPORT)
             .map((node: AstRootDirectiveNode) => ({
                 name: node.v.v[0].v.name,
-                vpath: node.v.v[0].v.value,
+                vpath: ReferenceScanner.toVPath(node.v.v[0].v.value),
                 type: "md",
             }));
     }
@@ -39,8 +40,15 @@ export class ReferenceScanner {
             .filter((node: AstComponentNode) => node.t === "image")
             .map((node: AstImageComponentNode) => ({
                 name: node.v.title,
-                vpath: node.v.path,
+                vpath: ReferenceScanner.toVPath(node.v.path),
                 type: "image",
             }));
+    }
+
+    private static toVPath(inputPath: string): string {
+        if (inputPath.length > 1 && inputPath[0] !== "/") {
+            return `/${inputPath}`;
+        }
+        return inputPath;
     }
 }

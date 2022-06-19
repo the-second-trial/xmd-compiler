@@ -1,27 +1,8 @@
-import { dirname, extname, resolve, join } from "path";
-import { existsSync, statSync } from "fs";
+import { resolve, join } from "path";
 
-import { idgen } from "./utils";
-import { ResourceImage } from "./resource_image";
+import { ResourceImage } from "../resource_image";
 
-/** Handles resources for the different output types. */
-export class ResourceManager {
-    private idg: Generator<string>;
-
-    /**
-     * Initializes a new instance of this class.
-     * @param outputImage The output image to use.
-     */
-    constructor(
-        private outputImage: ResourceImage
-    ) {
-        if (!outputImage) {
-            throw new Error("Output image cannot be null or undefined");
-        }
-
-        this.idg = idgen("imm");
-    }
-
+export abstract class ResourceManager {
     /**
      * Gets the name of the resources
      * folder which will be created in the output directory
@@ -38,37 +19,22 @@ export class ResourceManager {
     public get outputImagesDirName(): string {
         return "images";
     }
+}
 
+/** Handles resources for the different output types. */
+export class TemplateResourceManager extends ResourceManager {
     /**
-     * Places, in the output directory, an image file.
-     * @param path The path to the image (relative to the source dir).
-     * @param newName The name to give to the file once copied in the new location.
-     *     If not provided, a generic ID will be created. If provided, it must include
-     *     the extension.
-     * @returns The relative path to the copied resource
-     *     ready to be used in import fields.
+     * Initializes a new instance of this class.
+     * @param outputImage The output image to use.
      */
-    public serveImage(path: string, newName?: string): string {
-        const pathToFile = join(dirname(this.outputDir), path);
+    constructor(
+        private outputImage: ResourceImage
+    ) {
+        super();
 
-        if (!fileExists(pathToFile)) {
-            throw new Error(`Image '${pathToFile}' does not exists, file not found`);
+        if (!outputImage) {
+            throw new Error("Output image cannot be null or undefined");
         }
-
-        const ext = extname(pathToFile);
-        const allowedExts = [".jpg", ".jpeg", ".png", ".svg"];
-        if (allowedExts.findIndex(x => x === ext) < 0) {
-            throw new Error(`Extension '${ext}' not allowed. Allowed extensions: ${allowedExts}`);
-        }
-
-        const immName = newName || this.idg.next().value + ext;
-
-        this.outputImage.addFromFileSystem(
-            pathToFile,
-            join(this.outputResDirPath, this.outputImagesDirName, immName)
-        );
-
-        return webJoin(this.outputResourceDirName, this.outputImagesDirName, immName); 
     }
 
     /**
@@ -172,8 +138,4 @@ export class ResourceManager {
 
 function webJoin(...names: Array<string>) {
     return names.join("/");
-}
-
-function fileExists(src: string): boolean {
-    return existsSync(src) && statSync(src)?.isFile();
 }

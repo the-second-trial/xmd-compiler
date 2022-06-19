@@ -13,16 +13,19 @@ export class HtmlTufteGenerator extends TufteGenerator {
      * Initializes a new instance of this class.
      * @param srcPath The path to the input source file.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
         private srcPath: string,
         outputImage: ResourceImage,
+        inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
-            new HtmlTufteRenderer(outputImage),
+            new HtmlTufteRenderer(outputImage, inputImage),
             outputImage,
+            inputImage,
             codeEvaluator
         );
     }
@@ -31,7 +34,7 @@ export class HtmlTufteGenerator extends TufteGenerator {
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
             dirname(this.srcPath),
-            new HtmlTufteImportedGenerator(this.srcPath, this.outputImage, this.codeEvaluator)
+            new HtmlTufteImportedGenerator(this.srcPath, this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }
 }
@@ -40,11 +43,13 @@ class HtmlTufteImportedGenerator extends DirectFlowGenerator {
     constructor(
         private srcPath: string,
         outputImage: ResourceImage,
+        inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
-            new HtmlTufteImportedRenderer(outputImage),
+            new HtmlTufteImportedRenderer(outputImage, inputImage),
             outputImage,
+            inputImage,
             codeEvaluator
         );
     }
@@ -53,7 +58,7 @@ class HtmlTufteImportedGenerator extends DirectFlowGenerator {
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
             dirname(this.srcPath),
-            new HtmlTufteImportedGenerator(this.srcPath, this.outputImage, this.codeEvaluator)
+            new HtmlTufteImportedGenerator(this.srcPath, this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }
 }
