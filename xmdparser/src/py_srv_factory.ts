@@ -1,5 +1,4 @@
 import { CodeServer } from "./code_srv";
-import { PlatformTarget } from "./config";
 import { LocalPythonCodeServer, RemotePythonCodeServer } from "./py_srv";
 
 export class PythonCodeServerFactory {
@@ -8,7 +7,7 @@ export class PythonCodeServerFactory {
      * @param platformTarget The targeted platform.
      */
      constructor(
-        private platformTarget: PlatformTarget,
+        private platformTarget: "local" | "remote",
         private path?: string
     ) {
     }
