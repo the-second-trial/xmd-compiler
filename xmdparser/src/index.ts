@@ -70,7 +70,7 @@ async function main(): Promise<void> {
         }
 
         // Serialize the image
-        const imageName = basename(this.config.src, ".md");
+        const imageName = basename(config.src, ".md");
         const outputFolder = join(config.output, `${imageName}_${config.template || "none"}`);
         serializeResourceImageToFileSystem(generator.output, outputFolder);
 

@@ -1,6 +1,6 @@
 import { resolve, join } from "path";
 
-import { ResourceImage } from "../resource_image";
+import { ResourceImage, resourcePathJoin } from "../resource_image";
 
 export abstract class ResourceManager {
     /**
@@ -45,9 +45,9 @@ export class TemplateResourceManager extends ResourceManager {
     public serveMathjax(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "mathjax"),
-            join(this.outputResDirPath, "mathjax")
+            resourcePathJoin(this.outputResDirPath, "mathjax")
         );
-        return webJoin(this.outputResourceDirName, "mathjax");
+        return resourcePathJoin(this.outputResourceDirName, "mathjax");
     }
 
     /**
@@ -58,13 +58,13 @@ export class TemplateResourceManager extends ResourceManager {
     public serveTufteCss(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "tufte.css"),
-            join(this.outputResDirPath, "tufte.css")
+            resourcePathJoin(this.outputResDirPath, "tufte.css")
         );
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "et-book"),
-            join(this.outputResDirPath, "et-book")
+            resourcePathJoin(this.outputResDirPath, "et-book")
         );
-        return webJoin(this.outputResourceDirName, "tufte.css");
+        return resourcePathJoin(this.outputResourceDirName, "tufte.css");
     }
 
     /**
@@ -75,9 +75,9 @@ export class TemplateResourceManager extends ResourceManager {
     public serveLatexCss(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "latex.css"),
-            join(this.outputResDirPath, "latex.css")
+            resourcePathJoin(this.outputResDirPath, "latex.css")
         );
-        return webJoin(this.outputResourceDirName, "latex.css");
+        return resourcePathJoin(this.outputResourceDirName, "latex.css");
     }
 
     /**
@@ -91,10 +91,10 @@ export class TemplateResourceManager extends ResourceManager {
             this.outputImage.addFromFileSystem(
                 join(this.resDirPath, "tex_tufte", srcFile),
                 // To correctly compile, these files must be in the same dir as the output file
-                join(this.outputDir, srcFile)
+                resourcePathJoin(this.outputDir, srcFile)
             );
         }
-        return srcFiles.map(x => webJoin(this.outputResourceDirName, x));
+        return srcFiles.map(x => resourcePathJoin(this.outputResourceDirName, x));
     }
 
     /**
@@ -105,9 +105,9 @@ export class TemplateResourceManager extends ResourceManager {
     public serveRevealJsDistDir(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_slides", "dist"),
-            join(this.outputResDirPath, "dist")
+            resourcePathJoin(this.outputResDirPath, "dist")
         );
-        return webJoin(this.outputResourceDirName, "dist");
+        return resourcePathJoin(this.outputResourceDirName, "dist");
     }
 
     /**
@@ -118,9 +118,9 @@ export class TemplateResourceManager extends ResourceManager {
     public serveRevealJsPluginDir(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_slides", "plugin"),
-            join(this.outputResDirPath, "plugin")
+            resourcePathJoin(this.outputResDirPath, "plugin")
         );
-        return webJoin(this.outputResourceDirName, "plugin");
+        return resourcePathJoin(this.outputResourceDirName, "plugin");
     }
 
     private get outputDir(): string {
@@ -128,14 +128,10 @@ export class TemplateResourceManager extends ResourceManager {
     }
 
     private get outputResDirPath(): string {
-        return join(this.outputDir, this.outputResourceDirName);
+        return resourcePathJoin(this.outputDir, this.outputResourceDirName);
     }
 
     private get resDirPath(): string {
         return resolve(__dirname, "res");
     }
-}
-
-function webJoin(...names: Array<string>) {
-    return names.join("/");
 }

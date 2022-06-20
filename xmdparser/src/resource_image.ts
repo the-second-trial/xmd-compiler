@@ -1,5 +1,6 @@
 import { resolve, join, dirname } from "path";
 import { existsSync, readFileSync, statSync, writeFileSync, readdirSync, rmSync } from "fs";
+const { EOL } = require("os");
 
 import { ensurePathToDirExists } from "./utils";
 
@@ -99,10 +100,19 @@ export class ResourceImage {
         return this._components.find(component => component.vpath === vpath);
     }
 
+    /**
+     * Prints to string.
+     */
+    public toString(): string {
+        const buffer: Array<string> = [`Res Image '${this.imageName}'`];
+        this._components.forEach(component => buffer.push(`- ${component.vpath}: ${component.vpath.length}`));
+        return buffer.join(EOL);
+    }
+
     private addDir(path: string, vpath: string): void {
         if (existsSync(path) && statSync(path)?.isDirectory()) {
             readdirSync(path).forEach(childItemName => {
-                this.addDir(join(path, childItemName), join(vpath, childItemName));
+                this.addDir(join(path, childItemName), resourcePathJoin(vpath, childItemName));
             });
         } else {
             this.addFile(path, vpath);
@@ -119,6 +129,10 @@ export class ResourceImage {
     private checkVPathAlreadyExists(vpath: string): boolean {
         return this._components.findIndex(c => c.vpath.toLowerCase() === vpath.toLowerCase()) >= 0;
     }
+}
+
+export function resourcePathJoin(...names: Array<string>): string {
+    return join(...names).replace(/\\/g, "/");
 }
 
 export interface JsonPayload {

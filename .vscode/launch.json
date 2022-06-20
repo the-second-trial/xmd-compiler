@@ -17,7 +17,7 @@
                 "./examples/simple.md",
                 "--debug",
                 "--template",
-                "tex_doc"
+                "html_tufte"
             ],
             "request": "launch",
             "skipFiles": [
