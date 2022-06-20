@@ -2,7 +2,7 @@
  * Entry point.
  */
 
-import { join, dirname, resolve, basename } from "path";
+import { join, dirname, resolve } from "path";
 import { existsSync, readFileSync } from "fs";
 import { exit } from "process";
 
@@ -15,7 +15,7 @@ import { truncate } from "./utils";
 import { DebugController, logDebug } from "./debugging";
 import { getConfigFromCommandLineArgs } from "./config";
 import { PythonCodeServerFactory } from "./py_srv_factory";
-import { serializeResourceImageToFileSystem } from "./resource_image";
+import { Serializer } from "./serializer";
 
 const current_path = __dirname;
 
@@ -70,9 +70,7 @@ async function main(): Promise<void> {
         }
 
         // Serialize the image
-        const imageName = basename(config.src, ".md");
-        const outputFolder = join(config.output, `${imageName}_${config.template || "none"}`);
-        serializeResourceImageToFileSystem(generator.output, outputFolder);
+        new Serializer(config, generator.output).serialize();
 
         // Kill server
         const srvLog = await pysrv.stopServer();
