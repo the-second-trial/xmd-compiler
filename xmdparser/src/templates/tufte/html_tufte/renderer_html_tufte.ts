@@ -3,7 +3,7 @@ import { ImageExtensionAttributes } from "../../../extensions/extensions";
 import { TemplateResourceManager } from "../../template_res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
-import { ResourceImage } from "../../../resource_image";
+import { ensureVPathSyntax, ResourceImage } from "../../../resource_image";
 import { ExternalResourceManager } from "../../external_res_manager";
 
 // TODO: Handle sections.
@@ -139,7 +139,7 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
         title?: string,
         ext?: ImageExtensionAttributes
     ): string {
-        const immPath = this.extResMan.serveImage(path);
+        const immPath = this.extResMan.serveImage(ensureVPathSyntax(path));
         
         if (ext.fullwidth === "true") {
             return [

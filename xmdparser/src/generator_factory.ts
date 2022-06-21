@@ -10,6 +10,7 @@ import { Config } from "./config";
 import { ResourceImage } from "./resource_image";
 import { CodeServer } from "./code_srv";
 import { InputImageFactory } from "./input_image_factory";
+import { DebugController } from "./debugging";
 
 /** Creates a properly configured generator. */
 export class GeneratorFactory {
@@ -87,11 +88,15 @@ export class GeneratorFactory {
     }
 
     private createOutputImage(): ResourceImage {
-        return new ResourceImage(this.imageName);
+        const image = new ResourceImage(this.imageName);
+        DebugController.instance.outputImage = image;
+        return image;
     }
 
     private createInputImage(): ResourceImage {
-        return new InputImageFactory(this.config.src).create();
+        const image = new InputImageFactory(this.config.src).create();
+        DebugController.instance.inputImage = image;
+        return image;
     }
 
     private get imageName(): string {

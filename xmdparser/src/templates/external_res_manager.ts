@@ -44,7 +44,7 @@ export class ExternalResourceManager extends ResourceManager {
         const immName = this.idg.next().value + ext;
         const newVPath = [this.outputResourceDirName, this.outputImagesDirName, immName].join("/")
     
-        this.outputImage.addFromImage(this.inputImage, newVPath);
+        this.outputImage.addFromImage(this.inputImage, vpath, "/" + newVPath);
     
         return newVPath;
     }

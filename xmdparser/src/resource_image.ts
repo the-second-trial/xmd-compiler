@@ -61,24 +61,25 @@ export class ResourceImage {
     public addString(value: string, vpath: string): void {
         this._components.push({
             vpath,
-            stream: Buffer.from(value).toString("base64"),
+            stream: Buffer.from(value, "utf-8").toString("base64"),
         });
     }
 
     /**
      * Adds a component from another image.
      * @param image The source image.
-     * @param vpath The vpath.
+     * @param src The source vpath.
+     * @param dst The destination vpath.
      */
-    public addFromImage(image: ResourceImage, vpath: string): void {
-        if (!image.getComponentByVPath(vpath)) {
-            throw new Error(`Cannot find component '${vpath}' in provided image`);
+    public addFromImage(image: ResourceImage, src: string, dst: string): void {
+        if (!image.getComponentByVPath(src)) {
+            throw new Error(`Cannot find component '${src}' in source image`);
         }
-        if (this.getComponentByVPath(vpath)) {
-            throw new Error(`Found component '${vpath}' in this image, cannot add duplicate`);
+        if (this.getComponentByVPath(dst)) {
+            throw new Error(`Found component '${dst}' in this image, cannot add duplicate`);
         }
 
-        this._components.push({ ...image.getComponentByVPath(vpath) });
+        this._components.push({ ...image.getComponentByVPath(src), vpath: dst });
     }
 
     /** Gets the name of  the image. */
@@ -122,7 +123,7 @@ export class ResourceImage {
     private addFile(path: string, vpath: string): void {
         this._components.push({
             vpath,
-            stream: readFileSync(path, { encoding: "base64" }),
+            stream: Buffer.from(readFileSync(path, { encoding: "binary" }), "binary").toString("base64"),
         });
     }
 
@@ -140,6 +141,26 @@ export interface JsonPayload {
     files: Array<ResourceComponent>;
 }
 
+export function checkVPath(vpath: string): boolean {
+    if (vpath.length < 2) {
+        return false;
+    }
+    if (vpath[0] !== "/") {
+        return false;
+    }
+    if (vpath[1] === "/") {
+        return false;
+    }
+    return true;
+};
+
+export function ensureVPathSyntax(vpath: string): string {
+    if (vpath[0] !== "/") {
+        return `/${vpath}`;
+    }
+    return vpath;
+};
+
 export function serializeResourceImageToJsonPayload(image: ResourceImage): JsonPayload {
     const payload: JsonPayload = {
         name: image.name,
@@ -154,19 +175,6 @@ export function serializeResourceImageToJsonPayload(image: ResourceImage): JsonP
 }
 
 export function serializeResourceImageToFileSystem(image: ResourceImage, dirPath: string, overwrite = true): void {
-    const checkVPath = (vpath: string): boolean => {
-        if (vpath.length < 2) {
-            return false;
-        }
-        if (vpath[0] !== "/") {
-            return false;
-        }
-        if (vpath[1] === "/") {
-            return false;
-        }
-        return true;
-    };
-
     const dstDirPath = resolve(dirPath);
 
     const exists = existsSync(dstDirPath);
@@ -178,7 +186,7 @@ export function serializeResourceImageToFileSystem(image: ResourceImage, dirPath
     }
 
     for (const component of image.components) {
-        const content = Buffer.from(component.stream, "base64").toString("utf-8");
+        const content = Buffer.from(component.stream, "base64").toString("binary");
         if (!content || content.length === 0) {
             continue;
         }
@@ -193,7 +201,7 @@ export function serializeResourceImageToFileSystem(image: ResourceImage, dirPath
         }
         ensurePathToDirExists(dirname(dstFilePath));
 
-        writeFileSync(dstFilePath, content);
+        writeFileSync(dstFilePath, content, { encoding: "binary" });
     }
 }
 
