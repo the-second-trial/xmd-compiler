@@ -1,25 +1,30 @@
 import { DirectFlowRenderer } from "../../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../../extensions/extensions";
-import { ResourceManager } from "../../../res_manager";
+import { TemplateResourceManager } from "../../template_res_manager";
 import { DocumentInfo } from "../../../semantics";
 import { idgen } from "../../../utils";
-import { OutputImage } from "../../../output_image";
+import { ensureVPathSyntax, ResourceImage } from "../../../resource_image";
+import { ExternalResourceManager } from "../../external_res_manager";
 
 // TODO: Handle sections.
 /** Describes a template for rendering to HTML Tufte. */
 export class HtmlTufteRenderer implements DirectFlowRenderer {
     private refIdGen: Generator<string>;
-    private resMan: ResourceManager;
+    private resMan: TemplateResourceManager;
+    private extResMan: ExternalResourceManager;
 
     /**
      * Initializes a new instance of this class.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      */
     constructor(
-        private outputImage: OutputImage
+        private outputImage: ResourceImage,
+        private inputImage: ResourceImage
     ) {
         this.refIdGen = idgen("ref");
-        this.resMan = new ResourceManager(outputImage);
+        this.resMan = new TemplateResourceManager(outputImage);
+        this.extResMan = new ExternalResourceManager(inputImage, outputImage);
     }
 
     /** @inheritdoc */
@@ -134,7 +139,7 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
         title?: string,
         ext?: ImageExtensionAttributes
     ): string {
-        const immPath = this.resMan.serveImage(path); // Auto name
+        const immPath = this.extResMan.serveImage(ensureVPathSyntax(path));
         
         if (ext.fullwidth === "true") {
             return [
@@ -217,11 +222,13 @@ export class HtmlTufteImportedRenderer extends HtmlTufteRenderer {
     /**
      * Initializes a new instance of this class.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage,
+        inputImage: ResourceImage
     ) {
-        super(outputImage);
+        super(outputImage, inputImage);
     }
 
     /** @inheritdoc */

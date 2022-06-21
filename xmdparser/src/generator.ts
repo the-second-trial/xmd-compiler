@@ -1,5 +1,5 @@
 import { XmdAst } from "./ast";
-import { OutputImage } from "./output_image";
+import { ResourceImage } from "./resource_image";
 
 /** Describes a generator. */
 export interface Generator {
@@ -10,5 +10,5 @@ export interface Generator {
     generate(ast: XmdAst): Promise<string>;
 
     /** Gets the output image. */
-    output: OutputImage;
+    output: ResourceImage;
 }

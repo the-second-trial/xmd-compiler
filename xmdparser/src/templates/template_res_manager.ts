@@ -1,27 +1,8 @@
-import { dirname, extname, resolve, join } from "path";
-import { existsSync, statSync } from "fs";
+import { resolve, join } from "path";
 
-import { idgen } from "./utils";
-import { OutputImage } from "./output_image";
+import { ResourceImage, resourcePathJoin } from "../resource_image";
 
-/** Handles resources for the different output types. */
-export class ResourceManager {
-    private idg: Generator<string>;
-
-    /**
-     * Initializes a new instance of this class.
-     * @param outputImage The output image to use.
-     */
-    constructor(
-        private outputImage: OutputImage
-    ) {
-        if (!outputImage) {
-            throw new Error("Output image cannot be null or undefined");
-        }
-
-        this.idg = idgen("imm");
-    }
-
+export abstract class ResourceManager {
     /**
      * Gets the name of the resources
      * folder which will be created in the output directory
@@ -38,37 +19,22 @@ export class ResourceManager {
     public get outputImagesDirName(): string {
         return "images";
     }
+}
 
+/** Handles resources for the different output types. */
+export class TemplateResourceManager extends ResourceManager {
     /**
-     * Places, in the output directory, an image file.
-     * @param path The path to the image (relative to the source dir).
-     * @param newName The name to give to the file once copied in the new location.
-     *     If not provided, a generic ID will be created. If provided, it must include
-     *     the extension.
-     * @returns The relative path to the copied resource
-     *     ready to be used in import fields.
+     * Initializes a new instance of this class.
+     * @param outputImage The output image to use.
      */
-    public serveImage(path: string, newName?: string): string {
-        const pathToFile = join(dirname(this.outputDir), path);
+    constructor(
+        private outputImage: ResourceImage
+    ) {
+        super();
 
-        if (!fileExists(pathToFile)) {
-            throw new Error(`Image '${pathToFile}' does not exists, file not found`);
+        if (!outputImage) {
+            throw new Error("Output image cannot be null or undefined");
         }
-
-        const ext = extname(pathToFile);
-        const allowedExts = [".jpg", ".jpeg", ".png", ".svg"];
-        if (allowedExts.findIndex(x => x === ext) < 0) {
-            throw new Error(`Extension '${ext}' not allowed. Allowed extensions: ${allowedExts}`);
-        }
-
-        const immName = newName || this.idg.next().value + ext;
-
-        this.outputImage.addFromFileSystem(
-            pathToFile,
-            join(this.outputResDirPath, this.outputImagesDirName, immName)
-        );
-
-        return webJoin(this.outputResourceDirName, this.outputImagesDirName, immName); 
     }
 
     /**
@@ -79,9 +45,9 @@ export class ResourceManager {
     public serveMathjax(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "mathjax"),
-            join(this.outputResDirPath, "mathjax")
+            resourcePathJoin(this.outputResDirPath, "mathjax")
         );
-        return webJoin(this.outputResourceDirName, "mathjax");
+        return resourcePathJoin(this.outputResourceDirName, "mathjax");
     }
 
     /**
@@ -92,13 +58,13 @@ export class ResourceManager {
     public serveTufteCss(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "tufte.css"),
-            join(this.outputResDirPath, "tufte.css")
+            resourcePathJoin(this.outputResDirPath, "tufte.css")
         );
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "et-book"),
-            join(this.outputResDirPath, "et-book")
+            resourcePathJoin(this.outputResDirPath, "et-book")
         );
-        return webJoin(this.outputResourceDirName, "tufte.css");
+        return resourcePathJoin(this.outputResourceDirName, "tufte.css");
     }
 
     /**
@@ -109,9 +75,9 @@ export class ResourceManager {
     public serveLatexCss(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_tufte", "latex.css"),
-            join(this.outputResDirPath, "latex.css")
+            resourcePathJoin(this.outputResDirPath, "latex.css")
         );
-        return webJoin(this.outputResourceDirName, "latex.css");
+        return resourcePathJoin(this.outputResourceDirName, "latex.css");
     }
 
     /**
@@ -125,10 +91,10 @@ export class ResourceManager {
             this.outputImage.addFromFileSystem(
                 join(this.resDirPath, "tex_tufte", srcFile),
                 // To correctly compile, these files must be in the same dir as the output file
-                join(this.outputDir, srcFile)
+                resourcePathJoin(this.outputDir, srcFile)
             );
         }
-        return srcFiles.map(x => webJoin(this.outputResourceDirName, x));
+        return srcFiles.map(x => resourcePathJoin(this.outputResourceDirName, x));
     }
 
     /**
@@ -139,9 +105,9 @@ export class ResourceManager {
     public serveRevealJsDistDir(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_slides", "dist"),
-            join(this.outputResDirPath, "dist")
+            resourcePathJoin(this.outputResDirPath, "dist")
         );
-        return webJoin(this.outputResourceDirName, "dist");
+        return resourcePathJoin(this.outputResourceDirName, "dist");
     }
 
     /**
@@ -152,9 +118,9 @@ export class ResourceManager {
     public serveRevealJsPluginDir(): string {
         this.outputImage.addFromFileSystem(
             join(this.resDirPath, "html_slides", "plugin"),
-            join(this.outputResDirPath, "plugin")
+            resourcePathJoin(this.outputResDirPath, "plugin")
         );
-        return webJoin(this.outputResourceDirName, "plugin");
+        return resourcePathJoin(this.outputResourceDirName, "plugin");
     }
 
     private get outputDir(): string {
@@ -162,18 +128,10 @@ export class ResourceManager {
     }
 
     private get outputResDirPath(): string {
-        return join(this.outputDir, this.outputResourceDirName);
+        return resourcePathJoin(this.outputDir, this.outputResourceDirName);
     }
 
     private get resDirPath(): string {
         return resolve(__dirname, "res");
     }
-}
-
-function webJoin(...names: Array<string>) {
-    return names.join("/");
-}
-
-function fileExists(src: string): boolean {
-    return existsSync(src) && statSync(src)?.isFile();
 }

@@ -7,7 +7,6 @@ import { existsSync, readFileSync } from "fs";
 import { exit } from "process";
 
 import { XmdParser } from "./parser";
-import { PythonCodeServer } from "./py_srv";
 import { Constants } from "./constants";
 import { GeneratorFactory } from "./generator_factory";
 import { ProgressController } from "./progress_controller";
@@ -15,6 +14,8 @@ import { printGenInfo } from "./print";
 import { truncate } from "./utils";
 import { DebugController, logDebug } from "./debugging";
 import { getConfigFromCommandLineArgs } from "./config";
+import { PythonCodeServerFactory } from "./py_srv_factory";
+import { Serializer } from "./serializer";
 
 const current_path = __dirname;
 
@@ -39,7 +40,7 @@ async function main(): Promise<void> {
 
     console.info(`${truncate(config.src)} => ${truncate(config.output)}`);
     
-    const source = readFileSync(config.src).toString();
+    const source = readFileSync(config.src).toString("utf8");
 
     ProgressController.instance.initialize();
     
@@ -50,12 +51,10 @@ async function main(): Promise<void> {
     // Launch and wait for the Py Srv to be online
     // Remember that code evaluation happens at generation time, not parse time
     const path2srv = config.noserver ? undefined : join(current_path, "pysrv", "main.py");
-    const pysrv = new PythonCodeServer(path2srv);
-    if (!config.noserver) {
-        await pysrv.startServer();
-    }
+    const pysrv = new PythonCodeServerFactory(config.noserver ? "remote" : "local", path2srv).create();
+    await pysrv.startServer();
 
-    const generator = new GeneratorFactory(config, pysrv, "local").create();
+    const generator = new GeneratorFactory(config, pysrv).create();
 
     try {
         // Generate
@@ -65,16 +64,13 @@ async function main(): Promise<void> {
     } catch (error) {
         console.error("An error occurred while generating the output code.", error);
     } finally {
-        // Here so we have the output image filled
-        const outputImage = generator.output;
-
         // Add debugging info
         if (config.debug) {
-            DebugController.instance.save(outputImage);
+            DebugController.instance.save(generator.output); // TODO: Evaluate using a different image
         }
 
         // Serialize the image
-        generator.output.serialize();
+        new Serializer(config, generator.output).serialize();
 
         // Kill server
         const srvLog = await pysrv.stopServer();

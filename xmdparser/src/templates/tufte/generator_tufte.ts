@@ -2,7 +2,7 @@ import { AstRootNode } from "../../ast";
 import { CodeChunkEvaluator } from "../../code_srv";
 import { AbstractHelper } from "../../helpers/abstract_helper";
 import { AuthorHelper } from "../../helpers/author_helper";
-import { OutputImage } from "../../output_image";
+import { ResourceImage } from "../../resource_image";
 import { DocumentInfo } from "../../semantics";
 import { DirectFlowGenerator } from "../direct_flow_generator";
 import { DirectFlowRenderer } from "../direct_flow_renderer";
@@ -14,14 +14,16 @@ export class TufteGenerator extends DirectFlowGenerator {
      * Initializes a new instance of this class.
      * @param renderer The renderer to use.
      * @param outputImage The output image to use.
+     * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
         renderer: DirectFlowRenderer,
-        outputImage: OutputImage,
+        outputImage: ResourceImage,
+        inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
     ) {
-        super(renderer, outputImage, codeEvaluator);
+        super(renderer, outputImage, inputImage, codeEvaluator);
     }
 
     /** @inheritdoc */

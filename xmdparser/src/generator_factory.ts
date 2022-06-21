@@ -1,17 +1,16 @@
-import { basename, join } from "path";
+import { basename } from "path";
 
 import { Constants } from "./constants";
 import { HtmlTufteGenerator } from "./templates/tufte/html_tufte/generator_html_tufte";
-import { PythonCodeServer } from "./py_srv";
 import { TexTufteGenerator } from "./templates/tufte/tex_tufte/generator_tex_tufte";
 import { Generator } from "./generator";
 import { HtmlSlidesGenerator } from "./templates/html_slides/generator_html_slides";
 import { TexDocGenerator } from "./templates/tex_doc/generator_tex_doc";
 import { Config } from "./config";
-import { FileSystemOutputImage, JsonPayloadOutputImage, OutputImage } from "./output_image";
-import { PdfOutputImage } from "./templates/tex/pdf_output_image";
-
-export type PlatformTarget = "local" | "remote";
+import { ResourceImage } from "./resource_image";
+import { CodeServer } from "./code_srv";
+import { InputImageFactory } from "./input_image_factory";
+import { DebugController } from "./debugging";
 
 /** Creates a properly configured generator. */
 export class GeneratorFactory {
@@ -22,8 +21,7 @@ export class GeneratorFactory {
      */
     constructor(
         private config: Config,
-        private pysrv: PythonCodeServer,
-        private platformTarget: PlatformTarget
+        private pysrv: CodeServer
     ) {
     }
 
@@ -55,6 +53,7 @@ export class GeneratorFactory {
         return new HtmlTufteGenerator(
             this.config.src,
             this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv
         )
     }
@@ -62,7 +61,8 @@ export class GeneratorFactory {
     private createForTexTufte(): TexTufteGenerator {
         return new TexTufteGenerator(
             this.config.src,
-            this.createOutputImageForPDF(),
+            this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
@@ -72,6 +72,7 @@ export class GeneratorFactory {
         return new HtmlSlidesGenerator(
             this.config.src,
             this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv
         )
     }
@@ -79,32 +80,23 @@ export class GeneratorFactory {
     private createForTexDoc(): TexDocGenerator {
         return new TexDocGenerator(
             this.config.src,
-            this.createOutputImageForPDF(),
+            this.createOutputImage(),
+            this.createInputImage(),
             this.pysrv,
             this.config.pdfLatexPath
         )
     }
 
-    private createOutputImage(): OutputImage {
-        if (this.platformTarget === "local") {
-            return new FileSystemOutputImage(this.imageName, this.outputFolder);
-        }
-
-        return new JsonPayloadOutputImage(this.imageName);
+    private createOutputImage(): ResourceImage {
+        const image = new ResourceImage(this.imageName);
+        DebugController.instance.outputImage = image;
+        return image;
     }
 
-    private createOutputImageForPDF(): OutputImage {
-        if (this.platformTarget === "local") {
-            return this.config.pdfLatexPath
-                ? new PdfOutputImage(this.config.pdfLatexPath, this.imageName, this.outputFolder)
-                : new FileSystemOutputImage(this.imageName, this.outputFolder);
-        }
-
-        return new JsonPayloadOutputImage(this.imageName);
-    }
-
-    private get outputFolder(): string {
-        return join(this.config.output, `${this.imageName}_${this.config.template || "none"}`);
+    private createInputImage(): ResourceImage {
+        const image = new InputImageFactory(this.config.src).create();
+        DebugController.instance.inputImage = image;
+        return image;
     }
 
     private get imageName(): string {

@@ -1,8 +1,7 @@
 const { EOL } = require("os");
 
 import { TexCodeBlockStylist } from "../../generic/code_block_style";
-import { OutputImage } from "../../output_image";
-import { ResourceManager } from "../../res_manager";
+import { ResourceImage } from "../../resource_image";
 import { DocumentInfo } from "../../semantics";
 import { idgen } from "../../utils";
 import { TexRenderer } from "../tex/renderer_tex";
@@ -11,15 +10,17 @@ import { TexRenderer } from "../tex/renderer_tex";
 export class TexDocRenderer extends TexRenderer {
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image.
+     * @param inputImage The input image.
      */
     constructor(
-        outputImage: OutputImage
+        outputImage: ResourceImage,
+        inputImage: ResourceImage
     ) {
         super(
             outputImage,
-            idgen("ref"),
-            new ResourceManager(outputImage)
+            inputImage,
+            idgen("ref")
         );
     }
 
@@ -83,12 +84,14 @@ export class TexDocRenderer extends TexRenderer {
 export class TexDocImportedRenderer extends TexDocRenderer {
     /**
      * Initializes a new instance of this class.
-     * @param options The options for customizing the template.
+     * @param outputImage The output image.
+     * @param inputImage The input image.
      */
-    constructor(
-        outputImage: OutputImage
+     constructor(
+        outputImage: ResourceImage,
+        inputImage: ResourceImage
     ) {
-        super(outputImage);
+        super(outputImage, inputImage);
     }
 
     protected getPageTemplate(
