@@ -1,60 +1,58 @@
-import { join, basename } from "path";
-
 import { XmdParser } from "../xmdparser/src/parser";
-import { GeneratorFactory } from "../xmdparser/src/generator_factory";
-import { serializeResourceImageToPdfFileSystem } from "../xmdparser/src/templates/tex/pdf_resource_image";
-import { ProgressController, VoidProgressController } from "../xmdparser/src/progress_controller";
-import { DebugController, logDebug } from "../xmdparser/src/debugging";
 import { PythonCodeServerFactory } from "../xmdparser/src/py_srv_factory";
-import { Config } from "../xmdparser/src/config";
+import { CodeServer } from "../xmdparser/src/code_srv";
+import { RemoteGeneratorFactory } from "./remote_generator_factory";
+import { JsonPayload } from "../xmdparser/src/resource_image";
+import { RemoteSerializer } from "./remote_serializer";
 
 export interface ParseRequest {
-    src: string;
+    source: string;
+    inputImage: JsonPayload;
 }
 
 export interface ParseResponse {
-    
+    outputImage: JsonPayload;
 }
 
 /** Controller for parsing. */
 export class ParserController {
-    public async parse(req: ParseRequest): Promise<ParseResponse> {
-        const config: Config = {
-            debug: false,
-            src: "",
-            template: "",
-        };
-    
-        ProgressController.set(new VoidProgressController());
-        
+    private pysrv: CodeServer;
+
+    constructor() {
+        this.pysrv = new PythonCodeServerFactory("remote").create();
+    }
+
+    public async initialize(): Promise<void> {
+        // Will actually result in nothing to be done
+        await this.pysrv.startServer();
+    }
+
+    public async dispose(): Promise<void> {
+        // Will actually result in nothing to be done
+        const srvLog = await this.pysrv.stopServer();
+    }
+
+    /**
+     * Handles a request for parsing a package.
+     * @param req The request.
+     */
+    public async parse(req: ParseRequest): Promise<ParseResponse | string> {    
         // Parse
-        const ast = new XmdParser().parse(req.src);
-        DebugController.instance.ast = JSON.stringify(ast);
+        const ast = new XmdParser().parse(req.source);
     
-        const pysrv = new PythonCodeServerFactory("remote").create();
-    
-        const generator = new GeneratorFactory(config, pysrv).create();
+        const generator = new RemoteGeneratorFactory(this.pysrv).create();
     
         try {
             // Generate
             const out = await generator.generate(ast);
-    
-            logDebug(`Output saved into: '${config.output}'`);
         } catch (error) {
             console.error("An error occurred while generating the output code.", error);
-        } finally {
-            // Here so we have the output image filled
-            const outputImage = generator.output;
-    
-            // Add debugging info
-            if (config.debug) {
-                DebugController.instance.save(outputImage);
-            }
-    
-            // Serialize the image
-            const imageName = basename(config.src, ".md");
-            const outputFolder = join(config.output, `${imageName}_${config.template || "none"}`);
-            serializeResourceImageToPdfFileSystem(generator.output, config.pdfLatexPath, outputFolder);
         }
+
+        const outputImage = new RemoteSerializer(generator.output).serialize();
+
+        return {
+            outputImage,
+        };
     }
 }

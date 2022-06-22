@@ -132,15 +132,26 @@ export class ResourceImage {
     }
 }
 
+/**
+ * Path joins for vpaths.
+ * @param names The names to join.
+ * @returns A correct vpath.
+ */
 export function resourcePathJoin(...names: Array<string>): string {
     return join(...names).replace(/\\/g, "/");
 }
 
+/** Describes a JSON payload. */
 export interface JsonPayload {
     name: string;
     files: Array<ResourceComponent>;
 }
 
+/**
+ * Checks whether an input string is a valid vpath.
+ * @param vpath The candidate vpath.
+ * @returns A value indicating whether the input vpath is correctly formatted.
+ */
 export function checkVPath(vpath: string): boolean {
     if (vpath.length < 2) {
         return false;
@@ -154,6 +165,11 @@ export function checkVPath(vpath: string): boolean {
     return true;
 };
 
+/**
+ * Returns the correct vpath for a resource.
+ * @param vpath The candidate vpath/
+ * @returns The correctly formatted vpath.
+ */
 export function ensureVPathSyntax(vpath: string): string {
     if (vpath[0] !== "/") {
         return `/${vpath}`;
@@ -161,19 +177,45 @@ export function ensureVPathSyntax(vpath: string): string {
     return vpath;
 };
 
+/**
+ * Serializes a @see ResourceImage into a @see JsonPayload.
+ * @param image The image to serialize.
+ * @returns The corresponding @see JsonPayload.
+ */
 export function serializeResourceImageToJsonPayload(image: ResourceImage): JsonPayload {
     const payload: JsonPayload = {
         name: image.name,
         files: [],
     };
 
-    for (const component of this.components) {
-        payload.files.push(component);
+    for (const component of image.components) {
+        payload.files.push({ ...component });
     }
 
     return payload;
 }
 
+/**
+ * Deserializes an image starting from a @see JsonPayload.
+ * @param payload The payload to deserialize.
+ * @returns The corresponding @see ResourceImage.
+ */
+export function deserializeResourceImageFromJsonPayload(payload: JsonPayload): ResourceImage {
+    const image = new ResourceImage(`deserialized_${payload.name || "untitled"}`);
+
+    for (const component of payload.files) {
+        image.addString(component.stream, component.vpath);
+    }
+
+    return image;
+}
+
+/**
+ * Serializes a @see ResourceImage into FS.
+ * @param image The image.
+ * @param dirPath The destination path.
+ * @param overwrite Whether to overwrite components.
+ */
 export function serializeResourceImageToFileSystem(image: ResourceImage, dirPath: string, overwrite = true): void {
     const dstDirPath = resolve(dirPath);
 
@@ -203,10 +245,4 @@ export function serializeResourceImageToFileSystem(image: ResourceImage, dirPath
 
         writeFileSync(dstFilePath, content, { encoding: "binary" });
     }
-}
-
-export function convertJsonPayloadToFileSystemOutputImage(
-    payload: JsonPayload
-): ResourceImage {
-    throw new Error("Not implemented");
 }
