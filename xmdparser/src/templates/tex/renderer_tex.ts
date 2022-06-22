@@ -6,6 +6,7 @@ import { TemplateResourceManager } from "../template_res_manager";
 import { DocumentInfo } from "../../semantics";
 import { ResourceImage } from "../../resource_image";
 import { ExternalResourceManager } from "../external_res_manager";
+import { ensureVPathSyntax } from "../../resource_image";
 
 /** Describes a template for rendering to Tex. */
 export abstract class TexRenderer implements DirectFlowRenderer {
@@ -109,7 +110,7 @@ export abstract class TexRenderer implements DirectFlowRenderer {
 
     /** @inheritdoc */
     public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
-        const immPath = this.extResMan.serveImage(path);
+        const immPath = this.extResMan.serveImage(ensureVPathSyntax(path));
         const ref = this.refIdGen.next().value as string;
         
         if (ext.fullwidth === "true") {

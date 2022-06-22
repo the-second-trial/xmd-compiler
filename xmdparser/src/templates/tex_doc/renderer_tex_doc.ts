@@ -1,7 +1,8 @@
 const { EOL } = require("os");
 
+import { ImageExtensionAttributes } from "../../extensions/extensions";
 import { TexCodeBlockStylist } from "../../generic/code_block_style";
-import { ResourceImage } from "../../resource_image";
+import { ensureVPathSyntax, ResourceImage } from "../../resource_image";
 import { DocumentInfo } from "../../semantics";
 import { idgen } from "../../utils";
 import { TexRenderer } from "../tex/renderer_tex";
@@ -32,6 +33,20 @@ export class TexDocRenderer extends TexRenderer {
     /** @inheritdoc */
     public writeCodeblock(src: string, evalResult?: string, outputType?: string): string {
         return new TexCodeBlockStylist(outputType).style(src, evalResult);
+    }
+
+    /** @inheritdoc */
+    public writeImage(alt: string, path: string, title?: string, ext?: ImageExtensionAttributes): string {
+        const immPath = this.extResMan.serveImage(ensureVPathSyntax(path));
+        const ref = this.refIdGen.next().value as string;
+        
+        return [
+            "\\begin{figure}",
+            `\\includegraphics{${immPath}}`,
+            `\\caption{${title}}`,
+            `\\label{${ref}}`,
+            "\\end{figure}",
+        ].join(EOL) + EOL;
     }
 
     protected getPageTemplate(
