@@ -38,7 +38,7 @@ export class ParserController {
      * Handles a request for parsing a package.
      * @param req The request.
      */
-    public async parse(req: ParseRequest): Promise<ParseResponse | string> {
+    public async parse(req: ParseRequest): Promise<ParseResponse | number> {
         if (!req.source || req.source.length === 0) {
             return Constants.StatusCodes.HTTP_400_BAD_REQUEST;
         }
