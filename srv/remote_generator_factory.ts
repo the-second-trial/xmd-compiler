@@ -1,5 +1,3 @@
-import { basename } from "path";
-
 import { Constants } from "../xmdparser/src/constants";
 import { HtmlTufteGenerator } from "../xmdparser/src/templates/tufte/html_tufte/generator_html_tufte";
 import { TexTufteGenerator } from "../xmdparser/src/templates/tufte/tex_tufte/generator_tex_tufte";
@@ -8,16 +6,21 @@ import { HtmlSlidesGenerator } from "../xmdparser/src/templates/html_slides/gene
 import { TexDocGenerator } from "../xmdparser/src/templates/tex_doc/generator_tex_doc";
 import { ResourceImage } from "../xmdparser/src/resource_image";
 import { CodeServer } from "../xmdparser/src/code_srv";
-import { InputImageFactory } from "../xmdparser/src/input_image_factory";
 import { DebugController } from "../xmdparser/src/debugging";
 
 /** Creates a properly configured generator. */
 export class RemoteGeneratorFactory {
     /**
      * Initializes a new instance of this class.
+     * @param name The name to assign to the compile unit.
+     * @param inputImage The input image.
+     * @param template The template to use.
      * @param pysrv The Python server.
      */
     constructor(
+        private name: string,
+        private inputImage: ResourceImage,
+        private template: string,
         private pysrv: CodeServer
     ) {
     }
@@ -27,60 +30,54 @@ export class RemoteGeneratorFactory {
      * @returns A @see Generator.
      */
     public create(): Generator {
-        if (this.config.template === Constants.OutputTypes.HTML_TUFTE) {
+        if (this.template === Constants.OutputTypes.HTML_TUFTE) {
             return this.createForHtmlTufte();
         }
 
-        if (this.config.template === Constants.OutputTypes.TEX_TUFTE) {
+        if (this.template === Constants.OutputTypes.TEX_TUFTE) {
             return this.createForTexTufte();
         }
 
-        if (this.config.template === Constants.OutputTypes.HTML_SLIDES) {
+        if (this.template === Constants.OutputTypes.HTML_SLIDES) {
             return this.createForHtmlSlides();
         }
 
-        if (this.config.template === Constants.OutputTypes.TEX_DOC) {
+        if (this.template === Constants.OutputTypes.TEX_DOC) {
             return this.createForTexDoc();
         }
 
-        throw new Error(`Cannot create generator, output type '${this.config.template}' not recognized`);
+        throw new Error(`Cannot create generator, output type '${this.template}' not recognized`);
     }
 
     private createForHtmlTufte(): HtmlTufteGenerator {
         return new HtmlTufteGenerator(
-            this.config.src,
             this.createOutputImage(),
-            this.createInputImage(),
+            this.inputImage,
             this.pysrv
         )
     }
 
     private createForTexTufte(): TexTufteGenerator {
         return new TexTufteGenerator(
-            this.config.src,
             this.createOutputImage(),
-            this.createInputImage(),
-            this.pysrv,
-            this.config.pdfLatexPath
+            this.inputImage,
+            this.pysrv
         )
     }
 
     private createForHtmlSlides(): HtmlSlidesGenerator {
         return new HtmlSlidesGenerator(
-            this.config.src,
             this.createOutputImage(),
-            this.createInputImage(),
+            this.inputImage,
             this.pysrv
         )
     }
 
     private createForTexDoc(): TexDocGenerator {
         return new TexDocGenerator(
-            this.config.src,
             this.createOutputImage(),
-            this.createInputImage(),
-            this.pysrv,
-            this.config.pdfLatexPath
+            this.inputImage,
+            this.pysrv
         )
     }
 
@@ -90,13 +87,7 @@ export class RemoteGeneratorFactory {
         return image;
     }
 
-    private createInputImage(): ResourceImage {
-        const image = new InputImageFactory(this.config.src).create();
-        DebugController.instance.inputImage = image;
-        return image;
-    }
-
     private get imageName(): string {
-        return basename(this.config.src, ".md");
+        return this.name;
     }
 }

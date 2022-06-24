@@ -1,5 +1,3 @@
-import { dirname } from "path";
-
 import { CodeChunkEvaluator } from "../../../code_srv";
 import { DirectivesController } from "../../../directives";
 import { ResourceImage } from "../../../resource_image";
@@ -11,13 +9,11 @@ import { HtmlTufteImportedRenderer, HtmlTufteRenderer } from "./renderer_html_tu
 export class HtmlTufteGenerator extends TufteGenerator {
     /**
      * Initializes a new instance of this class.
-     * @param srcPath The path to the input source file.
      * @param outputImage The output image to use.
      * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
-        private srcPath: string,
         outputImage: ResourceImage,
         inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
@@ -33,15 +29,14 @@ export class HtmlTufteGenerator extends TufteGenerator {
     /** @inheritdoc */
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
-            dirname(this.srcPath),
-            new HtmlTufteImportedGenerator(this.srcPath, this.outputImage, this.inputImage, this.codeEvaluator)
+            this.inputImage,
+            new HtmlTufteImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }
 }
 
 class HtmlTufteImportedGenerator extends DirectFlowGenerator {
     constructor(
-        private srcPath: string,
         outputImage: ResourceImage,
         inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
@@ -57,8 +52,8 @@ class HtmlTufteImportedGenerator extends DirectFlowGenerator {
     /** @inheritdoc */
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
-            dirname(this.srcPath),
-            new HtmlTufteImportedGenerator(this.srcPath, this.outputImage, this.inputImage, this.codeEvaluator)
+            this.inputImage,
+            new HtmlTufteImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }
 }

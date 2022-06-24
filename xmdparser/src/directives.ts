@@ -1,11 +1,9 @@
-import { existsSync, readFileSync } from "fs";
-import { resolve } from "path";
-
 import { AstExtensionClauseNode, AstExtensionStringNode } from "./ast";
 import { Constants } from "./constants";
 import { logDebug } from "./debugging";
 import { Generator } from "./generator";
 import { XmdParser } from "./parser";
+import { deserializeStreamToUtf8, ensureVPathSyntax, ResourceImage } from "./resource_image";
 
 interface Def {
     [name: string]: string;
@@ -128,11 +126,11 @@ export class DirectivesController {
 
     /**
      * Initializes a new instance of this class.
-     * @param srcDirPath The path to the directory containing the master file.
+     * @param inputImage The input image to use containing the dependencies.
      * @param generator The generator to use when processing import directives.
      */
     constructor(
-        private srcDirPath: string,
+        private inputImage: ResourceImage,
         private generator: Generator
     ) {
         this.definitionsController = new DefinitionsDirectivesController();
@@ -187,17 +185,18 @@ export class DirectivesController {
     }
 
     private async handleImport(importDefinition: AstExtensionClauseNode): Promise<string> {
-        const fileName = importDefinition.v.value;
-        if (!fileName || fileName.length <= 0) {
-            throw new Error("Import file name cannot be empty, null or undefined");
+        const vpath = importDefinition.v.value;
+        if (!vpath || vpath.length <= 0) {
+            throw new Error("Import file path cannot be empty, null or undefined");
         }
 
-        const filePath = resolve(this.srcDirPath, fileName);
-        if (!existsSync(filePath)) {
-            throw new Error(`File '${filePath}' could not be found, failed to import`);
+        const filePath = ensureVPathSyntax(vpath);
+        const component = this.inputImage.getComponentByVPath(vpath);
+        if (!component) {
+            throw new Error(`File '${filePath}' could not be found in image '${this.inputImage.name}', failed to import`);
         }
 
-        const source = readFileSync(filePath).toString();
+        const source = deserializeStreamToUtf8(component.stream);
 
         // Parse
         const ast = new XmdParser().parse(source);

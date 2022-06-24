@@ -133,6 +133,18 @@ export class ResourceImage {
 }
 
 /**
+ * When a file is serialized to binary stream and converted into base64,
+ * this function will revert the procvess to retrieve the original bitstream and,
+ * from there, deserialize further into utf-8.
+ * @param stream The input stream.
+ */
+export function deserializeStreamToUtf8(stream: string): string {
+    const bitstream = Buffer.from(stream, "base64").toString("binary");
+    const utf = Buffer.from(bitstream, "binary").toString("utf-8");
+    return utf;
+}
+
+/**
  * Path joins for vpaths.
  * @param names The names to join.
  * @returns A correct vpath.

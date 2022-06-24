@@ -1,5 +1,3 @@
-import { dirname } from "path";
-
 import { AstBaseNode, AstRootNode } from "../../../ast";
 import { CodeChunkEvaluator } from "../../../code_srv";
 import { Constants } from "../../../constants";
@@ -19,18 +17,14 @@ export class TexTufteGenerator extends TufteGenerator {
 
     /**
      * Initializes a new instance of this class.
-     * @param srcPath The path to the input source file.
      * @param outputImage The output image to use.
      * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
-     * @param pathToPdfLatex The path to pdfLatex for generating the PDF.
      */
     constructor(
-        private srcPath: string,
         outputImage: ResourceImage,
         inputImage: ResourceImage,
-        codeEvaluator?: CodeChunkEvaluator,
-        pathToPdfLatex?: string
+        codeEvaluator?: CodeChunkEvaluator
     ) {
         super(
             new TexTufteRenderer(outputImage, inputImage),
@@ -64,7 +58,7 @@ export class TexTufteGenerator extends TufteGenerator {
     /** @inheritdoc */
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
-            dirname(this.srcPath),
+            this.inputImage,
             new TexTufteImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }

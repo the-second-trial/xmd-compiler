@@ -2,12 +2,14 @@ import { XmdParser } from "../xmdparser/src/parser";
 import { PythonCodeServerFactory } from "../xmdparser/src/py_srv_factory";
 import { CodeServer } from "../xmdparser/src/code_srv";
 import { RemoteGeneratorFactory } from "./remote_generator_factory";
-import { JsonPayload } from "../xmdparser/src/resource_image";
+import { deserializeResourceImageFromJsonPayload, JsonPayload } from "../xmdparser/src/resource_image";
 import { RemoteSerializer } from "./remote_serializer";
+import { Constants } from "./constants";
 
 export interface ParseRequest {
     source: string;
-    inputImage: JsonPayload;
+    inputPackage: JsonPayload;
+    template: string;
 }
 
 export interface ParseResponse {
@@ -36,11 +38,19 @@ export class ParserController {
      * Handles a request for parsing a package.
      * @param req The request.
      */
-    public async parse(req: ParseRequest): Promise<ParseResponse | string> {    
+    public async parse(req: ParseRequest): Promise<ParseResponse | string> {
+        if (!req.source || req.source.length === 0) {
+            return Constants.StatusCodes.HTTP_400_BAD_REQUEST;
+        }
+
+        if (!req.template || req.template.length === 0) {
+            return Constants.StatusCodes.HTTP_400_BAD_REQUEST;
+        }
+
         // Parse
         const ast = new XmdParser().parse(req.source);
     
-        const generator = new RemoteGeneratorFactory(this.pysrv).create();
+        const generator = new RemoteGeneratorFactory("name", deserializeResourceImageFromJsonPayload(req.inputPackage), req.template, this.pysrv).create();
     
         try {
             // Generate
