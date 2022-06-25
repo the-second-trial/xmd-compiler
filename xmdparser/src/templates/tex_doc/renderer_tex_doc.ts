@@ -109,6 +109,12 @@ export class TexDocImportedRenderer extends TexDocRenderer {
         super(outputImage, inputImage);
     }
 
+    /** @inheritdoc */
+    public writeOutput(output: string): string {
+        // For imported, no need to add anything to the output image
+        return "";
+    }
+
     protected getPageTemplate(
         content: string,
         docInfo: DocumentInfo

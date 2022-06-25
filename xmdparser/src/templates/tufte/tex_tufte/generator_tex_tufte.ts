@@ -87,6 +87,14 @@ class TexTufteImportedGenerator extends DirectFlowGenerator {
     }
 
     /** @inheritdoc */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return new DirectivesController(
+            this.inputImage,
+            new TexTufteImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
+        );
+    }
+
+    /** @inheritdoc */
     protected async handleAstComponentNodeRendering(componentNode: AstBaseNode): Promise<string> {
         switch (componentNode.t) {
             case Constants.ExtendedNodeTypes.THEOREM:

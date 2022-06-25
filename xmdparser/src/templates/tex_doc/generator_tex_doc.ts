@@ -72,4 +72,12 @@ class TexDocImportedGenerator extends DirectFlowGenerator {
             codeEvaluator
         );
     }
+
+    /** @inheritdoc */
+    protected createDirectivesController(): DirectivesController | undefined {
+        return new DirectivesController(
+            this.inputImage,
+            new TexDocImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
+        );
+    }
 }

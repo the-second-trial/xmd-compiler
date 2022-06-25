@@ -15,8 +15,14 @@ interface Def {
 export class DefinitionsDirectivesController {
     private defs: Def;
 
-    /** Initializes a new instance of this class. */
-     constructor() {
+    /**
+     * Initializes a new instance of this class.
+     * @param failOnUnknownDirective A flag indicating whether the controller should
+     * raise an exception whenever an unknown directive3 is encountered.
+     */
+     constructor(
+        private failOnUnknownDirective = true
+     ) {
         this.defs = {};
     }
 
@@ -46,6 +52,9 @@ export class DefinitionsDirectivesController {
                 }
                 break;
             default:
+                if (!this.failOnUnknownDirective) {
+                    break;
+                }
                 throw new Error(`Unknown directive '${directiveName}'`);
         }
 
@@ -118,7 +127,7 @@ export class DefinitionsDirectivesController {
 
 /**
  * Handles directives in a document.
- * A directive is an exrtension commasnd at the root of the document.
+ * A directive is an extension command at the root of the document.
  */
 export class DirectivesController {
     private definitionsController: DefinitionsDirectivesController;
@@ -185,15 +194,15 @@ export class DirectivesController {
     }
 
     private async handleImport(importDefinition: AstExtensionClauseNode): Promise<string> {
-        const vpath = importDefinition.v.value;
-        if (!vpath || vpath.length <= 0) {
+        const filePath = importDefinition.v.value;
+        if (!filePath || filePath.length <= 0) {
             throw new Error("Import file path cannot be empty, null or undefined");
         }
 
-        const filePath = ensureVPathSyntax(vpath);
+        const vpath = ensureVPathSyntax(filePath);
         const component = this.inputImage.getComponentByVPath(vpath);
         if (!component) {
-            throw new Error(`File '${filePath}' could not be found in image '${this.inputImage.name}', failed to import`);
+            throw new Error(`File '${vpath}' could not be found in image '${this.inputImage.name}', failed to import`);
         }
 
         const source = deserializeStreamToUtf8(component.stream);

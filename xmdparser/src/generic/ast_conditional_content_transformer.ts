@@ -13,7 +13,8 @@ export class ConditionalContentAstTransformer implements AstTransformer<AstRootN
 
     constructor() {
         this.extMan = new ExtensionsManager();
-        this.directivesController = new DefinitionsDirectivesController()
+        // We could encounter unknown directives to the definition controller, those should be ignored
+        this.directivesController = new DefinitionsDirectivesController(false);
     }
 
     /** @inheritdoc */

@@ -251,6 +251,7 @@ export function serializeResourceImageToFileSystem(image: ResourceImage, dirPath
 
         const dstFilePath = join(dstDirPath, component.vpath);
         if (existsSync(dstFilePath)) {
+            console.error("The image has duplicates", image.toString());
             throw new Error(`Cannot serialize '${dstFilePath}', already exists`);
         }
         ensurePathToDirExists(dirname(dstFilePath));
