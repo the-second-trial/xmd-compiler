@@ -1,4 +1,4 @@
-import { JsonPayload, ResourceImage, serializeResourceImageToJsonPayload } from "../xmdparser/src/resource_image";
+import { JsonPayload, ResourceImage, serializeResourceImageToJsonPayload } from "../../xmdparser/src/resource_image";
 
 /** Serializes the output. */
 export class RemoteSerializer {

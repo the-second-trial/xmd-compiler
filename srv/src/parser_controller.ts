@@ -1,8 +1,8 @@
-import { XmdParser } from "../xmdparser/src/parser";
-import { PythonCodeServerFactory } from "../xmdparser/src/py_srv_factory";
-import { CodeServer } from "../xmdparser/src/code_srv";
+import { XmdParser } from "../../xmdparser/src/parser";
+import { PythonCodeServerFactory } from "../../xmdparser/src/py_srv_factory";
+import { CodeServer } from "../../xmdparser/src/code_srv";
 import { RemoteGeneratorFactory } from "./remote_generator_factory";
-import { deserializeResourceImageFromJsonPayload, JsonPayload } from "../xmdparser/src/resource_image";
+import { deserializeResourceImageFromJsonPayload, JsonPayload } from "../../xmdparser/src/resource_image";
 import { RemoteSerializer } from "./remote_serializer";
 import { Constants } from "./constants";
 
@@ -50,7 +50,8 @@ export class ParserController {
         // Parse
         const ast = new XmdParser().parse(req.source);
     
-        const generator = new RemoteGeneratorFactory("name", deserializeResourceImageFromJsonPayload(req.inputPackage), req.template, this.pysrv).create();
+        const inputImage = deserializeResourceImageFromJsonPayload(req.inputPackage);
+        const generator = new RemoteGeneratorFactory("srv", inputImage, req.template, this.pysrv).create();
     
         try {
             // Generate

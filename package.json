@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/the-second-trial/xmd-parser#readme",
   "scripts": {
-    "build": "npm run build:xmdparser && npm run build:grammar && npm run build:pysrv && npm run build:res",
+    "build": "npm run build:xmdparser && npm run build:grammar && npm run build:pysrv && npm run build:res && npm run build:srv",
     "build:xmdparser": "npm run build --prefix ./xmdparser && node scripts/copy_xmdparser.js",
     "build:srv": "npm run build --prefix ./srv && node scripts/copy_srv.js",
     "build:cli": "npm run build --prefix ./cli && node scripts/copy_cli.js",
