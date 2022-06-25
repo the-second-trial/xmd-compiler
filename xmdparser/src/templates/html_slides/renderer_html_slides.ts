@@ -58,7 +58,7 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
             plugin: this.resMan.serveRevealJsPluginDir()
         };
 
-        return HtmlSlidesRenderer.getPageTemplate(content, paths, docInfo);
+        return this.getPageTemplate(content, paths, docInfo);
     }
 
     /** @inheritdoc */
@@ -158,7 +158,7 @@ export class HtmlSlidesRenderer implements DirectFlowRenderer {
         throw new Error("Not implemented");
     }
 
-    private static getPageTemplate(
+    protected getPageTemplate(
         content: string,
         paths: {
             dist: string,
@@ -214,12 +214,26 @@ export class HtmlSlidesImportedRenderer extends HtmlSlidesRenderer {
     }
 
     /** @inheritdoc */
+    public writeOutput(output: string): string {
+        // For imported, no need to add anything to the output image
+        return "";
+    }
+
+    /** @inheritdoc */
+    public writeRoot(content: string, docInfo: DocumentInfo): string {
+        const paths = {
+            dist: "",
+            plugin: "",
+        };
+        
+        return this.getPageTemplate(content, paths, docInfo);
+    }
+
     protected getPageTemplate(
         content: string,
         paths: {
-            mathjaxJs: string,
-            tufteCss: string,
-            latexCss: string
+            dist: string,
+            plugin: string
         },
         docInfo: DocumentInfo
     ): string {

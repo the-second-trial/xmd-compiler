@@ -32,7 +32,7 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
     }
 
     /** @inheritdoc */
-    public generate(ast: XmdAst): Promise<string> {
+    public async generate(ast: XmdAst): Promise<string> {
         if (!ast || ast.t !== "start") {
             throw new Error("AST cannot be null, undefined or malformed");
         }
@@ -43,8 +43,14 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
 
         const transformedAst = new HtmlSlidesAstTransformer().transform(ast);
         DebugController.instance.transformedAst = JSON.stringify(transformedAst);
-    
-        return this.generateStart(transformedAst);
+
+        // Extract semantic info on the transformed ast
+        this.docInfo = this.extractSemanticInfo(transformedAst);
+
+        const output = await this.generateStart(transformedAst);
+        this.renderer.writeOutput(output);
+
+        return output;
     }
 
     /** @inheritdoc */
