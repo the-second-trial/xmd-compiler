@@ -1,8 +1,8 @@
 import { join, basename } from "path";
 
 import { Config } from "./config";
-import { ResourceImage, serializeResourceImageToFileSystem } from "./resource_image";
-import { serializeResourceImageToPdfFileSystem } from "./templates/tex/pdf_resource_image";
+import { ResourceImage, serializeResourceImageToFileSystem } from "../../xmdparser/src/resource_image";
+import { serializeResourceImageToPdfFileSystem } from "../../xmdparser/src/templates/tex/pdf_resource_image";
 
 /** Serializes the output. */
 export class Serializer {

@@ -9,7 +9,6 @@
     "test": "jest --config=jest.config.js"
   },
   "dependencies": {
-    "command-line-args": "5.2.1",
     "pegjs": "0.10.0",
     "node-fetch": "3.2.3",
     "cli-progress": "3.10.0"

@@ -6,16 +6,18 @@ import { join, dirname, resolve } from "path";
 import { existsSync, readFileSync } from "fs";
 import { exit } from "process";
 
-import { XmdParser } from "./parser";
-import { Constants } from "./constants";
+import { XmdParser } from "../../xmdparser/src/parser";
+import { Constants } from "../../xmdparser/src/constants";
 import { GeneratorFactory } from "./generator_factory";
-import { ProgressController } from "./progress_controller";
+import { ProgressController } from "../../xmdparser/src/progress_controller";
 import { printGenInfo } from "./print";
-import { truncate } from "./utils";
-import { DebugController, logDebug } from "./debugging";
-import { getConfigFromCommandLineArgs } from "./config";
-import { PythonCodeServerFactory } from "./py_srv_factory";
+import { DebugController, logDebug } from "../../xmdparser/src/debugging";
+import { PythonCodeServerFactory } from "../../xmdparser/src/py_srv_factory";
 import { Serializer } from "./serializer";
+import { getConfigFromCommandLineArgs } from "./config";
+import { truncate } from "../../xmdparser/src/utils";
+
+
 
 const current_path = __dirname;
 
@@ -32,12 +34,7 @@ async function main(): Promise<void> {
         throw new Error(`Input file '${config.src}' could not be found`);
     }
 
-    if (!existsSync(config.output)) {
-        throw new Error(`Output location '${config.output}' does not exist`);
-    }
-
     console.log(printGenInfo(config.template));
-
     console.info(`${truncate(config.src)} => ${truncate(config.output)}`);
     
     const source = readFileSync(config.src).toString("utf8");
@@ -59,8 +56,6 @@ async function main(): Promise<void> {
     try {
         // Generate
         const out = await generator.generate(ast);
-
-        logDebug(`Output saved into: '${config.output}'`);
     } catch (error) {
         console.error("An error occurred while generating the output code.", error);
     } finally {
@@ -78,7 +73,7 @@ async function main(): Promise<void> {
 
         ProgressController.instance.complete();
 
-        console.log("Done and saved:", config.output);
+        console.log("Done and saved", config.output);
     }
 }
 

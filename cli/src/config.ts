@@ -3,9 +3,9 @@ import * as args from "command-line-args";
 export interface Config {
     debug?: boolean;
     noserver?: boolean;
-    src?: string;
-    output?: string;
-    template?: string;
+    src: string;
+    output: string;
+    template: string;
     pdfLatexPath?: string;
 }
 
