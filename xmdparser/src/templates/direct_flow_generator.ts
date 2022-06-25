@@ -44,7 +44,7 @@ export class DirectFlowGenerator implements Generator {
             throw new Error("Malformed AST");
         }
 
-        // Extract semantic info before transforming as transforming might alter the tree
+        // Extract semantic info on the original tree
         this.docInfo = this.extractSemanticInfo(ast);
     
         const transformedAst = this.transformAst(ast);

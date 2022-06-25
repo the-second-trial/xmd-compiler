@@ -51,7 +51,6 @@ export class GeneratorFactory {
 
     private createForHtmlTufte(): HtmlTufteGenerator {
         return new HtmlTufteGenerator(
-            this.config.src,
             this.createOutputImage(),
             this.createInputImage(),
             this.pysrv
@@ -60,17 +59,14 @@ export class GeneratorFactory {
 
     private createForTexTufte(): TexTufteGenerator {
         return new TexTufteGenerator(
-            this.config.src,
             this.createOutputImage(),
             this.createInputImage(),
-            this.pysrv,
-            this.config.pdfLatexPath
+            this.pysrv
         )
     }
 
     private createForHtmlSlides(): HtmlSlidesGenerator {
         return new HtmlSlidesGenerator(
-            this.config.src,
             this.createOutputImage(),
             this.createInputImage(),
             this.pysrv
@@ -79,11 +75,9 @@ export class GeneratorFactory {
 
     private createForTexDoc(): TexDocGenerator {
         return new TexDocGenerator(
-            this.config.src,
             this.createOutputImage(),
             this.createInputImage(),
-            this.pysrv,
-            this.config.pdfLatexPath
+            this.pysrv
         )
     }
 

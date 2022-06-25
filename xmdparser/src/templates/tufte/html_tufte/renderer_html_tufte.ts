@@ -42,7 +42,7 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
             tufteCss: this.resMan.serveTufteCss(),
             latexCss: this.resMan.serveLatexCss(),
             // TODO: Optimization, do not serve mathjax if no equation is found in AST
-            mathjaxJs: this.resMan.serveMathjax()
+            mathjaxJs: this.resMan.serveMathjax(),
         };
 
         return this.getPageTemplate(content, paths, docInfo);
@@ -229,6 +229,23 @@ export class HtmlTufteImportedRenderer extends HtmlTufteRenderer {
         inputImage: ResourceImage
     ) {
         super(outputImage, inputImage);
+    }
+
+    /** @inheritdoc */
+    public writeOutput(output: string): string {
+        // For imported, no need to add anything to the output image
+        return "";
+    }
+
+    /** @inheritdoc */
+    public writeRoot(content: string, docInfo: DocumentInfo): string {
+        const paths = {
+            tufteCss: "",
+            latexCss: "",
+            mathjaxJs: "",
+        };
+
+        return this.getPageTemplate(content, paths, docInfo);
     }
 
     /** @inheritdoc */

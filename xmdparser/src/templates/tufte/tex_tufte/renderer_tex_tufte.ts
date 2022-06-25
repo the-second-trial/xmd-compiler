@@ -99,6 +99,17 @@ export class TexTufteImportedRenderer extends TexTufteRenderer {
         super(outputImage, inputImage);
     }
 
+    /** @inheritdoc */
+    public writeOutput(output: string): string {
+        // For imported, no need to add anything to the output image
+        return "";
+    }
+
+    /** @inheritdoc */
+    public writeRoot(content: string, docInfo: DocumentInfo): string {
+        return this.getPageTemplate(content, docInfo);
+    }
+
     protected getPageTemplate(
         content: string,
         docInfo: DocumentInfo

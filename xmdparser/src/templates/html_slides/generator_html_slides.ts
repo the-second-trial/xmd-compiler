@@ -1,5 +1,3 @@
-import { dirname } from "path";
-
 import { AstHeadingComponentNode, AstRootNode, XmdAst } from "../../ast";
 import { CodeChunkEvaluator } from "../../code_srv";
 import { Constants } from "../../constants";
@@ -16,13 +14,11 @@ import { ResourceImage } from "../../resource_image";
 export class HtmlSlidesGenerator extends DirectFlowGenerator {
     /**
      * Initializes a new instance of this class.
-     * @param srcPath The path to the input source file.
      * @param outputImage The output image to use.
      * @param inputImage The input image to use.
      * @param codeEvaluator The Python code chunk evaluator.
      */
     constructor(
-        private srcPath: string,
         outputImage: ResourceImage,
         inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
@@ -36,7 +32,7 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
     }
 
     /** @inheritdoc */
-    public generate(ast: XmdAst): Promise<string> {
+    public async generate(ast: XmdAst): Promise<string> {
         if (!ast || ast.t !== "start") {
             throw new Error("AST cannot be null, undefined or malformed");
         }
@@ -47,8 +43,14 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
 
         const transformedAst = new HtmlSlidesAstTransformer().transform(ast);
         DebugController.instance.transformedAst = JSON.stringify(transformedAst);
-    
-        return this.generateStart(transformedAst);
+
+        // Extract semantic info on the transformed ast
+        this.docInfo = this.extractSemanticInfo(transformedAst);
+
+        const output = await this.generateStart(transformedAst);
+        this.renderer.writeOutput(output);
+
+        return output;
     }
 
     /** @inheritdoc */
@@ -95,8 +97,8 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
     /** @inheritdoc */
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
-            dirname(this.srcPath),
-            new HtmlSlidesImportedGenerator(this.srcPath, this.outputImage, this.inputImage, this.codeEvaluator)
+            this.inputImage,
+            new HtmlSlidesImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }
 
@@ -121,7 +123,6 @@ export class HtmlSlidesGenerator extends DirectFlowGenerator {
 
 class HtmlSlidesImportedGenerator extends DirectFlowGenerator {
     constructor(
-        private srcPath: string,
         outputImage: ResourceImage,
         inputImage: ResourceImage,
         codeEvaluator?: CodeChunkEvaluator
@@ -137,8 +138,8 @@ class HtmlSlidesImportedGenerator extends DirectFlowGenerator {
     /** @inheritdoc */
     protected createDirectivesController(): DirectivesController | undefined {
         return new DirectivesController(
-            dirname(this.srcPath),
-            new HtmlSlidesImportedGenerator(this.srcPath, this.outputImage, this.inputImage, this.codeEvaluator)
+            this.inputImage,
+            new HtmlSlidesImportedGenerator(this.outputImage, this.inputImage, this.codeEvaluator)
         );
     }
 }
