@@ -10,10 +10,14 @@ module.exports = {
                 use: "ts-loader",
                 exclude: /node_modules/,
             },
+            {
+                test: /\.pegjs$/i,
+                use: 'raw-loader',
+            },
         ],
     },
     resolve: {
-        extensions: [".ts", ".js"],
+        extensions: [".ts", ".js", ".pegjs"],
     },
     output: {
         filename: "xmdcliremote.js",

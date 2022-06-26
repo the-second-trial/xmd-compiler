@@ -1,9 +1,8 @@
-import { readFileSync } from "fs";
-import { join, resolve } from "path";
 import * as pegjs from "pegjs";
 
 import { XmdAst } from "./ast";
 import { ProgressController } from "./progress_controller";
+import pegjsgrammar from "./grammar/xmd-grammar.pegjs";
 
 /** The Xmd parser. */
 export class XmdParser {
@@ -29,13 +28,7 @@ export class XmdParser {
     }
 
     private static generateParser(): pegjs.Parser {
-        const grammar = readFileSync(
-            join(
-                __dirname,
-                "xmd-grammar.pegjs"
-            )
-        )
-        .toString();
+        const grammar = pegjsgrammar;
         
         const parser = pegjs.generate(grammar);
 

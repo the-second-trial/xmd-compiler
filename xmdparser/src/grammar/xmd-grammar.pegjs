@@ -4,7 +4,7 @@
     }
 }
 
-// Whitespaces specified here are covering the BOF and EOF
+// Newlines specified here are covering the BOF and EOF
 start
   = newline* init:component_init flow:component* newline* { return { t: "start", v: [init].concat(flow || []) }; }
 
