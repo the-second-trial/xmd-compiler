@@ -12,7 +12,8 @@
   "license": "GPL-3.0",
   "dependencies": {
     "cli-progress": "3.10.0",
-    "command-line-args": "5.2.1"
+    "command-line-args": "5.2.1",
+    "xmd-parser": "file:.."
   },
   "devDependencies": {
     "@types/cli-progress": "3.9.2",

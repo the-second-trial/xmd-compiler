@@ -11,7 +11,19 @@
   "author": "Andrea Tino",
   "license": "GPL-3.0",
   "dependencies": {
+    "cli-progress": "3.10.0",
     "command-line-args": "5.2.1",
-    "node-fetch": "3.2.3"
+    "node-fetch": "3.2.3",
+    "xmd-parser": "file:.."
+  },
+  "devDependencies": {
+    "@types/cli-progress": "3.9.2",
+    "@types/command-line-args": "5.2.0",
+    "@types/jest": "27.4.1",
+    "jest": "27.1.1",
+    "ts-jest": "27.1.4",
+    "ts-loader": "9.2.8",
+    "typescript": "4.6.3",
+    "webpack-cli": "4.9.2"
   }
 }

@@ -1,7 +1,9 @@
 import * as express from "express";
 import { ProgressController, VoidProgressController } from "../../xmdparser/src/progress_controller";
 import { Constants } from "./constants";
-import { ParserController, ParseRequest } from "./parser_controller";
+import { ParseRequest } from "./data_contracts";
+import { ParserController } from "./parser_controller";
+import { PingController } from "./ping_controller";
 
 const app = express();
 app.use(express.json());
@@ -14,6 +16,7 @@ ProgressController.set(new VoidProgressController());
 
 // Initialize server-wide controllers
 const parserController = new ParserController();
+const pingController = new PingController();
 
 /**
  * Method: POST
@@ -45,8 +48,12 @@ app.post("/", async (req, res) => {
  * Method: GET
  * Path: /ping
  */
-app.get("/ping", async (req, res) => {
-    res.send("pong");
+app.get("/ping", (req, res) => {
+    const response = pingController.ping({});
+
+    res
+        .status(Constants.StatusCodes.HTTP_200_OK)
+        .send(response);
 });
 
 app.listen(port, () => {

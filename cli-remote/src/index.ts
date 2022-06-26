@@ -6,18 +6,15 @@ import { join, dirname, resolve } from "path";
 import { existsSync, readFileSync } from "fs";
 import { exit } from "process";
 
-import { XmdParser } from "../../xmdparser/src/parser";
 import { Constants } from "../../xmdparser/src/constants";
-import { GeneratorFactory } from "./generator_factory";
 import { ProgressController } from "../../xmdparser/src/progress_controller";
 import { printGenInfo } from "./print";
-import { DebugController, logDebug } from "../../xmdparser/src/debugging";
-import { PythonCodeServerFactory } from "../../xmdparser/src/py_srv_factory";
-import { Serializer } from "../../xmdparser/src/serializer";
 import { getConfigFromCommandLineArgs } from "./config";
 import { truncate } from "../../xmdparser/src/utils";
-
-
+import { Serializer } from "../../xmdparser/src/serializer";
+import { HttpClient } from "./http_client";
+import { InputImageFactory } from "../../xmdparser/src/input_image_factory";
+import { serializeResourceImageToJsonPayload, deserializeResourceImageFromJsonPayload } from "../../xmdparser/src/resource_image";
 
 const current_path = __dirname;
 
@@ -36,41 +33,37 @@ async function main(): Promise<void> {
 
     console.log(printGenInfo(config.template));
     console.info(`${truncate(config.src)} => ${truncate(config.output)}`);
-    
+
     const source = readFileSync(config.src).toString("utf8");
 
     ProgressController.instance.initialize();
-    
-    // Parse
-    const ast = new XmdParser().parse(source);
-    DebugController.instance.ast = JSON.stringify(ast);
-
-    // Launch and wait for the Py Srv to be online
-    // Remember that code evaluation happens at generation time, not parse time
-    const path2srv = config.noserver ? undefined : join(current_path, "pysrv", "main.py");
-    const pysrv = new PythonCodeServerFactory(config.noserver ? "remote" : "local", path2srv).create();
-    await pysrv.startServer();
-
-    const generator = new GeneratorFactory(config, pysrv).create();
 
     try {
-        // Generate
-        const out = await generator.generate(ast);
-    } catch (error) {
-        console.error("An error occurred while generating the output code.", error);
-    } finally {
-        // Add debugging info
-        if (config.debug) {
-            DebugController.instance.save(generator.output); // TODO: Evaluate using a different image
+        // Contact the server
+        const httpClient = new HttpClient();
+
+        const pingResponse = await httpClient.ping({});
+        if (pingResponse.reply !== "pong") {
+            throw new Error("Service not reachable");
+        }
+
+        const inputImage = new InputImageFactory(this.config.src).create();
+
+        const parseResponse = await httpClient.parse({
+            source,
+            template: config.template,
+            inputPackage: serializeResourceImageToJsonPayload(inputImage),
+        });
+        if (typeof parseResponse === "number") {
+            throw new Error(`Parse call failed: ${parseResponse}`);
         }
 
         // Serialize the image
-        new Serializer(config, generator.output).serialize();
-
-        // Kill server
-        const srvLog = await pysrv.stopServer();
-        logDebug(`Code server logs: '${srvLog}'`);
-
+        const outputImage = deserializeResourceImageFromJsonPayload(parseResponse.outputImage);
+        new Serializer(config, outputImage).serialize();
+    } catch (error) {
+        console.error("An error occurred while retrieving the output package from server.", error);
+    } finally {
         ProgressController.instance.complete();
 
         console.log("Done and saved", config.output);
