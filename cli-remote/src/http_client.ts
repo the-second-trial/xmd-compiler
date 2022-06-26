@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+
 import { PingRequest, PingResponse, ParseRequest, ParseResponse } from "../../srv/src/data_contracts";
 import { Constants } from "./constants";
 
@@ -30,6 +32,6 @@ export class HttpClient {
     }
 
     private get baseAddr(): string {
-        return `${this.host}:${this.port}`;
+        return `http://${this.host}:${this.port}`;
     }
 }

@@ -49,7 +49,7 @@ async function main(): Promise<void> {
             throw new Error("Service not reachable");
         }
 
-        const inputImage = new InputImageFactory(this.config.src).create();
+        const inputImage = new InputImageFactory(config.src).create();
         ProgressController.instance.updateStateOfParse(100);
 
         const parseResponse = await httpClient.parse({

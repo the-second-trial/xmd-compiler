@@ -23,6 +23,8 @@ const pingController = new PingController();
  * Path: /
  */
 app.post("/", async (req, res) => {
+    console.log("serving: POST /");
+
     try {
         const request = req.body as ParseRequest;
         const response = await parserController.parse(request);
@@ -49,6 +51,8 @@ app.post("/", async (req, res) => {
  * Path: /ping
  */
 app.get("/ping", (req, res) => {
+    console.log("serving: GET /ping");
+
     const response = pingController.ping({});
 
     res
