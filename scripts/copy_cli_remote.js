@@ -32,7 +32,7 @@ function cpSync(src, dst) {
 // Path to the project directory
 const root_path = path.resolve(__dirname, "..");
 
-const src = path.resolve(root_path, "xmdparser", "lib");
+const src = path.resolve(root_path, "cli-remote", "lib");
 const lib = path.resolve(root_path, "lib");
 const dst = lib;
 

@@ -82,6 +82,18 @@ export class ResourceImage {
         this._components.push({ ...image.getComponentByVPath(src), vpath: dst });
     }
 
+    /**
+     * Adds a stream as-is to the image.
+     * @param stream The stream to add. Supposed to be already base64.
+     * @param vpath The virtual path under which the value will be rendered.
+     */
+     public addStream(stream: string, vpath: string): void {
+        this._components.push({
+            vpath,
+            stream,
+        });
+    }
+
     /** Gets the name of  the image. */
     public get name(): string {
         return this.imageName;
@@ -216,7 +228,7 @@ export function deserializeResourceImageFromJsonPayload(payload: JsonPayload): R
     const image = new ResourceImage(`deserialized_${payload.name || "untitled"}`);
 
     for (const component of payload.files) {
-        image.addString(component.stream, component.vpath);
+        image.addStream(component.stream, component.vpath);
     }
 
     return image;

@@ -1,28 +1,28 @@
-import { Constants } from "./constants";
+import { Constants } from "../../xmdparser/src/constants";
 
 const { EOL } = require("os");
 
 export function printMd2HtmlTufte(): string {
     return [
-        "------     ----------------",
-        "| MD | ==> | HTML (Tufte) |",
-        "------     ----------------",
+        "------     -----------     ----------------",
+        "| MD | ==> | XMD-SRV | ==> | HTML (Tufte) |",
+        "------     -----------     ----------------",
     ].join(EOL);
 }
 
 export function printMd2TexTufte(): string {
     return [
-        "------     ---------------",
-        "| MD | ==> | TEX (Tufte) |",
-        "------     ---------------",
+        "------     -----------     ---------------",
+        "| MD | ==> | XMD-SRV | ==> | TEX (Tufte) |",
+        "------     -----------     ---------------",
     ].join(EOL);
 }
 
 export function printMd2HtmlSlides(): string {
     return [
-        "------     -----------------------",
-        "| MD | ==> | HTML (Presentation) |",
-        "------     -----------------------",
+        "------     -----------     -----------------------",
+        "| MD | ==> | XMD-SRV | ==> | HTML (Presentation) |",
+        "------     -----------     -----------------------",
     ].join(EOL);
 }
 

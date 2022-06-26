@@ -1,6 +1,9 @@
 # xmd-parser
 Parser for converting an eXtended MarkDown into different formats.
 
+## Developing
+Remember that `package.json` inside the root must contain a `dependencies` which is the union of all `dependencies` in each single sub-project.
+
 ## Testing an example
 To test an example:
 

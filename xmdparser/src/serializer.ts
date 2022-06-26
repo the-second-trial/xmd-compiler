@@ -1,6 +1,6 @@
 import { join, basename } from "path";
 
-import { Config } from "./config";
+import { Config } from "../../cli/src/config";
 import { ResourceImage, serializeResourceImageToFileSystem } from "./resource_image";
 import { serializeResourceImageToPdfFileSystem } from "./templates/tex/pdf_resource_image";
 

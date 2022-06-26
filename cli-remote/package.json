@@ -1,7 +1,7 @@
 {
-  "name": "xmd-cli",
+  "name": "xmd-cli-remote",
   "version": "1.0.0",
-  "description": "A full CLI client for XMD",
+  "description": "A client for XMD remote",
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode=development",
@@ -13,6 +13,7 @@
   "dependencies": {
     "cli-progress": "3.10.0",
     "command-line-args": "5.2.1",
+    "node-fetch": "3.2.3",
     "xmd-parser": "file:.."
   },
   "devDependencies": {

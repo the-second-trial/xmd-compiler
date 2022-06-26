@@ -2,19 +2,10 @@ import { XmdParser } from "../../xmdparser/src/parser";
 import { PythonCodeServerFactory } from "../../xmdparser/src/py_srv_factory";
 import { CodeServer } from "../../xmdparser/src/code_srv";
 import { RemoteGeneratorFactory } from "./remote_generator_factory";
-import { deserializeResourceImageFromJsonPayload, JsonPayload } from "../../xmdparser/src/resource_image";
+import { deserializeResourceImageFromJsonPayload } from "../../xmdparser/src/resource_image";
 import { RemoteSerializer } from "./remote_serializer";
 import { Constants } from "./constants";
-
-export interface ParseRequest {
-    source: string;
-    inputPackage: JsonPayload;
-    template: string;
-}
-
-export interface ParseResponse {
-    outputImage: JsonPayload;
-}
+import { ParseRequest, ParseResponse } from "./data_contracts";
 
 /** Controller for parsing. */
 export class ParserController {
