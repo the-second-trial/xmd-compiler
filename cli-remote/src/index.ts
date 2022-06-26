@@ -25,6 +25,8 @@ const config = getConfigFromCommandLineArgs(process.argv);
 config.src = resolve(config.src || join(current_path, "index.md"));
 config.output = resolve(config.output || dirname(config.src));
 config.template = config.template || Constants.OutputTypes.HTML_TUFTE;
+config.host = config.host || "localhost";
+config.port = config.port || 3000;
 
 async function main(): Promise<void> {
     if (!existsSync(config.src)) {
@@ -40,7 +42,7 @@ async function main(): Promise<void> {
 
     try {
         // Contact the server
-        const httpClient = new HttpClient();
+        const httpClient = new HttpClient(config.host, config.port);
 
         const pingResponse = await httpClient.ping({});
         if (pingResponse.reply !== "pong") {
@@ -48,6 +50,7 @@ async function main(): Promise<void> {
         }
 
         const inputImage = new InputImageFactory(this.config.src).create();
+        ProgressController.instance.updateStateOfParse(100);
 
         const parseResponse = await httpClient.parse({
             source,
@@ -57,6 +60,7 @@ async function main(): Promise<void> {
         if (typeof parseResponse === "number") {
             throw new Error(`Parse call failed: ${parseResponse}`);
         }
+        ProgressController.instance.updateStateOfGenerate(100);
 
         // Serialize the image
         const outputImage = deserializeResourceImageFromJsonPayload(parseResponse.outputImage);
