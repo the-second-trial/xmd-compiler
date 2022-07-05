@@ -1,7 +1,9 @@
 const path = require("path");
 
 module.exports = {
-    entry: "./src/index.ts",
+    entry: {
+        cli: "./xmdparser/src/index.ts",
+    },
     target: "node",
     module: {
         rules: [
@@ -20,7 +22,7 @@ module.exports = {
         extensions: [".ts", ".js", ".pegjs"],
     },
     output: {
-        filename: "xmdsrv.js",
+        filename: "xmd-[name].js",
         path: path.resolve(__dirname, "lib"),
-    }
+    },
 };

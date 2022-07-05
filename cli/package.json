@@ -1,29 +1,24 @@
 {
-  "name": "xmd-cli",
-  "version": "1.0.0",
-  "description": "A full CLI client for XMD",
-  "main": "index.js",
+  "name": "xmdparser",
+  "description": "The TypeScript parser component",
+  "author": "Andrea Tino",
+  "license": "GPL-3.0",
   "scripts": {
     "build": "webpack --mode=development",
     "clean": "node scripts/clean.js",
     "test": "jest --config=jest.config.js"
   },
-  "author": "Andrea Tino",
-  "license": "GPL-3.0",
-  "dependencies": {
-    "cli-progress": "3.10.0",
-    "command-line-args": "5.2.1",
-    "xmd-parser": "file:.."
-  },
   "devDependencies": {
     "@types/cli-progress": "3.9.2",
     "@types/command-line-args": "5.2.0",
     "@types/jest": "27.4.1",
+    "cli-progress": "3.10.0",
     "jest": "27.1.1",
-    "raw-loader": "4.0.2",
-    "ts-jest": "27.1.4",
-    "ts-loader": "9.2.8",
+    "node-fetch": "3.2.3",
+    "ts-jest": "28.0.5",
+    "ts-loader": "9.3.1",
+    "webpack-cli": "4.10.0",
     "typescript": "4.6.3",
-    "webpack-cli": "4.9.2"
+    "xmd-parser": "file:../xmdparser"
   }
 }

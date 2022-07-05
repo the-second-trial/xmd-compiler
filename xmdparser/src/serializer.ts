@@ -1,6 +1,5 @@
 import { join, basename } from "path";
 
-import { Config } from "../../cli/src/config";
 import { ResourceImage, serializeResourceImageToFileSystem } from "./resource_image";
 import { serializeResourceImageToPdfFileSystem } from "./templates/tex/pdf_resource_image";
 
@@ -12,7 +11,10 @@ export class Serializer {
      * @param outputImage The output image to serialize.
      */
     constructor(
-        private config: Config,
+        private src: string,
+        private output: string,
+        private template: string,
+        private pdfLatexPath: string | undefined,
         private outputImage: ResourceImage
     ) {
     }
@@ -21,11 +23,11 @@ export class Serializer {
      * Serializes the output.
      */
     public serialize(): void {
-        const imageName = basename(this.config.src, ".md");
-        const outputFolder = join(this.config.output, `${imageName}_${this.config.template || "none"}`);
+        const imageName = basename(this.src, ".md");
+        const outputFolder = join(this.output, `${imageName}_${this.template || "none"}`);
 
-        if (this.config.pdfLatexPath && this.config.pdfLatexPath.length > 0) {
-            serializeResourceImageToPdfFileSystem(this.outputImage, this.config.pdfLatexPath, outputFolder);
+        if (this.pdfLatexPath && this.pdfLatexPath.length > 0) {
+            serializeResourceImageToPdfFileSystem(this.outputImage, this.pdfLatexPath, outputFolder);
             return;
         }
         

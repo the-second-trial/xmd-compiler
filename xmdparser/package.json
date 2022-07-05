@@ -1,5 +1,5 @@
 {
-  "name": "xmdparser",
+  "name": "@the-second-trial/xmdparser",
   "description": "The TypeScript parser component",
   "author": "Andrea Tino",
   "license": "GPL-3.0",
@@ -8,22 +8,18 @@
     "clean": "node scripts/clean.js",
     "test": "jest --config=jest.config.js"
   },
-  "dependencies": {
-    "cli-progress": "3.10.0",
-    "node-fetch": "3.2.3",
-    "pegjs": "0.10.0",
-    "xmd-parser": "file:.."
-  },
   "devDependencies": {
     "@types/cli-progress": "3.9.2",
-    "@types/command-line-args": "5.2.0",
-    "@types/jest": "27.4.1",
+    "@types/jest": "28.1.4",
     "@types/pegjs": "0.10.3",
-    "jest": "27.1.1",
+    "cli-progress": "3.10.0",
+    "jest": "28.1.2",
+    "node-fetch": "3.2.3",
+    "pegjs": "0.10.0",
     "raw-loader": "4.0.2",
-    "ts-jest": "27.1.4",
-    "ts-loader": "9.2.8",
     "typescript": "4.6.3",
-    "webpack-cli": "4.9.2"
+    "ts-jest": "28.0.5",
+    "ts-loader": "9.3.1",
+    "webpack-cli": "4.10.0"
   }
 }

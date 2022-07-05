@@ -10,17 +10,13 @@ module.exports = {
                 use: "ts-loader",
                 exclude: /node_modules/,
             },
-            {
-                test: /\.pegjs$/i,
-                use: 'raw-loader',
-            },
         ],
     },
     resolve: {
-        extensions: [".ts", ".js", ".pegjs"],
+        extensions: [".ts", ".js"],
     },
     output: {
-        filename: "xmdcli.js",
+        filename: "xmdparser.js",
         path: path.resolve(__dirname, "lib"),
         devtoolModuleFilenameTemplate: "[absolute-resource-path]",
     },

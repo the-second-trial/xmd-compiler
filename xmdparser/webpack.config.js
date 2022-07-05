@@ -17,7 +17,7 @@ module.exports = {
         ],
     },
     resolve: {
-        extensions: [".ts", ".js"],
+        extensions: [".ts", ".js", ".pegjs"],
     },
     output: {
         filename: "xmdparser.js",

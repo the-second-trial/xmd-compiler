@@ -17,8 +17,6 @@ import { Serializer } from "../../xmdparser/src/serializer";
 import { getConfigFromCommandLineArgs } from "./config";
 import { truncate } from "../../xmdparser/src/utils";
 
-
-
 const current_path = __dirname;
 
 // Configure the commandline args
