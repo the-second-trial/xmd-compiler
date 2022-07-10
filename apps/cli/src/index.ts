@@ -6,16 +6,17 @@ import { join, dirname, resolve } from "path";
 import { existsSync, readFileSync } from "fs";
 import { exit } from "process";
 
-import { XmdParser } from "../../xmdparser/src/parser";
-import { Constants } from "../../xmdparser/src/constants";
+import { XmdParser } from "xmdparser/src/parser";
+import { Constants } from "xmdparser/src/constants";
+import { ProgressController } from "xmdparser/src/progress_controller";
+import { DebugController, logDebug } from "xmdparser/src/debugging";
+import { PythonCodeServerFactory } from "xmdparser/src/py_srv_factory";
+import { Serializer } from "xmdparser/src/serializer";
+import { truncate } from "xmdparser/src/utils";
+
 import { GeneratorFactory } from "./generator_factory";
-import { ProgressController } from "../../xmdparser/src/progress_controller";
 import { printGenInfo } from "./print";
-import { DebugController, logDebug } from "../../xmdparser/src/debugging";
-import { PythonCodeServerFactory } from "../../xmdparser/src/py_srv_factory";
-import { Serializer } from "../../xmdparser/src/serializer";
 import { getConfigFromCommandLineArgs } from "./config";
-import { truncate } from "../../xmdparser/src/utils";
 
 const current_path = __dirname;
 
@@ -63,7 +64,7 @@ async function main(): Promise<void> {
         }
 
         // Serialize the image
-        new Serializer(config, generator.output).serialize();
+        new Serializer(config.src, config.output, config.template, config.pdfLatexPath, generator.output).serialize();
 
         // Kill server
         const srvLog = await pysrv.stopServer();

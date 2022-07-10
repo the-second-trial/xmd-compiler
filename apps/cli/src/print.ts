@@ -1,4 +1,4 @@
-import { Constants } from "../../xmdparser/src/constants";
+import { Constants } from "xmdparser/src/constants";
 
 const { EOL } = require("os");
 
