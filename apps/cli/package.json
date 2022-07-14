@@ -1,5 +1,6 @@
 {
   "name": "cli",
+  "version": "1.0.0",
   "description": "The TypeScript parser component",
   "author": "Andrea Tino",
   "license": "GPL-3.0",

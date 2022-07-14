@@ -1,6 +1,5 @@
 {
   "name": "xmd-compiler",
-  "version": "1.0.0",
   "description": "A parser from eXtended MarkDown to HTML",
   "repository": {
     "type": "git",
@@ -14,9 +13,9 @@
   "author": "Andrea Tino",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/the-second-trial/xmd-parser/issues"
+    "url": "https://github.com/the-second-trial/xmd-compiler/issues"
   },
-  "homepage": "https://github.com/the-second-trial/xmd-parser#readme",
+  "homepage": "https://github.com/the-second-trial/xmd-compiler#readme",
   "workspaces":[
     "packages/*",
     "apps/*"
