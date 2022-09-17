@@ -1,3 +1,5 @@
+import htmlTufte from "res/index_html_tufte";
+
 import { DirectFlowRenderer } from "../../direct_flow_renderer";
 import { ImageExtensionAttributes } from "../../../extensions/extensions";
 import { TemplateResourceManager } from "../../template_res_manager";
@@ -192,9 +194,9 @@ export class HtmlTufteRenderer implements DirectFlowRenderer {
             "<head>",
             "<meta charset='utf-8'/>",
             `<title>${docInfo.title || "Untitled"}</title>`,
-            `<link rel='stylesheet' href='${paths.latexCss}'>`,
-            `<link rel='stylesheet' href='${paths.tufteCss}'>`,
-            `<script id='MathJax-script' async src='${paths.mathjaxJs}/tex-chtml.js'></script>`,
+            `<link rel='stylesheet' href='${htmlTufte.latexCss}'>`,
+            `<link rel='stylesheet' href='${htmlTufte.tufteCss}'>`,
+            `<script id='MathJax-script' async src='${htmlTufte.mathjax.mathjaxTexChtmlJs}'></script>`,
             "<meta name='viewport' content='width=device-width, initial-scale=1'>",
             "</head>",
             "<body>",
